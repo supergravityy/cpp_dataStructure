@@ -143,11 +143,12 @@ int dList::dList_remove(dNode* tgt, MyAddr** data) // 0 : normal, 1 : noElement
         {
             this->headNode = tgt->nextNode;
 
-            if (this->headNode == nullptr)
+            if (this->headNode == nullptr) 
                 this->tailNode = nullptr;
+                // If listsize was 1, headptr = tailptr = null by deleting last node
             else
                 tgt->nextNode->prevNode = nullptr;
-            // nextNode of target 's prevNode ptr is pointing null now
+                // General status of deleting headNode nextNode of target 's prevNode ptr is pointing null now
         }
 
         else
@@ -156,9 +157,10 @@ int dList::dList_remove(dNode* tgt, MyAddr** data) // 0 : normal, 1 : noElement
 
             if (tgt->nextNode == nullptr)
                 this->tailNode = tgt->prevNode;
+                // If target was tail node, tail ptr must update its obj
             else
                 tgt->nextNode->prevNode = tgt->prevNode;
-            // nextNode of target 's prevNode ptr is pointing prevNode of target now
+                // nextNode of target 's prevNode ptr is pointing prevNode of target now
         }
 
         this->dList_deleteNode(&temp);
