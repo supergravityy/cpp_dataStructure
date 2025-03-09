@@ -199,15 +199,20 @@ ErrCode dList::dList_getErrcode()
 dNode *dList::dLiset_findNode_byID(const char *tgt_id)
 {
     dNode *idxNode = this->headNode;
+    dNode *result = nullptr;
+
     while (idxNode != nullptr)
     {
         if (!strcmp(idxNode->data->id, tgt_id))
-            break;
+        {
+            result = idxNode ; 
+            return result;
+        }
 
         idxNode = idxNode->nextNode;
     }
 
-    return idxNode;
+    return result;
 }
 
 /*----private----*/
