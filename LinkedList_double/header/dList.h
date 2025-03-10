@@ -26,7 +26,7 @@ class dList
     int dList_getListSize();                                    //
     ErrCode dList_getErrcode();                                 //
 
-    dNode* dLiset_findNode_byID(const char* tgt_id);            //
+    dNode* dList_findNode_byID(const char* tgt_id);            //
 
     private:
     dNode* dList_makeNode(MyAddr* data);                        //

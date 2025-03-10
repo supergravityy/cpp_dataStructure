@@ -196,9 +196,7 @@ ErrCode dList::dList_getErrcode()
     return this->errCode;
 }
 
-/*----protected----*/
-
-dNode *dList::dLiset_findNode_byID(const char *tgt_id)
+dNode *dList::dList_findNode_byID(const char *tgt_id)
 {
     dNode *idxNode = this->headNode;
     dNode *result = nullptr;
