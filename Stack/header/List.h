@@ -17,6 +17,7 @@ class List
     List();
     virtual ~List();
 
+    protected:
     void List_init();
     int List_ins_next(Node* tgt, MyAddr* data);
     int List_rem_next(Node* tgt, MyAddr** data);
@@ -27,7 +28,6 @@ class List
 
     Node* List_findNode_byID(const char* tgt_id);
 
-    private:
     Node* List_makeNode(MyAddr* data);
     int List_deleteNode(Node* tgt);
 
@@ -35,4 +35,6 @@ class List
     ErrCode errCode;
     Node* headNode;
     Node* tailNode;
+
+    private:
 };

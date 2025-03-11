@@ -68,7 +68,7 @@ int main()
                 if (inputID == "null" || inputID == "NULL")
                     targetNode = nullptr;
                 else
-                    targetNode = myList.dLiset_findNode_byID(inputID.c_str());
+                    targetNode = myList.dList_findNode_byID(inputID.c_str());
 
                 if (myList.dList_ins_next(targetNode, newData) == 0)
                     cout << "Node inserted successfully!" << endl;
@@ -85,7 +85,7 @@ int main()
 
                 inputData(*newData);
 
-                targetNode = myList.dLiset_findNode_byID(inputID.c_str());
+                targetNode = myList.dList_findNode_byID(inputID.c_str());
 
                 if (myList.dList_ins_prev(targetNode, newData) == 0)
                     cout << "Node inserted successfully!" << endl;
@@ -97,7 +97,7 @@ int main()
                 cout << "Enter node ID to remove: ";
                 cin >> inputID;
 
-                targetNode = myList.dLiset_findNode_byID(inputID.c_str());
+                targetNode = myList.dList_findNode_byID(inputID.c_str());
 
                 if (myList.dList_remove(targetNode, &removedData) == 0)
                 {
