@@ -1,13 +1,13 @@
-#include "../header/Stack.h"
+#include "../header/Queue.h"
 
 void printMenu()
 {
-    cout << "\n===== Stack Menu =====" << endl;
-    cout << "1. Push" << endl;
-    cout << "2. Pop" << endl;
+    cout << "\n===== Queue Menu =====" << endl;
+    cout << "1. Enqueue" << endl;
+    cout << "2. Dequeue" << endl;
     cout << "3. Peek" << endl;
-    cout << "4. Get Stack size" << endl;
-    cout << "5. Reset (Destroy) Stack" << endl;
+    cout << "4. Get Queue size" << endl;
+    cout << "5. Reset (Destroy) Queue" << endl;
     cout << "0. Exit program" << endl;
     cout << "=========================" << endl;
     cout << "Enter your choice: ";
@@ -46,13 +46,13 @@ int makeData(MyAddr **newData)
 
 int main()
 {
-    Stack myStack;
-    int choice = 0;
+    Queue myQueue;
+    int choice;
     int makeResult = 0;
     MyAddr *newData = nullptr;
     MyAddr *removedData = nullptr;
 
-    while (myStack.Stack_getErrCode() == NORMAL)
+    while (myQueue.Queue_getErrCode() == NORMAL)
     {
         printMenu();
         cin >> choice;
@@ -65,25 +65,25 @@ int main()
                 break;
             inputData(*newData);
 
-            if (myStack.Stack_push(newData) == 0)
-                cout << "Node inserted successfully!" << endl;
+            if (myQueue.Queue_enqueue(newData) == 0)
+                cout << "Enqueue successfully!" << endl;
             else
-                cout << "Failed to insert node!" << endl;
+                cout << "Failed to Enqueue!" << endl;
             break;
 
         case 2:
-            if (myStack.Stack_pop(&removedData) == 0)
+            if (myQueue.Queue_dequeue(&removedData) == 0)
             {
                 printData(*removedData);
             }
             else
             {
-                cout << "Failed to pop!" << endl;
+                cout << "Failed to dequeue!" << endl;
             }
             break;
 
         case 3:
-            if (myStack.Stack_peek(removedData) == 0)
+            if (myQueue.Queue_peek(removedData) == 0)
             {
                 printData(*removedData);
             }
@@ -94,11 +94,11 @@ int main()
             break;
 
         case 4:
-            cout << "Current Stack size: " << myStack.Stack_getStackSize() << endl;
+            cout << "Current Stack size: " << myQueue.Queue_getQueueSize() << endl;
             break;
 
         case 5:
-            myStack.Stack_init();
+            myQueue.Queue_init();
             cout << "Stack has been reset!" << endl;
             break;
             
