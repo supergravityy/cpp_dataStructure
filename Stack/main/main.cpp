@@ -102,6 +102,9 @@ int main()
             myStack.Stack_init();
             cout << "Stack has been reset!" << endl;
             break;
+            
+        case 0:
+            return 0;
 
         default:
             break;

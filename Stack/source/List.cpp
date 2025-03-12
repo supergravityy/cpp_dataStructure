@@ -80,7 +80,7 @@ int List::List_rem_next(Node* tgt, MyAddr** data)
 
     if(this->headNode == nullptr && this->tailNode == nullptr) return 1;
 
-    if(tgt->nextNode == nullptr) return 1;
+    //if(tgt->nextNode == nullptr) return 1; // if tgt is nullptr, nextnode of nullptr is invalid access!
         
     if(tgt == nullptr) // remove head
     {
