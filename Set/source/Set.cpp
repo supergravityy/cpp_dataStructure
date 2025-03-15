@@ -57,12 +57,14 @@ operationResult Set::Set_union(Set* set1, Set* set2)
 
     else
     {
+        this->Set_init();
+
         // 1. insert this Set data into resultSet
         for (tempNode = set1->headNode; tempNode != nullptr; tempNode = tempNode->nextNode)
         {
             tempData = tempNode->data;
 
-            if (this->Set_insert(tempData) != 0)
+            if (this->List_ins_next(this->tailNode, tempData) != 0)
             {
                 this->Set_init();
                 return UNION_FAULT;
@@ -79,7 +81,7 @@ operationResult Set::Set_union(Set* set1, Set* set2)
             {
                 tempData = tempNode->data;
 
-                if (this->Set_insert(tempData) != 0)
+                if (this->List_ins_next(this->tailNode,tempData) != 0)
                 {
                     this->Set_init();
                     return UNION_FAULT;
@@ -102,6 +104,8 @@ operationResult Set::Set_intersection(Set* set1, Set* set2)
 
     else
     {
+        this->Set_init();
+
         for (tempNode = set1->headNode; tempNode != nullptr; tempNode = tempNode->nextNode)
         {
             if (set2->Set_isElement(tempNode->data)) // Insert only common elements
@@ -131,6 +135,8 @@ operationResult Set::Set_difference(Set* set1, Set* set2)
 
     else
     {
+        this->Set_init();
+
         for (tempNode = set1->headNode; tempNode != nullptr; tempNode = tempNode->nextNode)
         // Sr = S1 - S2 (Elements in S1 but not in S2)
         {
@@ -200,6 +206,11 @@ bool Set::Set_isEqual(Set *targetSet)
     {
         return this->Set_isSubSet(targetSet);
     }
+}
+
+void Set::Set_printAll()
+{
+    this->List_printAll();
 }
 
 bool Set::Set_cmpData(const char *key1, const char *key2)
