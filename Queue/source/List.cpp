@@ -24,6 +24,11 @@ List::List()
 
 List::~List()
 {
+    this->List_init();
+}
+
+void List::List_init()
+{
     Node* temp = this->headNode;
     MyAddr* temp2 = nullptr;
 
@@ -96,6 +101,10 @@ int List::List_rem_next(Node* tgt, MyAddr** data)
     else
     {
         oldNode = tgt->nextNode;
+
+        if (oldNode == nullptr)
+            return 1;
+
         *data = oldNode->data;
 
         if(oldNode->nextNode == this->tailNode) // remove tail
@@ -122,6 +131,7 @@ void List::List_printAll()
 
     while (temp != nullptr)
     {
+		data = temp->data;
         printData(data); 
         temp = temp->nextNode;
     }
