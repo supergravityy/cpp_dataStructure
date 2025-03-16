@@ -104,6 +104,7 @@ int choice_mySet_menu(Set &mySet, int num)
             break;
 
         case 2:
+            delete removedData;
 			makeData(&removedData);
 			inputData(*removedData,FOR_REMOVE);
 
