@@ -22,8 +22,8 @@ bool HashTable::HashTable_init(int Size)
     else
     {
         this->tableSize = Size;
-
         this->table = new List[this->tableSize];
+
         if(this->table == nullptr)
         {
             this->errCode = MEMORY_ERR;
@@ -42,18 +42,25 @@ bool HashTable::HashTable_init(int Size)
 
 void HashTable::HashTable_destroy()
 {
-    for (int i = 0; i < this->tableSize; i++)
-    {
-        this->table[i].List_init();
-    }
+    if (this->table == nullptr) return;
 
-    delete[] this->table;
-    this->table = nullptr;
+    else
+    {
+        for (int i = 0; i < this->tableSize; i++)
+        {
+            this->table[i].List_init();
+        }
+
+        delete[] this->table;
+        this->table = nullptr;
+        this->NodeSize = 0;
+    }
+    
 }
 
-int HashTable::HashTable_insert(MyAddr* data) // 0: success, 1: prevent duplication, 2: list insertion failed
+int HashTable::HashTable_insert(MyAddr* data) // 0: success, 1: prevent duplication, 2: list insertion failed, 3: table is nullptr
 {
-    void *temp = nullptr;
+    if (this->table == nullptr) return 3;
 
     int bucket = this->HashingFunc_String(data->id);
     int retVal = 0;
@@ -78,10 +85,12 @@ int HashTable::HashTable_insert(MyAddr* data) // 0: success, 1: prevent duplicat
     }
 }
 
-int HashTable::HashTable_remove(MyAddr** data) // 0: success, 1: list removal failed, 2: data not found
+int HashTable::HashTable_remove(MyAddr** data) // 0: success, 1: list removal failed, 2: data not found, 3: table is nullptr
 {
     Node* temp = nullptr;
     Node* prev = nullptr;
+
+    if (this->table == nullptr) return 3;
 
     int bucket = this->HashingFunc_String((*data)->id);
     temp = this->table[bucket].headNode;
@@ -116,6 +125,8 @@ bool HashTable::HashTable_lookup(MyAddr** data)
     Node* temp = nullptr;
     int bucket = this->HashingFunc_String((*data)->id);
 
+    if (this->table == nullptr) return false;
+
     temp = this->table[bucket].headNode;
     for(;temp != nullptr; temp = temp->nextNode)
     {
@@ -133,14 +144,18 @@ bool HashTable::HashTable_lookup(MyAddr** data)
 
 /* Utility */
 
-void HashTable::HashTable_printAll()
-{
-    for(int i = 0; i < this->tableSize; i++)
-    {
-        printf("[%d] Bucket's contents\n",i);
+void HashTable::HashTable_printAll()  
+{  
+   for(int i = 0; i < this->tableSize; i++)  
+   {  
+       printf("[%d] Bucket's contents\n",i);  
 
-        this->table[i].List_printAll();
-    }
+       if (this->table != nullptr)  
+           this->table[i].List_printAll();  
+       
+       else  
+           continue;  
+   }  
 }
 
 int HashTable::HashTable_getNodeSize()

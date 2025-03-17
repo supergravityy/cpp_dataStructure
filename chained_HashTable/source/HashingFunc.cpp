@@ -2,7 +2,7 @@
 
 int HashingFunc::HashingFunc_Modulation(const int* Key)
 {
-    return this->tableSize % (*Key);
+    return  (*Key) % (this->tableSize) ;
 }
 
 int HashingFunc::HashingFunc_Multiplication(const int* Key) 
@@ -19,7 +19,6 @@ int HashingFunc::HashingFunc_Multiplication(const int* Key)
 int HashingFunc::HashingFunc_String(char* Key)
 {
     char *ptr = nullptr;
-    int result = 0;
     int val = 0, temp = 0;
 
     // 1. change keyVal to intVal by kind of bit operation

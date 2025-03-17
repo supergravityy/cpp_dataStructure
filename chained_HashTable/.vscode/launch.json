@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/WorkSpace/vsCode/dataStructure_Cpp/chained_HashTable/source",
-      "program": "c:/WorkSpace/vsCode/dataStructure_Cpp/chained_HashTable/source/build/Debug/outDebug",
+      "cwd": "c:/WorkSpace/vsCode/dataStructure_Cpp/chained_HashTable/main",
+      "program": "c:/WorkSpace/vsCode/dataStructure_Cpp/chained_HashTable/main/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

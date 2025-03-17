@@ -48,7 +48,7 @@ int makeData(MyAddr **newData)
 int main()
 {
     HashTable myHashTable;
-    int choice, key;
+    int choice = 0;
     MyAddr *newData = nullptr;
     MyAddr *removedData = nullptr;
 
@@ -56,7 +56,10 @@ int main()
     cin >> choice;
 
     if (myHashTable.HashTable_init(choice) == false)
+    {
         cout << "The table size is not a prime number." << endl;
+        return 0;
+    }
     else
         cout << "Table has been initialized." << endl;
 
@@ -97,10 +100,14 @@ int main()
             break;
 
         case 4:
-            if (myHashTable.HashTable_lookup(&newData) == true)
+            delete removedData;
+            makeData(&removedData);
+            inputData(*removedData);
+
+            if (myHashTable.HashTable_lookup(&removedData) == true)
             {
                 cout << "Data found!" << endl;
-                printData(*newData);
+                printData(*removedData);
             }
             else
                 cout << "Data not found!" << endl;
