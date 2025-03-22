@@ -160,31 +160,31 @@ bool BiTree::BiTree_rem_right(BiTreeNode* node)
     return result;
 }
 
-bool BiTree::BiTree_merge(BiTree* mergeTree, BiTree* leftTree, BiTree* rightTree, MyAddr* data)
+bool BiTree::BiTree_merge( BiTree* leftTree, BiTree* rightTree, MyAddr* data)
 {
     BiTreeNode* temp = nullptr;
 
     // 1. insert data in 
-    if(mergeTree->BiTree_ins_left(nullptr, data) != 0)
+    if(this->BiTree_ins_left(nullptr, data) != 0)
     {
-        mergeTree->BiTree_init();
+        this->BiTree_init();
         return false;
     }
 
     // 2. merge Trees by single Tree
-    temp = mergeTree->BiTree_getRoot();
-    temp->left = leftTree->BiTree_getRoot();
-    temp->right = rightTree->BiTree_getRoot();
+    temp = this->root;
+    temp->left = leftTree->root;
+    temp->right = rightTree->root;
 
     // 3. modify mergeTree's size
-    mergeTree->treeSize += leftTree->BiTree_getSize() + rightTree->BiTree_getSize();
+    this->treeSize += leftTree->treeSize + rightTree->treeSize;
 
     // 4. inhibit access of original Trees to newMerge Tree
-    leftTree->BiTree_setRoot(nullptr);
-    leftTree->BiTree_setSize(0);
+    leftTree->root = nullptr;
+    leftTree->treeSize = 0;
     
-    rightTree->BiTree_setRoot(nullptr);
-    rightTree->BiTree_setSize(0);
+    rightTree->root = nullptr;
+    rightTree->treeSize = 0;
 
     return true;
 }
@@ -213,12 +213,4 @@ BiTreeNode* BiTree::BiTree_makeNode()
     newNode = new BiTreeNode;
 
     return newNode;
-}
-void BiTree::BiTree_setRoot(BiTreeNode* tgt)
-{
-    this->root = tgt;
-}
-BiTreeNode* BiTree::BiTree_getRoot()
-{
-    return this->root;
 }

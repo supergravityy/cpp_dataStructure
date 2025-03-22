@@ -3,6 +3,8 @@
 #define FOR_INSERT 1
 #define FOR_REMOVE 2
 
+int terminationCmd;
+
 void printMenu(int num)
 {
     cout << "\n===== Set [" << num << "] Menu =====" << endl;
@@ -83,7 +85,7 @@ int choice_mySet_menu(Set &mySet, int num)
     if (mySet.Set_getErrCode() != NORMAL)
         return 1;
 
-    while (true)
+    while (mySet.Set_getErrCode() == NORMAL)
     {
         printMenu(num);
         cin >> choice;
@@ -137,6 +139,7 @@ int choice_mySet_menu(Set &mySet, int num)
             break;
 
         case 0:
+            terminationCmd = 1;
             return 1;
 
         default:
@@ -209,6 +212,7 @@ int choice_resultSet_menu(Set &resultSet, Set &set1, Set &set2)
         // do nothing
         break;
     case 0:
+        terminationCmd = 1;
         return 1;
     default:
         break;
@@ -223,13 +227,16 @@ int main()
 
     while (true)
     {
-        if (choice_mySet_menu(mySet1, 1))
+        if(choice_mySet_menu(mySet1, 1))
+        if(terminationCmd == 1) return 0;
             break;
 
-        if (choice_mySet_menu(mySet2, 2))
+        if(choice_mySet_menu(mySet2, 2))
+        if(terminationCmd == 1) return 0;
             break;
 
-        if (choice_resultSet_menu(resultSet, mySet1, mySet2))
+        if(choice_resultSet_menu(resultSet, mySet1, mySet2))
+        if(terminationCmd == 1) return 0;
             break;
     }
 
