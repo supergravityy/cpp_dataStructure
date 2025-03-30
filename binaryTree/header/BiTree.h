@@ -22,6 +22,12 @@ public:
     bool BiTree_rem_left(BiTreeNode* node);
     bool BiTree_rem_right(BiTreeNode* node);
     bool BiTree_merge( BiTree* left, BiTree* right, MyAddr* data);
+    void BiTree_printAll();
+
+    bool BiTree_preOrder_find(BiTreeNode *node, MyAddr* tgt);
+    bool BiTree_inOrder_find(BiTreeNode *node, MyAddr* tgt);
+    bool BiTree_postOrder_find(BiTreeNode *node, MyAddr* tgt);
+    void preOrderPrint(BiTreeNode* node);
     
     /*Utility*/
     int BiTree_getSize();
@@ -29,15 +35,10 @@ public:
     ErrCode BiTree_getErrCode();
     bool BiTree_cmpData(const char* key1, const char* key2);
     BiTreeNode* BiTree_makeNode();
+    void preOrderPrint(BiTreeNode* node);
 
 private:
     ErrCode errCode;
     int treeSize;
     BiTreeNode* root;
 };
-
-/*    cout << "1. Merge" << endl;
-    cout << "2. Skip" << endl;
-    cout << "3. Reset tree" << endl;
-    cout << "4. Print All" << endl;
-    cout << "0. Exit" << endl;*/
