@@ -239,3 +239,8 @@ BiTreeNode *BiTree::BiTree_makeNode()
 
     return newNode;
 }
+
+BiTreeNode* BiTree::BiTree_getRoot()
+{
+    return this->root;
+}

@@ -15,7 +15,7 @@ SRCS = $(MAIN_DIR)/main.cpp $(SOURCE_DIR)/List.cpp $(SOURCE_DIR)/chainHashTable.
 OBJS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
 # 실행파일
-TARGET = $(BUILD_DIR)/Set.exe
+TARGET = $(BUILD_DIR)/ChainedHashTable.exe
 
 # 빌드규칙
 all: $(BUILD_DIR) $(OBJ_DIR) $(TARGET)

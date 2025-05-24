@@ -27,15 +27,19 @@ public:
     bool BiTree_preOrder_find(BiTreeNode *node, MyAddr* tgt);
     bool BiTree_inOrder_find(BiTreeNode *node, MyAddr* tgt);
     bool BiTree_postOrder_find(BiTreeNode *node, MyAddr* tgt);
-    void preOrderPrint(BiTreeNode* node);
     
     /*Utility*/
+    BiTreeNode* BiTree_preOrder_search(BiTreeNode* node, MyAddr* tgt);
+    BiTreeNode* BiTree_inOrder_search(BiTreeNode* node, MyAddr* tgt);
+    BiTreeNode* BiTree_postOrder_search(BiTreeNode* node, MyAddr* tgt);
+
     int BiTree_getSize();
     void BiTree_setSize(int size);
     ErrCode BiTree_getErrCode();
     bool BiTree_cmpData(const char* key1, const char* key2);
     BiTreeNode* BiTree_makeNode();
     void preOrderPrint(BiTreeNode* node);
+	BiTreeNode* BiTree_getRoot();
 
 private:
     ErrCode errCode;
