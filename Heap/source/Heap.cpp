@@ -1,9 +1,20 @@
 #include "../header/Heap.h"
 
+/*For reuse*/
+
 #define REALLOCATE_ARR(Arr, byteSize) ((MyAddr **)realloc(Arr, byteSize))
 #define GET_PPOS(childPos) (int)(childPos / 2)
 #define GET_LCPOS(parentPos) (int)(parentPos * 2 + 1)
 #define GET_RCPOS(parentPos) (int)(parentPos * 2 + 2)
+
+void printNode(MyAddr* node, int number)
+{
+    cout << "Node[" << number << "]" << endl;
+    cout << "ID : " << node->id << endl;
+    cout << "Name : " << node->name << endl;
+    cout << "Age : " << node->age << endl;
+    cout << "PhoneNumber : " << node->phone << endl;
+}
 
 /*Management*/
 
@@ -185,9 +196,37 @@ exit:
     return result;
 }
 
+void Heap::Heap_printAll() // depth를 단위로 노드들을 출력
+{
+    int depth, startIdx, endIdx, cnt = 0;
+    int treeDepth = ceil(log2(this->treeSize + 1)); // depth에 모든 노드가 들어있지 않을수도 있음
+    // log(n)에서 n = 0 이 들어갈 수 없음
+
+    if(this->treeSize == 0)
+        return;
+
+    for(depth = 0; depth < treeDepth; depth++)
+    {
+        cout << endl << "depth[" << depth << "] : Data"<< endl;
+
+        startIdx = (int)pow(2, depth) - 1;
+        endIdx = (int)pow(2, depth + 1) - 1;
+
+        for(; (startIdx < endIdx) && (startIdx < this->treeSize); startIdx++)
+        {
+            printNode(this->treeArr[startIdx], ++cnt);
+        }
+    }
+}
+
 /*Utility*/
 
 int Heap::Heap_getSize()
 {
     return this->treeSize;
+}
+
+ErrCode Heap::Heap_getErrCode()
+{
+    return this->errCode;
 }

@@ -20,9 +20,11 @@ public:
     void Heap_destroy();
     bool Heap_insert(MyAddr* data);
     bool Heap_extract(MyAddr** data);
+    void Heap_printAll();
 
     /*Utility*/
     int Heap_getSize();
+    ErrCode Heap_getErrCode();
 
 private:
     int treeSize;
