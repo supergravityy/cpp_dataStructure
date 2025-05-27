@@ -12,19 +12,21 @@ enum ErrCode
 class Heap
 {
 public:
-    Heap();
+    Heap(bool (*compareFunc)(int num1, int num2));
     virtual ~Heap();
 
     /*Management*/
-    void Heap_init();
-    bool Heap_insert();
-    MyAddr Heap_extract();
+    void Heap_init(bool (*compareFunc)(int num1, int num2));
+    void Heap_destroy();
+    bool Heap_insert(MyAddr* data);
+    bool Heap_extract(MyAddr** data);
 
     /*Utility*/
     int Heap_getSize();
 
 private:
-    int heapSize;
+    int treeSize;
     ErrCode errCode;
-    Heap* root;
+    MyAddr** treeArr;
+    bool (*compare)(int num1, int num2) = nullptr;
 };
