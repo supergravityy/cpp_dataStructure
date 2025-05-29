@@ -20,51 +20,47 @@ void inputData(MyAddr &data)
     cin >> data.name;
     cout << "Enter new node age :";
     cin >> data.age;
-    cout << "Enter new node phoneNumber: ";
-    cin >> data.phone;
 }
 
 void printData(MyAddr &data)
 {
-    cout << "ID : " << data.id << endl;
-    cout << "Name : " << data.name << endl;
+    //cout << "ID : " << data.id << endl;
+    //cout << "Name : " << data.name << endl;
     cout << "Age : " << data.age << endl;
-    cout << "PhoneNumber : " << data.phone << endl;
 }
 
-int makeData(MyAddr **newData)
+bool makeData(MyAddr **newData)
 {
     *newData = new MyAddr();
 
     if (*newData == nullptr)
     {
         cout << "Memory allocation Err!" << endl;
-        return 1;
+        return true;
     }
 
     else
-        return 0;
+        return false;
 }
 
 namespace compareFunc
 {
-    bool Ascending_Order_Func(int num1, int num2)
+    bool Descending_Order_Func(int parentNode, int childNode)
     {
-        return num1 > num2;
+        return parentNode > childNode;
     }
 
-    bool Descending_Order_Func(int num1, int num2)
+    bool Ascending_Order_Func(int parentNode, int childNode)
     {
-        return num1 < num2;
+        return parentNode < childNode;
     }
-
 }
 
 int main()
 {
     Heap myHeap(compareFunc::Ascending_Order_Func);
     int choice = 0;
-    int makeResult = 0;
+    bool makeResult = 0;
     MyAddr *newData = nullptr;
     MyAddr *removedData = nullptr;
 
@@ -76,19 +72,43 @@ int main()
         switch (choice)
         {
         case 1: // Insert
+            makeResult = makeData(&newData);
+            if (makeResult)
+                break;
+            else
+            {
+                inputData(*newData);
 
+                if(myHeap.Heap_insert(newData) == true)
+                {
+                    cout << "Node inserted successfully!" << endl;
+                }
+                else
+                {
+                    cout << "Failed to insert node!" << endl;
+                }
+            }
             break;
 
         case 2: // Extract
-
+            if(myHeap.Heap_extract(&removedData) == true)
+            {
+                printData(*removedData);
+            }
+            else
+            {
+                cout << "Failed to extract!" << endl;
+            }
             break;
 
         case 3: // Reset
-
+            myHeap.Heap_init(compareFunc::Ascending_Order_Func);
+            cout << "Heap has been reset!" << endl;
             break;
 
         case 4: // PrintAll
-
+            cout << "Heap size : " << myHeap.Heap_getSize() << endl;
+            myHeap.Heap_printAll();
             break;
 
         case 0:
