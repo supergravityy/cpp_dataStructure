@@ -1,117 +1,133 @@
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include "../header/List.h"
 
-void printMenu()
-{
-    cout << "\n====== Linked List Menu ======" << endl;
-    cout << "1. Insert Node" << endl;
-    cout << "2. Remove Node" << endl;
-    cout << "3. Modify Node Data" << endl;
-    cout << "4. Print All Nodes" << endl;
-    cout << "5. Find Node by ID" << endl;
-    cout << "6. Find Node by Name" << endl;
-    cout << "7. Find Node by Phone Number" << endl;
-    cout << "8. Clean List" << endl;
-    cout << "0. Exit Program" << endl;
-    cout << "================================" << endl;
-    cout << "Enter your choice: ";
+// 테스트용 사용자 데이터 구조체
+typedef struct {
+    int id;
+    char name[32];
+} UserData;
+
+// 비교 함수: id 기준
+typCmpResult compareUser(const void* a, const void* b) {
+    int id1 = ((UserData*)a)->id;
+    int id2 = ((UserData*)b)->id;
+    if (id1 < id2) return LESS;
+    else if (id1 > id2) return GREATER;
+    else return EQUAL;
 }
 
-int main()
-{
+// 출력 함수
+void printUser(const void* data) {
+    const UserData* user = (UserData*)data;
+    cout << "[ID: " << user->id << ", Name: " << user->name << "]" << endl;
+}
+
+// 메모리 해제 함수
+void destroyUser(void* data) {
+    UserData* deleteData = (UserData*)data;
+
+    if (deleteData == nullptr)
+        return;
+    else
+        delete deleteData;
+    
+    return;
+}
+
+int main() {
     List myList;
-    int choice;
-    MyAddr tempData;
-    char searchID[ID_MAX];
-    char searchName[NAME_MAX];
-    char searchPhone[PHONE_MAX];
 
-    while (true)
-    {
-        printMenu();
-        cin >> choice;
-
-        // 잘못된 입력 방지
-        if (cin.fail())
-        {
-            cin.clear(); // 오류 플래그 초기화
-            cin.ignore(100, '\n'); // 입력 버퍼 비우기
-            cout << "Invalid input. Please enter a number between 0 and 7.\n";
-            continue;
-        }
-
-        switch (choice)
-        {
-        case 1: // Insert Node
-
-            if (myList.List_insertNext())
-                cout << "Node inserted successfully!" << endl;
-            else
-                cout << "Failed to insert node." << endl;
-            break;
-
-        case 2: // Remove Node
-            if (myList.List_removeNext())
-                cout << "Node removed successfully!" << endl;
-            else
-                cout << "Failed to remove node. ID not found." << endl;
-            break;
-
-        case 3: // Modify Node
-            cout << "Enter ID to modify: ";
-            cin.ignore();
-            cin.getline(tempData.id, ID_MAX);
-            cout << "Enter new Name: ";
-            cin.getline(tempData.name, NAME_MAX);
-            cout << "Enter new Phone Number: ";
-            cin.getline(tempData.phone, PHONE_MAX);
-
-            if (myList.List_modifyData(&tempData))
-                cout << "Node modified successfully!" << endl;
-            else
-                cout << "Failed to modify node. ID not found." << endl;
-            break;
-
-        case 4: // Print All Nodes
-            myList.List_printAll();
-            break;
-
-        case 5: // Find by ID
-            cout << "Enter ID to search: ";
-            cin.ignore();
-            cin.getline(searchID, ID_MAX);
-            if (!myList.List_findData_byID(searchID))
-                cout << "No node found with given ID." << endl;
-            break;
-
-        case 6: // Find by Name
-            cout << "Enter Name to search: ";
-            cin.ignore();
-            cin.getline(searchName, NAME_MAX);
-            if (!myList.List_findData_byName(searchName))
-                cout << "No node found with given Name." << endl;
-            break;
-
-        case 7: // Find by Phone Number
-            cout << "Enter Phone Number to search: ";
-            cin.ignore();
-            cin.getline(searchPhone, PHONE_MAX);
-            if (!myList.List_findData_byPhone(searchPhone))
-                cout << "No node found with given Phone Number." << endl;
-            break;
-
-        case 8: // Clean List 
-            cout << "Removing List..." << endl;
-            myList.List_init();
-            break;
-
-        case 0: // Exit
-            cout << "Exiting program..." << endl;
-            return 0;
-
-        default:
-            cout << "Invalid choice. Please enter a number between 0 and 7.\n";
-            break;
-        }
+    // 1. 객체 생성 및 초기화
+    if (!myList.init(compareUser, printUser, destroyUser)) {
+        cout << "List initialization failed!" << endl;
+        return -1;
     }
+    cout << "List initialized.\n" << endl;
+
+    // 2. 여러 번의 삽입 (pushBack + head + 중간)
+    for (int i = 1; i <= 5; ++i) {
+        UserData* user = new UserData{ i, "" };
+        sprintf(user->name, "User%d", i);
+        myList.push_back(user); // pushBack
+    }
+
+    cout << " After pushBack insertions:" << endl;
+    myList.printAll();
+
+    // 맨 앞 삽입
+    UserData* frontUser = new UserData{ 0, "Front" };
+    myList.insert_nextNode(nullptr, frontUser);
+
+    // 중간 삽입: head 다음에 삽입
+    void* head = myList.get_headAddr();
+    UserData* midUser = new UserData{ 999, "Middle" };
+    myList.insert_nextNode(head, midUser);
+
+    // 끝 삽입 : tail 업데이트
+    UserData* rearUser = new UserData{ 212, "Rear" };
+    myList.push_back(rearUser);
+
+    cout << "\n After insertions:" << endl;
+    myList.printAll();
+
+    // 3. 임의 검색 테스트
+    cout << "\n Lookup test:" << endl;
+    UserData key = { 3 };
+    void* found = myList.lookup_Node(&key);
+    if (found) {
+        cout << " Found: ";
+        printUser(myList.get_Data(found));
+    }
+    else {
+        cout << " ID 3 not found." << endl;
+    }
+
+    UserData FoundKey = { 212 };
+    found = myList.lookup_Node(&FoundKey);
+    if (!found) {
+        cout << " Correctly not found (ID = 212)" << endl;
+    }
+    else{
+        cout << " Found: ";
+        printUser(myList.get_Data(found));
+    }
+
+    // 4. 일부 삭제 테스트
+    cout << "\n Delete test:" << endl;
+    void* deletedData_addr = nullptr;
+    UserData* deletedData = nullptr;
+
+    // head 삭제
+    myList.remove_nextNode(nullptr, &deletedData_addr);
+	deletedData = (UserData*)deletedData_addr;
+    cout << " After deleting head:" << deletedData->id << ", " << deletedData->name << endl;
+    destroyUser(deletedData);
+    myList.printAll();
+
+    // 중간 삭제 (head의 다음 노드)
+    void* prev = myList.get_headAddr();
+    myList.remove_nextNode(prev, &deletedData_addr);
+    deletedData = (UserData*)deletedData_addr;
+    cout << " After deleting middle node:" << deletedData->id << ", " << deletedData->name << endl;
+    destroyUser(deletedData);
+    myList.printAll();
+
+    // tail 앞 노드 삭제
+    void* prevTail = myList.get_headAddr();
+    
+    while (myList.get_nextAddr(myList.get_nextAddr(prevTail)) != nullptr) {
+        prevTail = myList.get_nextAddr(prevTail);
+    }
+    myList.remove_nextNode(prevTail, &deletedData_addr);
+    deletedData = (UserData*)deletedData_addr;
+    cout << " After deleting node before tail:" << deletedData->id << ", " << deletedData->name << endl;
+    destroyUser(deletedData);
+    myList.printAll();
+
+    cout << "\n Final list size: " << myList.getSize() << endl;
+	cout << "List destroy." << endl;
+	myList.destroyList(); // 리스트 파괴
+    myList.printAll();
+
     return 0;
 }

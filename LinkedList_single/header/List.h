@@ -1,44 +1,81 @@
 #pragma once
 
 #include "Libs.h"
-#include "Node.h"
-#include "Data.h"
+#include "ListNode.h"
 // single linkedList
+#define fordebug
 
-enum ErrCode
+typedef enum ErrCode
 {
     NORMAL = 0,
     MEMORY_ERR,
     SYS_FAULT
-};
+}typErrcode;
+
+typedef enum compareResult
+{
+    LESS = -1,
+    EQUAL = 0,
+    GREATER = 1
+}typCmpResult;
 
 class List
 {
-    public:
+public:
+    /*Management*/
     List();
-    ~List();
+    virtual ~List();
+    virtual bool init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
+        , void (*printFunc)(const void* data)
+        , void (*destroyDataFunc)(void* data));
+    bool insert_nextNode(void* node, void* data);
+	bool remove_nextNode(void* node, void** saveData);
+	bool push_back(void* data);
+    void* lookup_Node(void* data);
+    virtual void destroyList();
 
-    int List_getSize();                                     //
-    bool List_insertNext();                                 //
-    bool List_removeNext();                                 //
-    bool List_modifyData(const MyAddr* data);               //
-    void List_printAll();                                   //
-    bool List_findData_byID(const char* tgt_id);            //
-    bool List_findData_byName(const char* tgt_name);        //
-    bool List_findData_byPhone(const char* tgt_phone);      //
-    void List_init();                                       //
-    
-    private:
-    Node* List_findNode_byID(const char* tgt_id);           //
-    Node* List_makeNode();                                  //
-    Node* List_getHeadAddr();                               //
-    Node* List_getTailAddr();                               //
-    void List_setHeadAddr(Node* tgt);                       //
-    void List_setTailAddr(Node* tgt);                       //
+    /*Utility*/
+    virtual void printAll();
+    int getSize();
+	typErrcode getErrCode();
+    virtual void set_Data(void* node, void* data);
+    virtual void* get_Data(void* node);
+
+#ifdef fordebug
+    void* get_headAddr();
+	void* get_nextAddr(void* node);
+#endif 
+
+
+protected:
+    /*Utility-1*/
+    virtual void* makeNode();
+    virtual void initNode(void* node, void* data);
+	virtual void deleteNode(void** node);
+    virtual void* lookUp(void* data);
+    virtual bool insertNext(void* node, void* data);
+    virtual bool removeNext(void* node, void** saveData);
+    virtual bool pushBack(void* data);
     
 
-    int listSize;
-    Node* headNode;
-    Node* tailNode;
-    ErrCode errCode;
+    /*Accessor*/
+	typSingleList_Node* get_SingleList_head();
+    void set_SingleList_head(typSingleList_Node* node);
+	typSingleList_Node* get_SingleList_tail();
+    void set_SingleList_tail(typSingleList_Node* node);
+	bool is_emptyNode(void* node);
+    virtual void set_nextNode(void* tgtNode, void* tgtAddr);
+    virtual void* get_nextNode(void* node);
+
+    /*Variance*/
+    int size = 0;
+    typErrcode errCode = NORMAL;
+    typCmpResult(*cmpFunc)(const void* key1, const void* key2) = nullptr;
+    void (*printFunc)(const void* data) = nullptr;
+    void (*freeDataFunc)(void* data) = nullptr;
+
+private:
+    /*Private*/
+    typSingleList_Node* singleList_head = nullptr;
+	typSingleList_Node* singleList_tail = nullptr;
 };
