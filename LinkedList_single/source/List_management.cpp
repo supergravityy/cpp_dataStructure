@@ -3,6 +3,7 @@
 List::List()
 {
 	this->singleList_head = nullptr;
+	this->singleList_tail = nullptr;
 }
 
 List::~List()
@@ -15,6 +16,7 @@ List::~List()
 	this->freeDataFunc = nullptr;
 	this->errCode = NORMAL;
 	this->singleList_head = nullptr;
+	this->singleList_tail = nullptr;
 }
 
 bool List::init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
@@ -31,6 +33,7 @@ bool List::init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
 		this->destroyList();
 		
 		this->singleList_head = nullptr;
+		this->singleList_tail = nullptr;
 		this->size = 0;
 		this->cmpFunc = compareFunc;
 		this->printFunc = printFunc;
@@ -82,27 +85,27 @@ bool List::insertNext(void* node, void* data)
 
 		this->initNode(newNode,data);
 
-		if (this->is_emptyNode(prevNode))										// 1. ÀÌÀü³ëµå°¡ null ÀÏ¶§		=> (¸Ç¾Õ¿¡ »ðÀÔÇÏ°í ½Í´Ù)
+		if (this->is_emptyNode(prevNode))										// 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ null ï¿½Ï¶ï¿½		=> (ï¿½Ç¾Õ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Í´ï¿½)
 		{
-			if (this->getSize() == 0)											// 2. ¸®½ºÆ®°¡ ºñ¾îÀÖÀ» ¶§		-> head == tail
+			if (this->getSize() == 0)											// 2. ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½		-> head == tail
 				this->set_SingleList_tail(newNode);
-			else {}																// 2-1. ¸®½ºÆ®°¡ ºñ¾îÀÖÁö ¾ÊÀ» ¶§	-> head != tail
+			else {}																// 2-1. ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½	-> head != tail
 			
-			this->set_nextNode(newNode, (void*)this->get_SingleList_head());	// 3. newNodeÀÇ next				-> head	
-			this->set_SingleList_head(newNode);									// 4. head Æ÷ÀÎÅÍ ¾÷µ¥ÀÌÆ®
+			this->set_nextNode(newNode, (void*)this->get_SingleList_head());	// 3. newNodeï¿½ï¿½ next				-> head	
+			this->set_SingleList_head(newNode);									// 4. head ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 		}
 		
-		else																	// 1-1. ÀÌÀü³ëµå°¡ nullÀÌ ¾Æ´Ò ¶§	=> (Áß°£¿¡ »ðÀÔÇÏ°í ½Í´Ù)
+		else																	// 1-1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ nullï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½	=> (ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Í´ï¿½)
 		{
-			tempNode = (typSingleList_Node*)this->get_nextNode(prevNode);		// 2. prevNodeÀÇ next¸¦ tempNode¿¡ ÀÓ½ÃÀúÀå
-			this->set_nextNode(prevNode, newNode);								// 3. prevNode¿Í ±× ´ÙÀ½ ³ëµå »çÀÌ¿¡ newNode »ðÀÔ
+			tempNode = (typSingleList_Node*)this->get_nextNode(prevNode);		// 2. prevNodeï¿½ï¿½ nextï¿½ï¿½ tempNodeï¿½ï¿½ ï¿½Ó½ï¿½ï¿½ï¿½ï¿½ï¿½
+			this->set_nextNode(prevNode, newNode);								// 3. prevNodeï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¿ï¿½ newNode ï¿½ï¿½ï¿½ï¿½
 			this->set_nextNode(newNode, tempNode);								
 			
-			if (tempNode == nullptr)											// 4. tempNode°¡ nullÀÌ¸é tail ¾÷µ¥ÀÌÆ®
+			if (tempNode == nullptr)											// 4. tempNodeï¿½ï¿½ nullï¿½Ì¸ï¿½ tail ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 				this->set_SingleList_tail(newNode);
 			else {}
 		}
-		this->size++;															// 5. size Áõ°¡
+		this->size++;															// 5. size ï¿½ï¿½ï¿½ï¿½
 		return true;
 		
 	}
@@ -118,38 +121,38 @@ bool List::removeNext(void* node, void** saveData)
 		return false;
 	}
 	
-	else if(prevNode == nullptr)	// ÀÌÀü³ëµå°¡ null	=>	head ³ëµå »èÁ¦
+	else if(prevNode == nullptr)	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ null	=>	head ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
-		targetNode = this->get_SingleList_head();											// 1. »èÁ¦´ë»ó				=> head ³ëµå
+		targetNode = this->get_SingleList_head();											// 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½				=> head ï¿½ï¿½ï¿½
 
-		*saveData = this->get_Data(targetNode);												// 2. »èÁ¦ÇÒ ³ëµåÀÇ data¸¦ dataº¯¼ö¿¡ ÀúÀå
-		this->set_SingleList_head((typSingleList_Node*)this->get_nextNode(targetNode));		// 3. head Æ÷ÀÎÅÍ ¾÷µ¥ÀÌÆ®	=> head ³ëµåÀÇ next
+		*saveData = this->get_Data(targetNode);												// 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ dataï¿½ï¿½ dataï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		this->set_SingleList_head((typSingleList_Node*)this->get_nextNode(targetNode));		// 3. head ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®	=> head ï¿½ï¿½ï¿½ï¿½ï¿½ next
 
 		if(this->getSize() == 1)
-			this->set_SingleList_tail(nullptr);												// 4. »èÁ¦ ÈÄ ¸®½ºÆ®°¡ ºñ¾îÀÖÀ¸¸é tailµµ null·Î ¼³Á¤
+			this->set_SingleList_tail(nullptr);												// 4. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ tailï¿½ï¿½ nullï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		else {}
 	}
-	else							// ÀÌÀü³ëµå°¡ nullÀÌ ¾Æ´Ò ¶§	=> Áß°£ ³ëµå »èÁ¦
+	else							// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ nullï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½	=> ï¿½ß°ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
-		if (this->get_nextNode(prevNode) == nullptr) // ÀÌÀü³ëµå°¡ tail ³ëµåÀÏ ¶§, ´ÙÀ½³ëµå°¡ ¾øÀ¸¹Ç·Î »èÁ¦ ºÒ°¡´É
+		if (this->get_nextNode(prevNode) == nullptr) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ tail ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½ï¿½ï¿½
 		{
 			this->errCode = SYS_FAULT;
 			return false;
 		}
 		else
 		{
-			targetNode = (typSingleList_Node*)this->get_nextNode(prevNode);					// 1. »èÁ¦´ë»ó				=> prevNodeÀÇ next ³ëµå
+			targetNode = (typSingleList_Node*)this->get_nextNode(prevNode);					// 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½				=> prevNodeï¿½ï¿½ next ï¿½ï¿½ï¿½
 
-			*saveData = this->get_Data(targetNode);											// 2. »èÁ¦ÇÒ ³ëµåÀÇ data¸¦ dataº¯¼ö¿¡ ÀúÀå
-			this->set_nextNode(prevNode, this->get_nextNode(targetNode));					// 3. prevNodeÀÇ next		-> targetNodeÀÇ next·Î ¾÷µ¥ÀÌÆ® (=> prev³ëµåÀÇ ´ÙÀ½³ëµå¸¸ »èÁ¦µÊ)
+			*saveData = this->get_Data(targetNode);											// 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ dataï¿½ï¿½ dataï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			this->set_nextNode(prevNode, this->get_nextNode(targetNode));					// 3. prevNodeï¿½ï¿½ next		-> targetNodeï¿½ï¿½ nextï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (=> prevï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¸¸ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 
-			if (this->get_nextNode(targetNode) == nullptr)									// 4. targetNodeÀÇ next°¡ nullÀÌ¸é tail ¾÷µ¥ÀÌÆ®
+			if (this->get_nextNode(targetNode) == nullptr)									// 4. targetNodeï¿½ï¿½ nextï¿½ï¿½ nullï¿½Ì¸ï¿½ tail ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 				this->set_SingleList_tail(prevNode);
 			else {}
 		}
 	}
 
-	this->deleteNode((void**) &targetNode);	// 5. »èÁ¦´ë»ó ³ëµå ¸Þ¸ð¸® ÇØÁ¦ (¾ÈÀÇ dataµµ È£ÃâÇÔ¼ö¿¡¼­ ÇØÁ¦)
+	this->deleteNode((void**) &targetNode);	// 5. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ dataï¿½ï¿½ È£ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 	this->size--;
 
 	return true;
@@ -165,14 +168,14 @@ void* List::lookUp(void* data)
 
 	typSingleList_Node* currentNode = this->get_SingleList_head();
 
-	while (currentNode != nullptr)										// headºÎÅÍ ½ÃÀÛÇÏ¿© ¸®½ºÆ®ÀÇ ³¡±îÁö ¼øÈ¸
+	while (currentNode != nullptr)										// headï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¸
 	{
-		if (this->cmpFunc(this->get_Data(currentNode), data) == EQUAL)	// µ¥ÀÌÅÍ°¡ ÀÏÄ¡ÇÏ´ÂÁö ºñ±³
-			return (void*)currentNode;									// ÀÏÄ¡ÇÏ´Â ³ëµåÁÖ¼Ò ¹ÝÈ¯
+		if (this->cmpFunc(this->get_Data(currentNode), data) == EQUAL)	// ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½ï¿½
+			return (void*)currentNode;									// ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ ï¿½ï¿½È¯
 		else
-			currentNode = (typSingleList_Node*)this->get_nextNode(currentNode); // ÀÏÄ¡ÇÏÁö ¾ÊÀ¸¸é ´ÙÀ½ ³ëµå·Î ÀÌµ¿
+			currentNode = (typSingleList_Node*)this->get_nextNode(currentNode); // ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
 	}
-	return nullptr; // ÀÏÄ¡ÇÏ´Â ³ëµå°¡ ¾Æ¿¹ ¾øÀ¸¸é nullptr ¹ÝÈ¯
+	return nullptr; // ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½å°¡ ï¿½Æ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nullptr ï¿½ï¿½È¯
 }
 
 bool List::pushBack(void* data)
@@ -194,16 +197,16 @@ bool List::pushBack(void* data)
 
 		this->initNode(newNode, data);
 
-		if (this->getSize() == 0) // ¸®½ºÆ®°¡ ºñ¾îÀÖÀ» ¶§
+		if (this->getSize() == 0) // ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 		{
-			this->set_SingleList_head(newNode);			// head¿Í tail ¸ðµÎ newNode·Î ¼³Á¤
+			this->set_SingleList_head(newNode);			// headï¿½ï¿½ tail ï¿½ï¿½ï¿½ newNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			this->set_SingleList_tail(newNode);
 		}
-		else // ¸®½ºÆ®¿¡ ³ëµå°¡ ÀÖÀ» ¶§
+		else // ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 		{
-			temp = this->get_SingleList_tail();			// ÇöÀç tail ³ëµå¸¦ temp¿¡ ÀúÀå
-			this->set_nextNode(temp, newNode);			// ÇöÀç tailÀÇ next -> newNode·Î ¼³Á¤
-			this->set_SingleList_tail(newNode);			// tail Æ÷ÀÎÅÍ¸¦ newNode·Î ¾÷µ¥ÀÌÆ®
+			temp = this->get_SingleList_tail();			// ï¿½ï¿½ï¿½ï¿½ tail ï¿½ï¿½å¸¦ tempï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			this->set_nextNode(temp, newNode);			// ï¿½ï¿½ï¿½ï¿½ tailï¿½ï¿½ next -> newNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			this->set_SingleList_tail(newNode);			// tail ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ newNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 		}
 
 		this->size++;

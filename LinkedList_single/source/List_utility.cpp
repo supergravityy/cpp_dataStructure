@@ -1,10 +1,5 @@
 #include "../header/List.h"
 
-typedef struct {
-	int id;
-	char name[32];
-} UserData_2;
-
 void* List::makeNode(void)
 {
 	typSingleList_Node* newNode = new typSingleList_Node;
