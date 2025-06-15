@@ -1,136 +1,111 @@
-#include <iostream>
-#include <string>
 #include "../header/dList.h"
 
-void printMenu()
-{
-    cout << "\n===== Double Linked List Menu =====" << endl;
-    cout << "1. Insert node after (next)" << endl;
-    cout << "2. Insert node before (prev)" << endl;
-    cout << "3. Remove node" << endl;
-    cout << "4. Get list size" << endl;
-    cout << "5. Reset (Destroy) list" << endl;
-    cout << "6. print list Contents" << endl;
-    cout << "0. Exit program" << endl;
-    cout << "===================================" << endl;
-    cout << "Enter your choice: ";
+// »ç¿ëÀÚ Á¤ÀÇ µ¥ÀÌÅÍ ±¸Á¶
+typedef struct {
+    int id;
+    char name[32];
+} UserData;
+
+// ºñ±³ ÇÔ¼ö
+typCmpResult compareUser(const void* a, const void* b) {
+    const UserData* userA = (const UserData*)a;
+    const UserData* userB = (const UserData*)b;
+    if (userA->id < userB->id) return LESS;
+    if (userA->id > userB->id) return GREATER;
+    return EQUAL;
 }
 
-void inputData(MyAddr& data)
-{
-    cout << "Enter new node ID: ";
-    cin >> data.id;
-    cout << "Enter new node name: ";
-    cin >> data.name;
-    cout << "Enter new node phoneNumber: ";
-    cin >> data.phone;
+// Ãâ·Â ÇÔ¼ö
+void printUser(const void* data) {
+    const UserData* user = (const UserData*)data;
+    cout << "ID: " << user->id << ", Name: " << user->name << endl;
 }
 
-int makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
+// ¸Þ¸ð¸® ÇØÁ¦ ÇÔ¼ö
+void destroyUser(void* data) {
+    delete (UserData*)data;
+}
 
-    if(*newData == nullptr) 
-    {
-        cout << "Memory allocation Err!" <<endl;
-        return 1;
+int main() {
+    dList myList;
+    myList.init(compareUser, printUser, destroyUser);
+
+    // ---------- 1. insert_nextNode (Áß°£ & ¸Ç ¾Õ »ðÀÔ) ----------
+    auto* u1 = new UserData{ 1, "Alice" };
+    auto* u2 = new UserData{ 2, "Bob" };
+    auto* u3 = new UserData{ 3, "Charlie" };
+
+    myList.insert_nextNode(nullptr, u1);  // ¸Ç ¾Õ »ðÀÔ
+    void* node1 = myList.lookup_Node(u1); // u1 À§Ä¡ Ã£±â
+    myList.insert_nextNode(node1, u2);    // u2´Â u1 µÚ¿¡ »ðÀÔ
+    myList.insert_nextNode(node1, u3);    // u3´Â u1°ú u2 »çÀÌ¿¡ »ðÀÔ
+
+    cout << "\n[After insert_nextNode tests]" << endl;
+    myList.printAll();
+
+    // ---------- 1-1. push_back ----------
+    auto* u4 = new UserData{ 4, "Diana" };
+    myList.push_back(u4);
+
+    cout << "\n[After push_back]" << endl;
+    myList.printAll();
+
+    // ---------- 2. insert_prevNode ----------
+    auto* u5 = new UserData{ 5, "Eve" };
+    auto* u6 = new UserData{ 6, "Frank" };
+
+    void* node3 = myList.lookup_Node(u3);
+    myList.insert_prevNode(node3, u5); // u5´Â u3 ¾Õ¿¡ »ðÀÔ
+    myList.push_front(u6);             // ¸Ç ¾Õ »ðÀÔ
+
+    // ---------- 2-2. ÀÓÀÇ »ðÀÔ ----------
+    auto* u7 = new UserData{ 7, "Grace" };
+    void* node4 = myList.lookup_Node(u4);
+    myList.insert_prevNode(node4, u7); // u7´Â u4 ¾Õ¿¡ »ðÀÔ
+
+    cout << "\n[After insert_prevNode and push_front]" << endl;
+    myList.printAll();
+
+    // ---------- 3. remove_tgtNode ----------
+    void* data = nullptr;
+
+    void* node2 = myList.lookup_Node(u2);  // u2 Á¦°Å
+    myList.remove_tgtNode(node2, &data);
+    destroyUser(data);
+
+    cout << "\n[After remove_tgtNode (u2)]" << endl;
+    myList.printAll();
+
+    // ---------- 3-1. pop_back ----------
+    myList.pop_back(&data);
+    destroyUser(data);
+
+    cout << "\n[After pop_back]" << endl;
+    myList.printAll();
+
+    // ---------- 3-2. pop_front ----------
+    myList.pop_front(&data);
+    destroyUser(data);
+
+    cout << "\n[After pop_front]" << endl;
+    myList.printAll();
+
+    // ---------- 4. lookup ----------
+    auto* findMe = new UserData{ 5, "" };  // ID·Î¸¸ ºñ±³
+    void* foundNode = myList.lookup_Node(findMe);
+    if (foundNode) {
+        UserData* foundData = (UserData*)myList.get_Data(foundNode);
+        cout << "\n[Lookup] Found ID " << foundData->id << " (" << foundData->name << ")" << endl;
     }
-        
-    else 
-        return 0;
-}
-
-int main()
-{
-    dList myList;  // ë¦¬ìŠ¤íŠ¸ ê°ì²´ ìƒì„±
-    int choice;
-    int makeResult = 0;
-    string inputID;
-    MyAddr *newData;
-    dNode *targetNode;
-    MyAddr *removedData;
-
-    while (myList.dList_getErrcode() == NORMAL)
-    {
-        printMenu();
-        cin >> choice;
-
-        switch (choice)
-        {
-            case 1: // Insert next
-                cout << "Enter target node ID (or 'null' for first node): ";
-                cin >> inputID;
-
-                makeResult = makeData(&newData);
-                if(makeResult) break;
-                inputData(*newData);
-
-                if (inputID == "null" || inputID == "NULL")
-                    targetNode = nullptr;
-                else
-                    targetNode = myList.dList_findNode_byID(inputID.c_str());
-
-                if (myList.dList_ins_next(targetNode, newData) == 0)
-                    cout << "Node inserted successfully!" << endl;
-                else
-                    cout << "Failed to insert node!" << endl;
-                break;
-
-            case 2: // Insert prev
-                cout << "Enter target node ID: ";
-                cin >> inputID;
-
-                makeResult = makeData(&newData);
-                if(makeResult) break;
-
-                inputData(*newData);
-
-                targetNode = myList.dList_findNode_byID(inputID.c_str());
-
-                if (myList.dList_ins_prev(targetNode, newData) == 0)
-                    cout << "Node inserted successfully!" << endl;
-                else
-                    cout << "Failed to insert node!" << endl;
-                break;
-
-            case 3: // Remove node
-                cout << "Enter node ID to remove: ";
-                cin >> inputID;
-
-                targetNode = myList.dList_findNode_byID(inputID.c_str());
-
-                if (myList.dList_remove(targetNode, &removedData) == 0)
-                {
-                    cout << "Node '" << removedData->id << "' removed successfully!" << endl;
-                    delete removedData;
-                }
-                else
-                {
-                    cout << "Failed to remove node!" << endl;
-                }
-                break;
-
-            case 4: // Get list size
-                cout << "Current list size: " << myList.dList_getListSize() << endl;
-                break;
-
-            case 5: // Destroy list
-                myList.dList_init();
-                cout << "List has been reset!" << endl;
-                break;
-
-            case 6: // print list
-                myList.dList_printAll();
-                break;
-
-            case 0: // Exit
-                cout << "Exiting program..." << endl;
-                return 0;
-
-            default:
-                cout << "Invalid choice, please try again!" << endl;
-        }
+    else {
+        cout << "\n[Lookup] Not found." << endl;
     }
+    delete findMe;
+
+    // ---------- 5. destroy ----------
+    myList.destroyList();
+    cout << "\n[After destroyList]" << endl;
+    myList.printAll();  // ¾Æ¹«°Íµµ Ãâ·ÂµÇÁö ¾Ê¾Æ¾ß ÇÔ
 
     return 0;
 }

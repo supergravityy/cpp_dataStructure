@@ -3,7 +3,7 @@
 #include "Libs.h"
 #include "ListNode.h"
 // single linkedList
-#define fordebug
+//#define fordebug
 
 typedef enum ErrCode
 {
@@ -31,9 +31,8 @@ public:
     bool insert_nextNode(void* node, void* data);
 	bool remove_nextNode(void* node, void** saveData);
 	bool push_back(void* data);
-    bool push_front(void* data);
     void* lookup_Node(void* data);
-    void destroyList();
+    virtual void destroyList();
 
     /*Utility*/
     virtual void printAll();
