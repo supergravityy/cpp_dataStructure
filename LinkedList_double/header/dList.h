@@ -66,7 +66,7 @@ protected:
 
 private:
     /*Private*/
-    bool remove_nextNode(void* node, void** saveData);
+    using List::remove_nextNode; // 해당 메서드는 이 클래스에서 호출되면 안됨
     typDoubleList_Node* doubleList_headNode = nullptr;
     typDoubleList_Node* doubleList_tailNode = nullptr ;
 };
