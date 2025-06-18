@@ -10,7 +10,7 @@ dList::dList()
 
 dList::~dList()
 {
-	// 부모클래스의 소멸자에서 리스트 해제와 다른 멤버변수를 초기화한다.
+	this->destroyList();  // 메모리 해제 먼저 -> 부모클래스의 destroy는 아무것도 없어서 생략됨
 
 	this->doubleList_headNode = nullptr;
 	this->doubleList_tailNode = nullptr;
