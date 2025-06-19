@@ -1,118 +1,80 @@
-#include <iostream>
-#include <string>
-#include "../header/rList.h"
+#include "../header/cList.h"
 
-void printMenu()
-{
-    cout << "\n===== Ring Linked List Menu =====" << endl;
-    cout << "1. Insert node after (next)" << endl;
-    cout << "2. Remove next node" << endl;
-    cout << "3. Get list size" << endl;
-    cout << "4. Reset (Destroy) list" << endl;
-    cout << "5. print list Contents" << endl;
-    cout << "0. Exit program" << endl;
-    cout << "===================================" << endl;
-    cout << "Enter your choice: ";
+typedef struct {
+	int id;
+	char name[32];
+} UserData;
+
+// Comparison function for UserData
+typCmpResult cmpUser(const void* a, const void* b) {
+	const UserData* u1 = (const UserData*)a;
+	const UserData* u2 = (const UserData*)b;
+	if (u1->id < u2->id) return LESS;
+	if (u1->id > u2->id) return GREATER;
+	return EQUAL;
 }
 
-void inputData(MyAddr& data)
-{
-    cout << "Enter new node ID: ";
-    cin >> data.id;
-    cout << "Enter new node name: ";
-    cin >> data.name;
-    cout << "Enter new node phoneNumber: ";
-    cin >> data.phone;
+// Print function
+void printUser(const void* data) {
+	const UserData* user = (const UserData*)data;
+	cout << "[ID: " << user->id << ", Name: " << user->name << "]" << endl;
 }
 
-int makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
-
-    if(*newData == nullptr) 
-    {
-        cout << "Memory allocation Err!" <<endl;
-        return 1;
-    }
-        
-    else 
-        return 0;
+// Memory cleanup function
+void freeUser(void* data) {
+	delete (UserData*)data;
 }
 
-int main()
-{   
-    rList myList; 
-    int choice;
-    int makeResult = 0;
-    string inputID;
-    MyAddr *newData;
-    rNode *targetNode;
-    MyAddr *removedData;
+int main() {
+	cout << "===== 1. Constructor Test =====" << endl;
+	cList my_cList;
+	my_cList.init(cmpUser, printUser, freeUser);
+	cout << ">> Circular list initialized." << endl;
 
-    while (myList.rList_getErrcode() == NORMAL)
-    {
-        printMenu();
-        cin >> choice;
+	cout << "\n===== 2. Insertion Test =====" << endl;
+	auto* u1 = new UserData{ 1, "Alice" };
+	auto* u2 = new UserData{ 2, "Bob" };
+	auto* u3 = new UserData{ 3, "Charlie" };
+	auto* u4 = new UserData{ 4, "Daisy" };
 
-        switch (choice)
-        {
-            case 1: // Insert next
-                cout << "Enter target node ID (or 'null' for first node): ";
-                cin >> inputID;
+	my_cList.push_front(u1);
+	my_cList.push_front(u2);
+	my_cList.push_front(u3);
+	cout << ">> Performed push_front 3 times." << endl;
+	my_cList.printAll();
 
-                makeResult = makeData(&newData);
-                if (makeResult) break;
-                inputData(*newData);
+	// Insert after a specific node
+	void* node = my_cList.lookup_Node(u2);
+	if (node != nullptr) {
+		my_cList.insert_nextNode(node, u4);
+		cout << ">> Inserted u4 after u2." << endl;
+	}
+	my_cList.printAll();
 
-                if (inputID == "null" || inputID == "NULL")
-                    targetNode = myList.rList_getListSize() == 0 ? nullptr : myList.rList_findNode_byID(inputID.c_str());
-                else
-                    targetNode = myList.rList_findNode_byID(inputID.c_str());
+	cout << "\n===== 3. Deletion Test =====" << endl;
+	void* deleted = nullptr;
 
-                if (myList.rList_ins_next(targetNode, newData) == 0)
-                    cout << "Node inserted successfully!" << endl;
-                else
-                    cout << "Failed to insert node!" << endl;
-                break;
+	my_cList.pop_front(&deleted);
+	freeUser(deleted);
+	cout << ">> Performed pop_front once." << endl;
+	my_cList.printAll();
 
-            case 2: // Remove next node
-                cout << "Enter target node ID: ";
-                cin >> inputID;
+	my_cList.pop_front(&deleted);
+	freeUser(deleted);
+	cout << ">> Performed pop_front twice." << endl;
+	my_cList.printAll();
 
-                targetNode = myList.rList_findNode_byID(inputID.c_str());
+	// Delete node after u2 (which should be u4)
+	node = my_cList.lookup_Node(u2);
+	if (node != nullptr) {
+		my_cList.remove_nextNode(node, &deleted);
+		freeUser(deleted);
+		cout << ">> Removed the node after u2 (expected u4)." << endl;
+	}
+	my_cList.printAll();
 
-                if (myList.rList_rem_next(targetNode, &removedData) == 0)
-                {
-                    cout << "Node '" << removedData->id << "' removed successfully!" << endl;
-                    delete removedData;
-                }
-                else
-                {
-                    cout << "Failed to remove node!" << endl;
-                }
-                break;
+	cout << "\n===== 4. Destructor Test =====" << endl;
+	cout << "The list will be automatically destroyed when it goes out of scope." << endl;
 
-            case 3: // Get list size
-                cout << "Current list size: " << myList.rList_getListSize() << endl;
-                break;
-
-            case 4: // Destroy list
-                myList.rList_init();
-                cout << "List has been reset!" << endl;
-                break;
-
-            case 5: // Print list contents
-                myList.rList_printAll();
-                break;
-
-            case 0: // Exit
-                cout << "Exiting program..." << endl;
-                return 0;
-
-            default:
-                cout << "Invalid choice, please try again!" << endl;
-        }
-    }
-
-    return 0;
+	return 0;
 }
