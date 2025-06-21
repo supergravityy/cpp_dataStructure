@@ -54,7 +54,8 @@ bool cList::insertNext(void* node, void* data)
 			this->set_nextNode(newNode, tgtNextNode);				// 3. 새노드의 nextNode			-> tgtNode의 nextNode
 			this->set_nextNode(tgtNode, newNode);					// 4. tgtNode의 nextNode			-> 새노드
 
-			// 원형노드에는 tail 포인터가 없다.
+			if (this->get_CircularList_head() == tgtNextNode)		// 5. tgtNode의 nextNode가 헤드노드라면 head 업데이트
+				this->set_CircularList_head(newNode);
 		}
 
 		this->size++;
