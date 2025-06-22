@@ -1,114 +1,67 @@
 #include "../header/Queue.h"
 
-void printMenu()
-{
-    cout << "\n===== Queue Menu =====" << endl;
-    cout << "1. Enqueue" << endl;
-    cout << "2. Dequeue" << endl;
-    cout << "3. Peek" << endl;
-    cout << "4. Get Queue size" << endl;
-    cout << "5. Reset (Destroy) Queue" << endl;
-    cout << "0. Exit program" << endl;
-    cout << "=========================" << endl;
-    cout << "Enter your choice: ";
+typedef struct {
+	int id;
+	char name[32];
+} UserData;
+
+// For debugging
+void printUser(const void* data) {
+	const UserData* user = (const UserData*)data;
+	cout << "[ID: " << user->id << ", Name: " << user->name << "]" << endl;
 }
 
-void inputData(MyAddr &data)
-{
-    cout << "Enter new node ID: ";
-    cin >> data.id;
-    cout << "Enter new node name: ";
-    cin >> data.name;
-    cout << "Enter new node phoneNumber: ";
-    cin >> data.phone;
+typCmpResult compareUser(const void* a, const void* b) {
+	const UserData* u1 = (const UserData*)a;
+	const UserData* u2 = (const UserData*)b;
+	if (u1->id < u2->id) return LESS;
+	if (u1->id > u2->id) return GREATER;
+	return EQUAL;
 }
 
-void printData(MyAddr &data)
-{
-    cout << "ID : " << data.id << endl;
-    cout << "Name : " << data.name << endl;
-    cout << "PhoneNumber : " << data.phone << endl;
+void freeUser(void* data) {
+	delete (UserData*)data;
 }
 
-int makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
+int main() {
+	cout << "===== Queue Test =====" << endl;
 
-    if (*newData == nullptr)
-    {
-        cout << "Memory allocation Err!" << endl;
-        return 1;
-    }
+	Queue q;
+	q.init(compareUser, printUser, freeUser);
 
-    else
-        return 0;
-}
+	auto* u1 = new UserData{ 1, "Alpha" };
+	auto* u2 = new UserData{ 2, "Beta" };
+	auto* u3 = new UserData{ 3, "Gamma" };
+	auto* u4 = new UserData{ 4, "Delta" };
 
-int main()
-{
-    Queue myQueue;
-    int choice;
-    int makeResult = 0;
-    MyAddr *newData = nullptr;
-    MyAddr *removedData = nullptr;
+	q.enqueue(u1);
+	q.enqueue(u2);
+	q.enqueue(u3);
+	q.enqueue(u4);
+	cout << "\nAfter enqueue 4 elements:" << endl;
+	q.printAll();  // Expected: Alpha, Beta, Gamma
 
-    while (myQueue.Queue_getErrCode() == NORMAL)
-    {
-        printMenu();
-        cin >> choice;
+	// Peek
+	cout << "\nPeek front: ";
+	printUser(q.peek());
 
-        switch (choice)
-        {
-        case 1:
-            makeResult = makeData(&newData);
-            if (makeResult)
-                break;
-            inputData(*newData);
+	// Dequeue 2 elements
+	void* popped = nullptr;
 
-            if (myQueue.Queue_enqueue(newData) == 0)
-                cout << "Enqueue successfully!" << endl;
-            else
-                cout << "Failed to Enqueue!" << endl;
-            break;
+	q.dequeue(&popped);
+	cout << "\nDequeued 1st: ";
+	printUser(popped);
+	freeUser(popped);
 
-        case 2:
-            if (myQueue.Queue_dequeue(&removedData) == 0)
-            {
-                printData(*removedData);
-            }
-            else
-            {
-                cout << "Failed to dequeue!" << endl;
-            }
-            break;
+	q.dequeue(&popped);
+	cout << "Dequeued 2nd: ";
+	printUser(popped);
+	freeUser(popped);
 
-        case 3:
-            if (myQueue.Queue_peek(removedData) == 0)
-            {
-                printData(*removedData);
-            }
-            else
-            {
-                cout << "Failed to peek!" << endl;
-            }
-            break;
+	cout << "\nQueue after 2 dequeues:" << endl;
+	q.printAll();  // Expected: Gamma
 
-        case 4:
-            cout << "Current Stack size: " << myQueue.Queue_getQueueSize() << endl;
-            break;
-
-        case 5:
-            myQueue.Queue_init();
-            cout << "Stack has been reset!" << endl;
-            break;
-            
-        case 0:
-            return 0;
-
-        default:
-            break;
-        }
-    }
-
-    return 0;
+	// Destructor test
+	cout << "\nEnd of main(): Queue will be destroyed." << endl;
+	return 0;
 }

@@ -1,21 +1,31 @@
 #pragma once
 
-#include "List.h"
+#include"List.h"
+#include"ListNode.h"
+// queue
 
 class Queue : public List
 {
-    public:
-    Queue();
-    virtual ~Queue();
+public:
+	/*Management*/
+	Queue();
+	~Queue();
 
-    void Queue_init();
-    int Queue_enqueue(MyAddr* Data);
-    int Queue_dequeue(MyAddr** Data);
-    int Queue_peek(MyAddr* Data);
+	bool enqueue(void* data);
+	bool dequeue(void** saveData);
+	const void* peek();
 
-    int Queue_getQueueSize();
-    virtual int Queue_cmpData(const char* key1, const char* key2);
-    ErrCode Queue_getErrCode();
+	/*Utility*/
+protected:
+	/*Utility-1*/
 
-    private:
+	/*Accessor*/
+private:
+	/* Hide */
+	using List::set_Data;
+	using List::get_Data;
+	using List::lookup_Node;
+	using List::push_back;
+	using List::insert_nextNode;
+	using List::remove_nextNode;
 };
