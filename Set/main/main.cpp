@@ -1,244 +1,204 @@
 #include "../header/Set.h"
+#include "../header/Libs.h"
 
-#define FOR_INSERT 1
-#define FOR_REMOVE 2
+void bonusTest();
 
-int terminationCmd;
+// Person 구조체 정의
+typedef struct {
+    int id;
+    char name[32];
+} Person;
 
-void printMenu(int num)
-{
-    cout << "\n===== Set [" << num << "] Menu =====" << endl;
-    cout << "1. Insert" << endl;
-    cout << "2. Remove" << endl;
-    cout << "3. Get Set Size" << endl;
-    cout << "4. Reset Set" << endl;
-    cout << "5. Print All" << endl;
-    cout << "6. Skip" << endl;
-    cout << "0. Exit" << endl;
-	cout << "==============================" << endl;
+// 비교 함수: name 기준
+typCmpResult comparePerson(const void* a, const void* b) {
+    const Person* pa = (const Person*)a;
+    const Person* pb = (const Person*)b;
+
+    int cmp = strcmp(pa->name, pb->name);
+
+    if (cmp < 0) return LESS;
+    else if (cmp > 0) return GREATER;
+    else return EQUAL;
 }
 
-void printOperation()
-{
-    cout << "\n===== Set [result] Menu =====" << endl;
-    cout << "1. Union" << endl;
-    cout << "2. Intersection" << endl;
-    cout << "3. Difference" << endl;
-    cout << "4. Get Set Size" << endl;
-    cout << "5. Reset Set" << endl;
-    cout << "6. Print All" << endl;
-    cout << "7. Skip" << endl;
-    cout << "0. Exit" << endl;
-    cout << "==============================" << endl;
+// 출력 함수
+void printPerson(const void* data) {
+    const Person* p = (const Person*)data;
+    cout << "[ID: " << p->id << ", Name: " << p->name << "] " << endl;
 }
 
-void inputData(MyAddr& data, int num)
-{
-    if (num == FOR_INSERT)
-    {
-        cout << "Enter new node ID: ";
-        cin >> data.id;
-        cout << "Enter new node name: ";
-        cin >> data.name;
-        cout << "Enter new node phoneNumber: ";
-        cin >> data.phone;
-    }
-    else if (num == FOR_REMOVE)
-    {
-        cout << "Enter node ID: ";
-        cin >> data.id;
-        cout << "Enter node name: ";
-        cin >> data.name;
-        cout << "Enter node phoneNumber: ";
-        cin >> data.phone;
-    }
+// 해제 함수
+void destroyPerson(void* data) {
+    delete (Person*)data;
 }
+
+// 복사함수
+void* copyPerson(void* src){
+    Person* srcData = (Person*)src;
+    Person* temp = new Person;
     
-void printData(MyAddr &data)
-{
-    cout << "ID : " << data.id << endl;
-    cout << "Name : " << data.name << endl;
-    cout << "PhoneNumber : " << data.phone << endl;
+    temp->id = srcData->id;
+    strcpy_s(temp->name, srcData->name);
+    return (void*)temp;
 }
 
-int makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
+int main() {
+    Set A, B;
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
 
-    if (*newData == nullptr)
+    // A = {1, 2, 3}
+    A.insert(new Person{ 1, "Alice" });
+    A.insert(new Person{ 2, "Bob" });
+    A.insert(new Person{ 3, "Charlie" });
+    cout << "====== A elements ======" << endl;
+    A.printAll();
+
+    // B = {3, 4, 5}
+    B.insert(new Person{ 3, "Charlie" });
+    B.insert(new Person{ 4, "David" });
+    B.insert(new Person{ 5, "Eve" });
+    cout << endl << "====== B elements ======" << endl;
+    B.printAll();
+
+    // 합집합
+    Set* U = A | B;
+    cout << endl << "A ∪ B" << endl;
+    if (U != nullptr) 
+    { 
+        U->printAll();
+        // delete U; 
+    }
+    else 
+        cout << "[Union Failed]" << endl;
+
+    // 교집합
+    Set* I = A & B;
+    cout << endl << "A ∩ B" << endl;
+    if (I != nullptr)
     {
-        cout << "Memory allocation Err!" << endl;
-        return 1;
+        I->printAll();
+        // delete I;
+    }
+    else 
+        cout << "[Intersection Failed]" << endl;
+
+    // 차집합 A - B
+    Set* D = A - B;
+    cout << endl << "A - B" << endl;
+    if (D != nullptr)
+    { 
+        D->printAll(); 
+        // delete D; 
+    }
+    else 
+        cout << "[Difference Failed]" << endl;
+
+    // 대칭 차집합
+    Set* SD = A ^ B;
+    cout << endl << "A △ B" << endl;
+    if (SD != nullptr) 
+    { 
+        SD->printAll(); 
+        // delete SD; 
+    }
+    else 
+        cout << "[Symmetric Difference Failed]" << endl;
+
+    // 비교 연산
+    {
+        Set sameSet1, sameSet2;
+        sameSet1.init(comparePerson, printPerson, destroyPerson, copyPerson);
+        sameSet2.init(comparePerson, printPerson, destroyPerson, copyPerson);
+        sameSet1.insert(new Person{ 1, "alpha" });
+        sameSet1.insert(new Person{ 1, "beta" });
+        sameSet2.insert(new Person{ 2, "alpha" });
+        sameSet2.insert(new Person{ 2, "beta" });
+
+        cout << endl;
+        cout << "sameSet1 == sameSet2 ? " << (sameSet1 == sameSet2 ? "true" : "false") << endl;
     }
 
-    else
-        return 0;
-}
-
-int choice_mySet_menu(Set &mySet, int num)
-{
-    int choice;
-    int makeResult;
-    MyAddr *newData = nullptr;
-    MyAddr *removedData = nullptr;
-
-    if (mySet.Set_getErrCode() != NORMAL)
-        return 1;
-
-    while (mySet.Set_getErrCode() == NORMAL)
     {
-        printMenu(num);
-        cin >> choice;
+        Set subset1, subset2;
+        subset1.init(comparePerson, printPerson, destroyPerson, copyPerson);
+        subset2.init(comparePerson, printPerson, destroyPerson, copyPerson);
+        subset1.insert(new Person{ 1, "alpha" });
+        subset1.insert(new Person{ 1, "beta" });
+        subset1.insert(new Person{ 1, "gamma" });
+        subset2.insert(new Person{ 2, "alpha" });
+        subset2.insert(new Person{ 2, "gamma" });
 
-        switch (choice)
-        {
-        case 1:
-            makeResult = makeData(&newData);
-            if (makeResult)
-                break;
-
-            inputData(*newData,FOR_INSERT);
-
-            if (mySet.Set_insert(newData) == 0)
-                cout << "Insert successfully!" << endl;
-            else
-                cout << "Failed to Insert!" << endl;
-            break;
-
-        case 2:
-            delete removedData;
-			makeData(&removedData);
-			inputData(*removedData,FOR_REMOVE);
-
-            if (mySet.Set_remove(&removedData) != 0)
-            {
-				cout << "Failed to Remove!" << endl;
-			}
-            else
-            {
-                cout << "Remove successfully!" << endl;
-                printData(*removedData);
-            }
-            break;
-
-        case 3:
-            cout << "Current Set size: " << mySet.Set_getSetSize() << endl;
-            break;
-
-        case 4:
-            mySet.Set_init();
-            cout << "Set has been reset!" << endl;
-            break;
-
-        case 5:
-            mySet.Set_printAll();
-            break;
-
-        case 6:
-            return 0;
-            break;
-
-        case 0:
-            terminationCmd = 1;
-            return 1;
-
-        default:
-            break;
-        }
+        cout << "subset1 ⊂ subset2 ? " << (subset1 < subset2 ? "true" : "false") << endl;
+        cout << "subset1 ⊃ subset2 ? " << (subset1 > subset2 ? "true" : "false") << endl;
     }
+    
+    // 복사 대입은 사용하지 않고 명시적으로 copySet() 사용
+    Set C;
+    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    C = A;
+    cout << endl << "C = A → C:" << endl;
+    C.printAll();
+
+    // 추가 수식검증란 (bonus)
+    bonusTest();
 
     return 0;
 }
 
-int choice_resultSet_menu(Set &resultSet, Set &set1, Set &set2)
+void bonusTest()
 {
-    int choice, result = 0;
+    // 전체집합
+    Set U;
+    U.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    U.insert(new Person{ 1, "Alice" });
+    U.insert(new Person{ 2, "Bob" });
+    U.insert(new Person{ 3, "Charlie" });
+    U.insert(new Person{ 4, "David" });
+    U.insert(new Person{ 5, "Eve" });
 
-    if (resultSet.Set_getErrCode() != NORMAL)
-        return 1;
+    // 사건 A: Alice, Bob
+    Set A;
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    A.insert(new Person{ 1, "Alice" });
+    A.insert(new Person{ 2, "Bob" });
 
-    printOperation();
-    cin >> choice;
+    // 사건 B: Bob, Charlie
+    Set B;
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.insert(new Person{ 2, "Bob" });
+    B.insert(new Person{ 3, "Charlie" });
 
-    switch (choice)
-    {
-    case 1:
-        if (resultSet.Set_union(&set1, &set2) != OPERATION_CMPLT)
-        {
-            cout << "Union operation Failed!" << endl;
-            result = 1;
-        }
-        else
-        {
-			cout << "Union operation Success!" << endl;
-			resultSet.Set_printAll();
-        }
-        break;
-    case 2:
-        if (resultSet.Set_intersection(&set1, &set2) != OPERATION_CMPLT)
-        {
-            cout << "Intersection operation Failed!" << endl;
-            result = 1;
-        }
-        else
-        {
-			cout << "Intersection operation Success!" << endl;
-			resultSet.Set_printAll();
-        }
-        break;
-    case 3:
-        if (resultSet.Set_difference(&set1, &set2) != OPERATION_CMPLT)
-        {
-            cout << "S1 - S2 operation Failed!" << endl;
-            result = 1;
-		}
-        else
-        {
-			cout << "S1 - S2 operation Success!" << endl;
-			resultSet.Set_printAll();
-        }
-        break;
-    case 4:
-        cout << "Current Set size: " << resultSet.Set_getSetSize() << endl;
-        break;
-    case 5:
-        resultSet.Set_init();
-        cout << "Set has been reset!" << endl;
-        break;
-    case 6:
-        resultSet.Set_printAll();
-        break;
-    case 7:
-        // do nothing
-        break;
-    case 0:
-        terminationCmd = 1;
-        return 1;
-    default:
-        break;
-    }
+    // 여집합 A? = U - A
+    Set* Ac = U - A;
+    cout << "\nA? (Complement of A):" << endl;
+    Ac->printAll();
 
-    return result;
-}
+    // P(A) = |A| / |U|
+    double pA = (double)A.getSize() / U.getSize();
+    double pB = (double)B.getSize() / U.getSize();
 
-int main()
-{
-    Set mySet1, mySet2, resultSet;
+    // 베이즈정리
+    // A ∩ B
+    Set* AandB = A & B;
+    double pAandB = (double)AandB->getSize() / U.getSize();
 
-    while (true)
-    {
-        if(choice_mySet_menu(mySet1, 1))
-        if(terminationCmd == 1) return 0;
-            break;
+    // P(A|B) = P(A ∩ B) / P(B)
+    double pAgivenB = pB > 0 ? pAandB / pB : 0;
 
-        if(choice_mySet_menu(mySet2, 2))
-        if(terminationCmd == 1) return 0;
-            break;
+    // P(B|A) = P(A|B) * P(B) / P(A)
+    double pBgivenA = (pA > 0) ? (pAgivenB * pB / pA) : 0;
 
-        if(choice_resultSet_menu(resultSet, mySet1, mySet2))
-        if(terminationCmd == 1) return 0;
-            break;
-    }
+    cout << fixed;
+    cout.precision(4);
+    cout << "\n[확률 계산]" << endl;
+    cout << "P(A)        = " << pA << endl;
+    cout << "P(B)        = " << pB << endl;
+    cout << "P(A ∩ B)    = " << pAandB << endl;
+    cout << "P(A | B)    = " << pAgivenB << endl;
+    cout << "P(B | A)    = " << pBgivenA << "  ← 베이즈 정리 결과" << endl;
 
-    return 0;
+    // 정리
+    delete Ac;
+    delete AandB;
 }

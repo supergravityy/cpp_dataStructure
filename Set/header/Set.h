@@ -1,43 +1,61 @@
 #pragma once
 
 #include "List.h"
-
-enum operationResult
-{
-    NO_OPERATION = 0,
-    OPERATION_CMPLT,
-    INVALID_TARGET,
-    UNION_FAULT,
-    INTERSECTION_FAULT,
-    DIFFERENCE_FAULT
-};
+#include "ListNode.h"
+// set
 
 class Set : public List
 {
 public:
-    Set();                                                                      //
-    virtual ~Set();                                                             //
+	/*Management*/
+	Set();
+	~Set();
+	
+	bool init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
+		, void (*printFunc)(const void* data)
+		, void (*destroyDataFunc)(void* data)
+		, void* (*copyDataFunc)(void* data));
+	bool insert(void* data);
+	bool remove(void* data, void** saveData);
 
-    /* Management */
-    void Set_init();                                                            //
-    int Set_insert(MyAddr* data);                                               //
-    int Set_remove(MyAddr** data);                                              //
+	// 연산자 오버로딩 구현
+	Set* operator|(Set& otherSet);
+	Set* operator&(Set& otherSet);
+	Set* operator-(Set& otherSet);
+	Set* operator^(Set& otherSet);
+	bool operator<(Set& otherSet);
+	bool operator>(Set& otherSet);
+	bool operator==(Set& otherSet);
+	void operator=(Set& otherSet);  // 연속대입하지 말것 (내부적으로 초기화과정 이루어짐)
+	
+	/*Utility*/
+	bool isMember(void* data);
 
-    /* Operations */
-    operationResult Set_union(Set* set1, Set* set2);                            //
-    operationResult Set_intersection(Set* set1, Set* set2);                     //
-    operationResult Set_difference(Set* set1, Set* set2);                       // Sr = S1 - S2
-    
-    /* Utility */
-    int Set_getSetSize();                                                       //
-    ErrCode Set_getErrCode();                                                   //  
-    bool Set_isElement(MyAddr* data);                                           //
-    bool Set_isEqual(Set* AnotherSet);                                          //
-    bool Set_isSubSet(Set* targetSet);                                          // S1 = S1 n S2 -> S1 is subset of S2 
-    void Set_printAll();                                                        //
+protected:
+	/*Operation*/
+	Set* unionOpr(Set* otherSet);			// set1 | set2
+	Set* intersectOpr(Set* otherSet);		// set1 & set2
+	Set* diffOpr(Set* otherSet);			// set1 - set2
+	Set* symmDiffOpr(Set* otherSet);		// set1 ^ set2
 
-protected:    
-    virtual bool Set_cmpData(const char* key1, const char* key2);               //
+	/*Utility-1*/
+	bool isSubset_1(Set* otherSet);			// set1 ( set2
+	bool isSubset_2(Set* otherSet);			// set1 ) set2
+	bool isEqual(Set* otherSet);			// set1 == set2
+	void deepCopySet(Set* otherSet);		// set1 = set2
+	virtual void* makeInst();
+	virtual void freeInst(Set* tgtInst);
+	virtual void* deepCopyData(void* srcData);
+
+	/*Variable*/
+	void* (*copyDataFunc)(void* srcData);
 
 private:
+	/*Hide*/
+	using List::insert_nextNode;
+	using List::remove_nextNode;
+	using List::pushBack;
+	using List::set_Data;
+	using List::get_Data;
+	using List::init;
 };
