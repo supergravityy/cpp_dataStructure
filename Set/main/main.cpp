@@ -2,14 +2,20 @@
 #include "../header/Libs.h"
 
 void bonusTest();
+void deMorganLaw();
+void test_subsetCases();
+void test_symmDiffCases();
+void test_diffCases();
+void test_intersectCases();
+void test_unionCases();
 
-// Person ±¸Á¶Ã¼ Á¤ÀÇ
+// Person êµ¬ì¡°ì²´ ì •ì˜
 typedef struct {
     int id;
     char name[32];
 } Person;
 
-// ºñ±³ ÇÔ¼ö: name ±âÁØ
+// ë¹„êµ í•¨ìˆ˜: name ê¸°ì¤€
 typCmpResult comparePerson(const void* a, const void* b) {
     const Person* pa = (const Person*)a;
     const Person* pb = (const Person*)b;
@@ -21,18 +27,18 @@ typCmpResult comparePerson(const void* a, const void* b) {
     else return EQUAL;
 }
 
-// Ãâ·Â ÇÔ¼ö
+// ì¶œë ¥ í•¨ìˆ˜
 void printPerson(const void* data) {
     const Person* p = (const Person*)data;
     cout << "[ID: " << p->id << ", Name: " << p->name << "] " << endl;
 }
 
-// ÇØÁ¦ ÇÔ¼ö
+// í•´ì œ í•¨ìˆ˜
 void destroyPerson(void* data) {
     delete (Person*)data;
 }
 
-// º¹»çÇÔ¼ö
+// ë³µì‚¬í•¨ìˆ˜
 void* copyPerson(void* src){
     Person* srcData = (Person*)src;
     Person* temp = new Person;
@@ -43,112 +49,349 @@ void* copyPerson(void* src){
 }
 
 int main() {
-    Set A, B;
-    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
-    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
-
-    // A = {1, 2, 3}
-    A.insert(new Person{ 1, "Alice" });
-    A.insert(new Person{ 2, "Bob" });
-    A.insert(new Person{ 3, "Charlie" });
-    cout << "====== A elements ======" << endl;
-    A.printAll();
-
-    // B = {3, 4, 5}
-    B.insert(new Person{ 3, "Charlie" });
-    B.insert(new Person{ 4, "David" });
-    B.insert(new Person{ 5, "Eve" });
-    cout << endl << "====== B elements ======" << endl;
-    B.printAll();
-
-    // ÇÕÁıÇÕ
-    Set* U = A | B;
-    cout << endl << "A ¡ú B" << endl;
-    if (U != nullptr) 
-    { 
-        U->printAll();
-        // delete U; 
-    }
-    else 
-        cout << "[Union Failed]" << endl;
-
-    // ±³ÁıÇÕ
-    Set* I = A & B;
-    cout << endl << "A ¡û B" << endl;
-    if (I != nullptr)
-    {
-        I->printAll();
-        // delete I;
-    }
-    else 
-        cout << "[Intersection Failed]" << endl;
-
-    // Â÷ÁıÇÕ A - B
-    Set* D = A - B;
-    cout << endl << "A - B" << endl;
-    if (D != nullptr)
-    { 
-        D->printAll(); 
-        // delete D; 
-    }
-    else 
-        cout << "[Difference Failed]" << endl;
-
-    // ´ëÄª Â÷ÁıÇÕ
-    Set* SD = A ^ B;
-    cout << endl << "A ¡â B" << endl;
-    if (SD != nullptr) 
-    { 
-        SD->printAll(); 
-        // delete SD; 
-    }
-    else 
-        cout << "[Symmetric Difference Failed]" << endl;
-
-    // ºñ±³ ¿¬»ê
-    {
-        Set sameSet1, sameSet2;
-        sameSet1.init(comparePerson, printPerson, destroyPerson, copyPerson);
-        sameSet2.init(comparePerson, printPerson, destroyPerson, copyPerson);
-        sameSet1.insert(new Person{ 1, "alpha" });
-        sameSet1.insert(new Person{ 1, "beta" });
-        sameSet2.insert(new Person{ 2, "alpha" });
-        sameSet2.insert(new Person{ 2, "beta" });
-
-        cout << endl;
-        cout << "sameSet1 == sameSet2 ? " << (sameSet1 == sameSet2 ? "true" : "false") << endl;
-    }
-
-    {
-        Set subset1, subset2;
-        subset1.init(comparePerson, printPerson, destroyPerson, copyPerson);
-        subset2.init(comparePerson, printPerson, destroyPerson, copyPerson);
-        subset1.insert(new Person{ 1, "alpha" });
-        subset1.insert(new Person{ 1, "beta" });
-        subset1.insert(new Person{ 1, "gamma" });
-        subset2.insert(new Person{ 2, "alpha" });
-        subset2.insert(new Person{ 2, "gamma" });
-
-        cout << "subset1 ¡ø subset2 ? " << (subset1 < subset2 ? "true" : "false") << endl;
-        cout << "subset1 ¡ù subset2 ? " << (subset1 > subset2 ? "true" : "false") << endl;
-    }
     
-    // º¹»ç ´ëÀÔÀº »ç¿ëÇÏÁö ¾Ê°í ¸í½ÃÀûÀ¸·Î copySet() »ç¿ë
-    Set C;
-    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
-    C = A;
-    cout << endl << "C = A ¡æ C:" << endl;
-    C.printAll();
+    test_unionCases();
+    test_intersectCases();
+    test_diffCases();
+    test_symmDiffCases();
+    test_subsetCases();
 
-    // Ãß°¡ ¼ö½Ä°ËÁõ¶õ (bonus)
+    // ì¶”ê°€ ìˆ˜ì‹ê²€ì¦ë€ (bonus)
     bonusTest();
+    deMorganLaw();
 
     return 0;
 }
 
+void test_unionCases()
+{
+    cout << "====test_unionCases====" << endl << endl; 
+
+    Set A, B, C, D, E;
+
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    D.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    E.init(comparePerson, printPerson, destroyPerson, copyPerson);
+
+    A.insert(new Person{ 1,"alpha"});
+    A.insert(new Person{ 1,"beta"});
+    A.insert(new Person{ 2, "gamma" });
+    A.insert(new Person{ 3, "delta" });
+
+    B.insert(new Person{ 5,"alpha" });
+    B.insert(new Person{ 4,"theta" });
+
+    // 1. ì¼ë°˜ì ì¸ ê²½ìš°
+
+    cout << "1. general Case" << endl;
+    Set* result1 = A | B;
+    result1->printAll();
+    delete result1;
+
+    // 2. ë™ì¼ì§‘í•©ì¸ ê²½ìš°
+    cout << endl << "2. same set Case" << endl;
+    C = A;
+    Set* result2 = C | A;
+    result2->printAll();
+    delete result2;
+
+    // 3. ê³µì§‘í•©ê³¼ì˜ í•©ì§‘í•©
+    cout << endl << "3. one empty set Case" << endl;
+    Set* result3 = D | A;
+    result3->printAll();
+    delete result3;
+
+    // 4. ê³µì§‘í•©ë¼ë¦¬ì˜ í•©ì§‘í•©
+    cout << endl << "4. both empty set Case" << endl;
+    Set* result4 = D | E;
+    result4->printAll();
+    delete result4;
+}
+
+void test_intersectCases()
+{
+    cout << endl << "====test_intersectCases====" << endl << endl;
+
+    Set A, B, C, D, E;
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    D.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    E.init(comparePerson, printPerson, destroyPerson, copyPerson);
+
+    A.insert(new Person{ 1, "alpha" });
+    A.insert(new Person{ 1, "beta" });
+    A.insert(new Person{ 2, "gamma" });
+    A.insert(new Person{ 3, "delta" });
+
+    B.insert(new Person{ 9, "alpha" });
+    B.insert(new Person{ 8, "theta" });
+
+    C.insert(new Person{ 10, "epsilon" });
+    C.insert(new Person{ 11, "zeta" });
+
+    // 1. ì¼ë°˜ì ì¸ ê²½ìš° (alphaë§Œ ê²¹ì¹¨)
+    cout << "1. general Case (one element intersection)" << endl;
+    Set* result1 = A & B;
+    result1->printAll();
+    delete result1;
+
+    // 2. ê²¹ì¹˜ì§€ ì•ŠëŠ” ê²½ìš°
+    cout << endl << "2. disjoint Case (no intersection)" << endl;
+    Set* result2 = A & C;
+    result2->printAll();
+    delete result2;
+
+    // 3. ë™ì¼í•œ ì§‘í•©
+    cout << endl << "3. same set Case (A âˆ© A)" << endl;
+    Set* result3 = A & A;
+    result3->printAll();
+    delete result3;
+
+    // 4. í•œìª½ì´ ê³µì§‘í•©
+    cout << endl << "4. one empty set Case" << endl;
+    Set* result4 = A & D;
+    result4->printAll();
+    delete result4;
+
+    // 5. ë‘˜ ë‹¤ ê³µì§‘í•©
+    cout << endl << "5. both empty set Case" << endl;
+    Set* result5 = D & E;
+    result5->printAll();
+    delete result5;
+}
+
+void test_diffCases()
+{
+    cout << endl << "====test_diffCases====" << endl << endl;
+
+    Set A, B, C, D, E;
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    D.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    E.init(comparePerson, printPerson, destroyPerson, copyPerson);
+
+    // A: alpha, beta, gamma, delta
+    A.insert(new Person{ 1, "alpha" });
+    A.insert(new Person{ 1, "beta" });
+    A.insert(new Person{ 2, "gamma" });
+    A.insert(new Person{ 3, "delta" });
+
+    // B: alpha, delta
+    B.insert(new Person{ 9, "alpha" });
+    B.insert(new Person{ 9, "delta" });
+
+    // C: beta, gamma (Aì˜ ë¶€ë¶„ì§‘í•©)
+    C.insert(new Person{ 4, "beta" });
+    C.insert(new Person{ 5, "gamma" });
+
+    // 1. ì¼ë°˜ì ì¸ ê²½ìš° (alpha, delta ì œê±° â†’ beta, gamma ë‚¨ìŒ)
+    cout << "1. general Case" << endl;
+    Set* result1 = A - B;
+    result1->printAll();
+    delete result1;
+
+    // 2. ë¶€ë¶„ì§‘í•© ì œê±° (A - C)
+    cout << endl << "2. remove subset from A" << endl;
+    Set* result2 = A - C;
+    result2->printAll();
+    delete result2;
+
+    // 3. ë™ì¼í•œ ì§‘í•© ì œê±° (A - A â†’ 0)
+    cout << endl << "3. same set Case" << endl;
+    Set* result3 = A - A;
+    result3->printAll();
+    delete result3;
+
+    // 4. ê³µì§‘í•©ê³¼ì˜ ì°¨ì§‘í•© (A - D = A)
+    cout << endl << "4. subtract empty set from A " << endl;
+    Set* result4 = A - D;
+    result4->printAll();
+    delete result4;
+
+    // 5. ê³µì§‘í•©ì—ì„œ ì°¨ì§‘í•© (D - A = 0)
+    cout << endl << "5. empty set minus A " << endl;
+    Set* result5 = D - A;
+    result5->printAll();
+    delete result5;
+}
+
+void test_symmDiffCases()
+{
+    cout << endl << "====test_symmDiffCases====" << endl << endl;
+
+    Set A, B, C, D, E;
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    D.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    E.init(comparePerson, printPerson, destroyPerson, copyPerson);
+
+    // A = {alpha, beta, gamma}
+    A.insert(new Person{ 1, "alpha" });
+    A.insert(new Person{ 2, "beta" });
+    A.insert(new Person{ 3, "gamma" });
+
+    // B = {gamma, delta, epsilon}
+    B.insert(new Person{ 4, "gamma" });
+    B.insert(new Person{ 5, "delta" });
+    B.insert(new Person{ 6, "epsilon" });
+
+    // C = {beta, gamma} â†’ Aì˜ ë¶€ë¶„ì§‘í•©
+    C.insert(new Person{ 7, "beta" });
+    C.insert(new Person{ 8, "gamma" });
+
+    // D = A (ë™ì¼ ì§‘í•©)
+    D = A;
+
+    // E = {} (ê³µì§‘í•©)
+
+    // 1. ì¼ë°˜ì ì¸ ê²½ìš°: ì¼ë¶€ ê²¹ì¹˜ê³  ì¼ë¶€ ë‹¤ë¦„ â†’ {alpha, beta, delta, epsilon}
+    cout << "1. general Case (A ^ B)" << endl;
+    Set* result1 = A ^ B;
+    result1->printAll();
+    delete result1;
+
+    // 2. ë¶€ë¶„ì§‘í•© ê²½ìš° (A ^ C) â†’ Aì˜ ë‚¨ëŠ” ì›ì†Œ + Cì˜ ì—†ëŠ” ì›ì†Œ
+    cout << endl << "2. subset Case (A ^ C)" << endl;
+    Set* result2 = A ^ C;
+    result2->printAll();
+    delete result2;
+
+    // 3. ë™ì¼ ì§‘í•© (A ^ A = 0)
+    cout << endl << "3. same set Case (A ^ D)" << endl;
+    Set* result3 = A ^ D;
+    result3->printAll();
+    delete result3;
+
+    // 4. ì™„ì „í•œ ë…ë¦½ ì§‘í•© (êµì§‘í•© ì—†ìŒ â†’ âˆª ê²°ê³¼ì™€ ë™ì¼)
+    cout << endl << "4. disjoint Case (A ^ newSet)" << endl;
+    Set F;
+    F.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    F.insert(new Person{ 10, "lambda" });
+    F.insert(new Person{ 11, "mu" });
+    Set* result4 = A ^ F;
+    result4->printAll();
+    delete result4;
+
+    // 5. í•œ ìª½ì´ ê³µì§‘í•© (A ^ 0 = A)
+    cout << endl << "5. one empty Case (A ^ 0)" << endl;
+    Set* result5 = A ^ E;
+    result5->printAll();
+    delete result5;
+}
+
+void test_subsetCases()
+{
+    cout << endl << "====test_subsetCases====" << endl << endl;
+
+    Set A, B, C, D, E;
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    C.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    D.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    E.init(comparePerson, printPerson, destroyPerson, copyPerson);
+
+    // A = {alpha, beta}
+    A.insert(new Person{ 1, "alpha" });
+    A.insert(new Person{ 2, "beta" });
+
+    // B = {alpha, beta, gamma}
+    B.insert(new Person{ 3, "alpha" });
+    B.insert(new Person{ 4, "beta" });
+    B.insert(new Person{ 5, "gamma" });
+
+    // C = {delta, epsilon} (Aì™€ ì™„ì „ ë…ë¦½)
+    C.insert(new Person{ 6, "delta" });
+    C.insert(new Person{ 7, "epsilon" });
+
+    E.insert(new Person{ 7, "epsilon" });
+
+    // D = A (ë™ì¼ ì§‘í•©)
+
+    // E = {} (ê³µì§‘í•©)
+
+    // 1. A âŠ‚ B (ì§„ë¶€ë¶„ì§‘í•©)
+    cout << "1. A âŠ‚ B ?" << endl;
+    cout << (A < B ? "true" : "false") << endl;
+
+    // 2. A == D
+    cout << endl << "2. A == D ?" << endl;
+    D = A;
+    cout << "A âŠ† D ? " << (A < D ? "true" : "false") << endl;
+    cout << "A == D ? " << (A == D ? "true" : "false") << endl;
+
+    // 3. A âŠ‚ C ? (ë…ë¦½ ì§‘í•©)
+    cout << endl << "3. A âŠ‚ C ? (no common elements)" << endl;
+    cout << (A < C ? "true" : "false") << endl;
+
+    // 4. A âŠ‚ 0 (ê³µì§‘í•©ì´ í¬í•¨í•´ì•¼ í•˜ëŠ” ê²½ìš° - false)
+    cout << endl << "5. A âŠ‚ 0 ?" << endl;
+    cout << (A < E ? "true" : "false") << endl;
+}
+
+void deMorganLaw()
+{
+    Set U, A, B;
+    U.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    A.init(comparePerson, printPerson, destroyPerson, copyPerson);
+    B.init(comparePerson, printPerson, destroyPerson, copyPerson);
+
+    // ì „ì²´ì§‘í•©
+    U.insert(new Person{ 1, "Alice" });
+    U.insert(new Person{ 2, "Bob" });
+    U.insert(new Person{ 3, "Charlie" });
+    U.insert(new Person{ 4, "David" });
+    U.insert(new Person{ 5, "Eve" });
+
+    // A = {Alice, Bob}
+    A.insert(new Person{ 1, "Alice" });
+    A.insert(new Person{ 2, "Bob" });
+
+    // B = {Charlie, David}
+    B.insert(new Person{ 3, "Charlie" });
+    B.insert(new Person{ 4, "David" });
+
+    // (A âˆª B)'
+    Set* unionAB = A | B;
+    Set* lhs1 = U - *unionAB;
+
+    // A' âˆ© B'
+    Set* notA = U - A;
+    Set* notB = U - B;
+    Set* rhs1 = *notA & *notB;
+
+    cout << endl << "====demorgan law====" << endl;
+
+    cout << "\n(1) (A âˆª B)' vs A' âˆ© B'" << endl;
+    cout << "LHS:" << endl; lhs1->printAll();
+    cout << "RHS:" << endl; rhs1->printAll();
+    cout << "Equal? " << (*lhs1 == *rhs1 ? "true" : "false") << endl;
+
+    // (A âˆ© B)'
+    Set* intersectAB = A & B;
+    Set* lhs2 = U - *intersectAB;
+
+    // A' âˆª B'
+    Set* rhs2 = *notA | *notB;
+
+    cout << "\n(2) (A âˆ© B)' vs A' âˆª B'" << endl;
+    cout << "LHS:" << endl; lhs2->printAll();
+    cout << "RHS:" << endl; rhs2->printAll();
+    cout << "Equal? " << (*lhs2 == *rhs2 ? "true" : "false") << endl;
+
+    // clean up
+    delete unionAB; delete lhs1; delete rhs1;
+    delete intersectAB; delete lhs2; delete rhs2;
+    delete notA; delete notB;
+}
+
 void bonusTest()
 {
-    // ÀüÃ¼ÁıÇÕ
+    // ì „ì²´ì§‘í•©
     Set U;
     U.init(comparePerson, printPerson, destroyPerson, copyPerson);
     U.insert(new Person{ 1, "Alice" });
@@ -157,33 +400,37 @@ void bonusTest()
     U.insert(new Person{ 4, "David" });
     U.insert(new Person{ 5, "Eve" });
 
-    // »ç°Ç A: Alice, Bob
+    // ì‚¬ê±´ A: Alice, Bob
     Set A;
     A.init(comparePerson, printPerson, destroyPerson, copyPerson);
     A.insert(new Person{ 1, "Alice" });
     A.insert(new Person{ 2, "Bob" });
 
-    // »ç°Ç B: Bob, Charlie
+    // ì‚¬ê±´ B: Bob, Charlie
     Set B;
     B.init(comparePerson, printPerson, destroyPerson, copyPerson);
     B.insert(new Person{ 2, "Bob" });
     B.insert(new Person{ 3, "Charlie" });
 
-    // ¿©ÁıÇÕ A? = U - A
+    cout << endl << "====Complement Set====" << endl;
+
+    // ì—¬ì§‘í•© A? = U - A
     Set* Ac = U - A;
     cout << "\nA? (Complement of A):" << endl;
     Ac->printAll();
+
+    cout << endl << "====Bayes Theorem====" << endl;
 
     // P(A) = |A| / |U|
     double pA = (double)A.getSize() / U.getSize();
     double pB = (double)B.getSize() / U.getSize();
 
-    // º£ÀÌÁîÁ¤¸®
-    // A ¡û B
+    
+    // A âˆ© B
     Set* AandB = A & B;
     double pAandB = (double)AandB->getSize() / U.getSize();
 
-    // P(A|B) = P(A ¡û B) / P(B)
+    // P(A|B) = P(A âˆ© B) / P(B)
     double pAgivenB = pB > 0 ? pAandB / pB : 0;
 
     // P(B|A) = P(A|B) * P(B) / P(A)
@@ -191,14 +438,14 @@ void bonusTest()
 
     cout << fixed;
     cout.precision(4);
-    cout << "\n[È®·ü °è»ê]" << endl;
+    cout << "\n[í™•ë¥  ê³„ì‚°]" << endl;
     cout << "P(A)        = " << pA << endl;
     cout << "P(B)        = " << pB << endl;
-    cout << "P(A ¡û B)    = " << pAandB << endl;
+    cout << "P(A âˆ© B)    = " << pAandB << endl;
     cout << "P(A | B)    = " << pAgivenB << endl;
-    cout << "P(B | A)    = " << pBgivenA << "  ¡ç º£ÀÌÁî Á¤¸® °á°ú" << endl;
+    cout << "P(B | A)    = " << pBgivenA << "  â† ë² ì´ì¦ˆ ì •ë¦¬ ê²°ê³¼" << endl;
 
-    // Á¤¸®
+    // ì •ë¦¬
     delete Ac;
     delete AandB;
 }
