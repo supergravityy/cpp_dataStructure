@@ -21,11 +21,11 @@ Set* Set::unionOpr(Set* otherSet)
 	}
 	else
 	{
-		// 1. »õ·Î¿î	Set ÀÎ½ºÅÏ½º »ý¼º
+		// 1. ìƒˆë¡œìš´	Set ì¸ìŠ¤í„´ìŠ¤ ìƒì„±
 		resultSet = (Set*)this->makeInst();
 		if (resultSet == nullptr)	return nullptr;
 
-		// 2. ÇÕÁýÇÕ ÃÊ±âÈ­ °úÁ¤
+		// 2. í•©ì§‘í•© ì´ˆê¸°í™” ê³¼ì •
 		if(resultSet->init(this->cmpFunc, this->printFunc, this->freeDataFunc, this->copyDataFunc) == false)
 		{
 			this->errCode = SYS_FAULT;
@@ -33,7 +33,7 @@ Set* Set::unionOpr(Set* otherSet)
 			return nullptr;
 		}
 
-		// 3. ÇöÀç SetÀÇ ¸ðµç ¿ø¼Ò¸¦ resultSet¿¡ Ãß°¡
+		// 3. í˜„ìž¬ Setì˜ ëª¨ë“  ì›ì†Œë¥¼ resultSetì— ì¶”ê°€
 		resultSet->deepCopySet(this);
 		if (resultSet->errCode != NORMAL) 
 		{
@@ -42,7 +42,7 @@ Set* Set::unionOpr(Set* otherSet)
 			return nullptr;
 		}
 
-		// 4. ´Ù¸¥ SetÀÇ ¸ðµç ¿ø¼Ò¸¦ resultSet¿¡ Ãß°¡
+		// 4. ë‹¤ë¥¸ Setì˜ ëª¨ë“  ì›ì†Œë¥¼ resultSetì— ì¶”ê°€
 		for (memberNode = otherSet->get_SingleList_head(); memberNode != nullptr;
 			memberNode = (typSingleList_Node*)otherSet->get_nextNode(memberNode))
 		{
@@ -54,9 +54,10 @@ Set* Set::unionOpr(Set* otherSet)
 				return nullptr;
 			}
 
-			resultSet->insert(new_memberData);
+			if(resultSet->insert(new_memberData) == false)
+				this->freeDataFunc(new_memberData);
 
-			if(resultSet->errCode != NORMAL) // ºÎ¸ð¸Þ¼­µå¿¡¼­ ¿À·ù¹ß»ý½Ã »õ ÀÎ½ºÅÏ½º »èÁ¦
+			if(resultSet->errCode != NORMAL) // ë¶€ëª¨ë©”ì„œë“œì—ì„œ ì˜¤ë¥˜ë°œìƒì‹œ ìƒˆ ì¸ìŠ¤í„´ìŠ¤ ì‚­ì œ
 			{
 				this->errCode = resultSet->errCode;
 				this->freeInst(resultSet);
@@ -86,11 +87,11 @@ Set* Set::intersectOpr(Set* otherSet)
 	}
 	else
 	{
-		// 1. »õ·Î¿î	Set ÀÎ½ºÅÏ½º »ý¼º
+		// 1. ìƒˆë¡œìš´	Set ì¸ìŠ¤í„´ìŠ¤ ìƒì„±
 		resultSet = (Set*)this->makeInst();
 		if (resultSet == nullptr)	return nullptr;
 
-		// 2. ±³ÁýÇÕ ÃÊ±âÈ­ °úÁ¤
+		// 2. êµì§‘í•© ì´ˆê¸°í™” ê³¼ì •
 		if (resultSet->init(this->cmpFunc, this->printFunc, this->freeDataFunc, this->copyDataFunc) == false)
 		{
 			this->errCode = SYS_FAULT;
@@ -98,7 +99,7 @@ Set* Set::intersectOpr(Set* otherSet)
 			return nullptr;
 		}
 		
-		// 3. ÇöÀç Set°ú ÀÎÀÚ·Î ¹ÞÀº SetÀÇ ±³ÁýÇÕÀ» ±¸ÇÏ¿© resultSet¿¡ Ãß°¡
+		// 3. í˜„ìž¬ Setê³¼ ì¸ìžë¡œ ë°›ì€ Setì˜ êµì§‘í•©ì„ êµ¬í•˜ì—¬ resultSetì— ì¶”ê°€
 		for (memberNode = this->get_SingleList_head(); memberNode != nullptr;
 			memberNode = (typSingleList_Node*)this->get_nextNode(memberNode))
 		{
@@ -110,17 +111,20 @@ Set* Set::intersectOpr(Set* otherSet)
 				return nullptr;
 			}
 
-			if (otherSet->isMember(new_memberData)) // ÇöÀç SetÀÇ ¿ø¼Ò°¡ ´Ù¸¥ Set¿¡ Á¸ÀçÇÒ °æ¿ì, resultSet¿¡ Ãß°¡
+			if (otherSet->isMember(new_memberData)) // í˜„ìž¬ Setì˜ ì›ì†Œê°€ ë‹¤ë¥¸ Setì— ì¡´ìž¬í•  ê²½ìš°, resultSetì— ì¶”ê°€
 			{
-				resultSet->insertNext(resultSet->get_SingleList_tail(), new_memberData); 
+				resultSet->insertNext(resultSet->get_SingleList_tail(), new_memberData);
 
-				if(resultSet->errCode != NORMAL) // ºÎ¸ð¸Þ¼­µå¿¡¼­ ¿À·ù¹ß»ý½Ã »õ ÀÎ½ºÅÏ½º »èÁ¦
+				if(resultSet->errCode != NORMAL) // ë¶€ëª¨ë©”ì„œë“œì—ì„œ ì˜¤ë¥˜ë°œìƒì‹œ ìƒˆ ì¸ìŠ¤í„´ìŠ¤ ì‚­ì œ
 				{
 					this->errCode = resultSet->errCode;
 					this->freeInst(resultSet);
 					return nullptr;
 				}
 			}
+			else    
+				this->freeDataFunc(new_memberData);
+			
 		}
 		return resultSet;
 	}
@@ -145,11 +149,11 @@ Set* Set::diffOpr(Set* otherSet)
 	}
 	else
 	{
-		// 1. »õ·Î¿î	Set ÀÎ½ºÅÏ½º »ý¼º
+		// 1. ìƒˆë¡œìš´	Set ì¸ìŠ¤í„´ìŠ¤ ìƒì„±
 		resultSet = (Set*)this->makeInst();
 		if (resultSet == nullptr)	return nullptr;
 
-		// 2. Â÷ÁýÇÕ ÃÊ±âÈ­ °úÁ¤
+		// 2. ì°¨ì§‘í•© ì´ˆê¸°í™” ê³¼ì •
 		if (resultSet->init(this->cmpFunc, this->printFunc, this->freeDataFunc, this->copyDataFunc) == false)
 		{
 			this->errCode = SYS_FAULT;
@@ -157,7 +161,7 @@ Set* Set::diffOpr(Set* otherSet)
 			return nullptr;
 		}
 
-		// 3. ÇöÀç setÀÇ ¿ø¼Ò¿¡¼­ ÀÎÀÚ·Î ¹ÞÀº setÀÇ ¿ø¼Ò°¡ ¾Æ´Ñ °Í¸¸ ´ëÀÔ
+		// 3. í˜„ìž¬ setì˜ ì›ì†Œì—ì„œ ì¸ìžë¡œ ë°›ì€ setì˜ ì›ì†Œê°€ ì•„ë‹Œ ê²ƒë§Œ ëŒ€ìž…
 		for (memberNode = this->get_SingleList_head(); memberNode != nullptr;
 			memberNode = (typSingleList_Node*)this->get_nextNode(memberNode))
 		{
@@ -173,13 +177,15 @@ Set* Set::diffOpr(Set* otherSet)
 			{
 				resultSet->insertNext(resultSet->get_SingleList_tail(), new_memberData);
 
-				if (resultSet->errCode != NORMAL) // ºÎ¸ð¸Þ¼­µå¿¡¼­ ¿À·ù¹ß»ý½Ã »õ ÀÎ½ºÅÏ½º »èÁ¦
+				if (resultSet->errCode != NORMAL) // ë¶€ëª¨ë©”ì„œë“œì—ì„œ ì˜¤ë¥˜ë°œìƒì‹œ ìƒˆ ì¸ìŠ¤í„´ìŠ¤ ì‚­ì œ
 				{
 					this->errCode = resultSet->errCode;
 					this->freeInst(resultSet);
 					return nullptr;
 				}
 			}
+			else
+				this->freeDataFunc(new_memberData);
 		}
 		return resultSet;
 	}
@@ -204,11 +210,11 @@ Set* Set::symmDiffOpr(Set* otherSet)
 	}
 	else
 	{
-		// 1. »õ·Î¿î	Set ÀÎ½ºÅÏ½º »ý¼º
+		// 1. ìƒˆë¡œìš´	Set ì¸ìŠ¤í„´ìŠ¤ ìƒì„±
 		resultSet = (Set*)this->makeInst();
 		if (resultSet == nullptr)	return nullptr;
 
-		// 2. ´ëÄª Â÷ÁýÇÕ ÃÊ±âÈ­ °úÁ¤
+		// 2. ëŒ€ì¹­ ì°¨ì§‘í•© ì´ˆê¸°í™” ê³¼ì •
 		if (resultSet->init(this->cmpFunc, this->printFunc, this->freeDataFunc, this->copyDataFunc) == false)
 		{
 			this->errCode = SYS_FAULT;
@@ -239,6 +245,8 @@ Set* Set::symmDiffOpr(Set* otherSet)
 					return nullptr;
 				}
 			}
+			else
+				this->freeDataFunc(new_memberData);
 		}
 
 		// 4. other - this
@@ -264,6 +272,8 @@ Set* Set::symmDiffOpr(Set* otherSet)
 					return nullptr;
 				}
 			}
+			else
+				this->freeDataFunc(new_memberData);
 		}
 		return resultSet;
 	}
