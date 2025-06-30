@@ -7,5 +7,6 @@
 #include <cassert>
 #include <climits>
 #include <cstdint>
+#include <exception>
 
 using namespace std;
