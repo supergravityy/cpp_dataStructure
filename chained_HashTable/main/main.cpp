@@ -1,5 +1,5 @@
 #include "../header/HashTable.h"
-#include <cstring>
+#include <cmath>
 
 struct Student {
     int id;
@@ -135,6 +135,14 @@ void test_bucket_distribution() {
 
     cout << "Total element Number : " << elementNum << endl;
     cout << "Bucket's elements Number Average : " << elementNum / table.get_tableSize() << endl;
+
+    double varianceSum = 0.0;
+    for (int i = 0; i < table.get_tableSize(); i++) {
+        double diff = Arr[i] - elementNum / table.get_tableSize();
+        varianceSum += diff * diff;
+    }
+    double stddev = sqrt(varianceSum / table.get_tableSize());
+    cout << "Standard Deviation of Bucket Sizes : " << stddev << endl;
 
     delete[] Arr;
 }
