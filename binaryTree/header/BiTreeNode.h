@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Libs.h"
-#include "Data.h"
+#include "../header/Libs.h"
 
 typedef struct BitreeNode_
 {
-    MyAddr* data;
+    void* data;
     struct BitreeNode_* left;
     struct BitreeNode_* right;
-}BiTreeNode;
+}typBiTreeNode;

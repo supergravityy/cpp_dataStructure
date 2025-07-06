@@ -1,375 +1,114 @@
-#include "../header/BiTree.h"
+#define _CRT_SECURE_NO_WARNINGS
+#include "../header/bitree.h"
+#include "../header/traverse.h"
 
-using namespace std;
+// ÃÖ¼ÒÇÑÀÇ ±¸Á¶Ã¼
+struct SimpleData {
+    char id[8];
+    char name[32];
+};
 
-bool terminationCmd = false;
-
-void printMenu(int num)
-{
-    cout << "\n===== BinaryTree [" << num << "] Menu =====" << endl;
-    cout << "1. Insert left" << endl;
-    cout << "2. Insert right" << endl;
-    cout << "3. Remove left" << endl;
-    cout << "4. Remove right" << endl;
-    cout << "5. Get Tree Size" << endl;
-    cout << "6. Reset Tree" << endl;
-    cout << "7. Print All" << endl;
-    cout << "8. Skip" << endl;
-    cout << "0. Exit" << endl;
-    cout << "==============================" << endl;
+// Ãâ·Â ÇÔ¼ö
+void printSimple(void* data) {
+    if (!data) return;
+    SimpleData* s = (SimpleData*)data;
+    cout << "[ID: " << s->id << ", Name: " << s->name << "]" << endl;
 }
 
-void printOperation()
-{
-    cout << "\n===== BinaryTree [mergeTree] Menu =====" << endl;
-    cout << "1. Merge" << endl;
-    cout << "2. Reset tree" << endl;
-    cout << "3. Print All" << endl;
-    cout << "4. Skip" << endl;
-    cout << "0. Exit" << endl;
-    cout << "==============================" << endl;
+// ºñ±³ ÇÔ¼ö
+typCmpResult compareSimple(const void* a, const void* b) {
+    const SimpleData* s1 = (const SimpleData*)a;
+    const SimpleData* s2 = (const SimpleData*)b;
+    return strcmp(s1->id, s2->id) < 0 ? LESS :
+        strcmp(s1->id, s2->id) > 0 ? GREATER : EQUAL;
 }
 
-void inputData(MyAddr &data)
-{
-    cout << "Enter node ID: ";
-    cin >> data.id;
-    cout << "Enter node name: ";
-    cin >> data.name;
-    cout << "Enter node phoneNumber: ";
-    cin >> data.phone;
+// ¼Ò¸êÀÚ ÇÔ¼ö
+void destroySimple(void* data) {
+    delete (SimpleData*)data;
 }
 
-void printData(MyAddr &data)
-{
-    cout << "ID : " << data.id << endl;
-    cout << "Name : " << data.name << endl;
-    cout << "PhoneNumber : " << data.phone << endl;
+// ±¸Á¶Ã¼ »ı¼º
+SimpleData* createSimple(const char* id, const char* name) {
+    SimpleData* s = new SimpleData;
+    strncpy(s->id, id, sizeof(s->id));
+    strncpy(s->name, name, sizeof(s->name));
+    return s;
 }
 
-int makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
+// ¿ÏÀü ÀÌÁøÆ®¸® ¼ø¼­ »ğÀÔÀ» À§ÇÑ ÇïÆÛ
+void insertBalanced(BiTree& tree, SimpleData** arr, int index, int size, void* parent, bool left) {
+    if (index >= size) return;
 
-    if (*newData == nullptr)
-    {
-        cout << "Memory allocation Err!" << endl;
-        return 1;
-    }
-
+    if (parent == nullptr)
+        tree.insert_leftChild(nullptr, arr[index]);
     else
-        return 0;
+        left ? tree.insert_leftChild(parent, arr[index]) :
+        tree.insert_rightChild(parent, arr[index]);
+
+    // ÇöÀç ³ëµå ÁÖ¼Ò Ã£¾Æ¼­ ÀÚ½Ä »ğÀÔÇÒ ¶§ »ç¿ë
+    void* nodeKey = arr[index];
+    void* nodePtr = lookupTraverse::preOrder(tree.get_bitreeRoot_Addr(), &nodeKey);
+
+    insertBalanced(tree, arr, 2 * index + 1, size, nodePtr, true);
+    insertBalanced(tree, arr, 2 * index + 2, size, nodePtr, false);
 }
 
-int choice_myBiTree_menu(BiTree &myTree, int num)
-{
-    int choice;
-    int makeResult;
-    BiTreeNode *tgtNode = nullptr;
-    MyAddr *newData = nullptr;
-    MyAddr *removedData = nullptr;
-	MyAddr parentsData = { 0, 0, 0 };
-	BiTreeNode* target = nullptr;
+int main() {
+    BiTree tree;
 
-    if (myTree.BiTree_getErrCode() != NORMAL)
-        return 1;
+    // 1. ¼³Á¤
+    lookupTraverse::compareFunc = compareSimple;
+    printTraverse::printNodeFunc = printSimple;
+    tree.init(compareSimple, printSimple, destroySimple, lookupTraverse::preOrder);
 
-    while (myTree.BiTree_getErrCode() == NORMAL && terminationCmd == false)
-    {
-        printMenu(num);
-        cin >> choice;
+    // 2. µ¥ÀÌÅÍ ÁØºñ
+    const int NUM_NODES = 15;
+    SimpleData* nodeArr[NUM_NODES];
 
-        switch (choice)
-        {
-		case 1: // left insert
-
-			makeResult = makeData(&newData); // 1. ë°ì´í„°ë¥¼ ì €ì¥í•  newDataë¥¼ ìƒì„±
-            if (makeResult)
-            {
-                terminationCmd = true;
-                break;
-            }
-
-			cout << "Enter new Data " << endl;
-			inputData(*newData); // 2. newDataì— ë°ì´í„°ë¥¼ ì…ë ¥
-
-			if (myTree.BiTree_preOrder_find(myTree.BiTree_getRoot(), newData)) // 3. ë§Œì•½, newDataê°€ ì´ë¯¸ ì¡´ì¬í•œë‹¤ë©´
-			{
-				cout << "Already exist!" << endl;
-				terminationCmd = true;
-				break;
-			}
-
-
-			if (myTree.BiTree_getSize() == 0) // 4. ë§Œì•½, íŠ¸ë¦¬ê°€ ë¹„ì–´ìˆë‹¤ë©´
-			{
-				cout << "Tree is Empty!" << endl;
-                target = nullptr;
-			}
-			else // 4.1. íŠ¸ë¦¬ê°€ ë¹„ì–´ìˆì§€ ì•Šë‹¤ë©´
-            {
-                cout << "Enter target Info " << endl;
-				inputData(parentsData); // 4.1.1 ë¶€ëª¨ ë…¸ë“œì˜ ì •ë³´ë¥¼ ì…ë ¥ë°›ëŠ”ë‹¤.
-
-                target = myTree.BiTree_preOrder_search(myTree.BiTree_getRoot(), &parentsData);  // 4.1.2 ë¶€ëª¨ ë…¸ë“œê°€ ìˆëŠ”ì§€ë¥¼ íƒìƒ‰
-                if (target == nullptr)
-                {
-                    cout << "Target node not found!" << endl;
-                    break;
-                }
-                else {}
-
-				if (target->left != nullptr) // 4.1.3 ë¶€ëª¨ë…¸ë“œì˜ leftChildê°€ ì´ë¯¸ ì¡´ì¬í•œë‹¤ë©´
-                {
-                    cout << "Left child already exists!" << endl;
-                    break;
-                }
-                else {}
-            }
-		
-			if (myTree.BiTree_ins_left(target, newData) == 0) // 5. ë¶€ëª¨ ë…¸ë“œì˜ leftChildë¡œ newDataë¥¼ ì‚½ì…
-                cout << "Insert successfully!" << endl;
-            else
-                cout << "Failed to Insert!" << endl;
-
-            break;
-
-		case 2: // right insert
-            makeResult = makeData(&newData); // 1. ë°ì´í„°ë¥¼ ì €ì¥í•  newDataë¥¼ ìƒì„±
-            if (makeResult)
-            {
-                terminationCmd = true;
-                break;
-            }
-
-            cout << "Enter new Data " << endl;
-            inputData(*newData); // 2. newDataì— ë°ì´í„°ë¥¼ ì…ë ¥
-
-            if (myTree.BiTree_preOrder_find(myTree.BiTree_getRoot(), newData)) // 3. ë§Œì•½, newDataê°€ ì´ë¯¸ ì¡´ì¬í•œë‹¤ë©´
-            {
-                cout << "Already exist!" << endl;
-                terminationCmd = true;
-                break;
-            }
-
-
-            if (myTree.BiTree_getSize() == 0) // 4. ë§Œì•½, íŠ¸ë¦¬ê°€ ë¹„ì–´ìˆë‹¤ë©´
-            {
-                cout << "Tree is Empty!" << endl;
-                target = nullptr;
-            }
-            else // 4.1. íŠ¸ë¦¬ê°€ ë¹„ì–´ìˆì§€ ì•Šë‹¤ë©´
-            {
-                cout << "Enter target Info " << endl;
-                inputData(parentsData); // 4.1.1 ë¶€ëª¨ ë…¸ë“œì˜ ì •ë³´ë¥¼ ì…ë ¥ë°›ëŠ”ë‹¤.
-
-                target = myTree.BiTree_preOrder_search(myTree.BiTree_getRoot(), &parentsData);  // 4.1.2 ë¶€ëª¨ ë…¸ë“œê°€ ìˆëŠ”ì§€ë¥¼ íƒìƒ‰
-                if (target == nullptr)
-                {
-                    cout << "Target node not found!" << endl;
-                    break;
-                }
-                else {}
-
-                if (target->right != nullptr) // 4.1.3 ë¶€ëª¨ë…¸ë“œì˜ rightChildê°€ ì´ë¯¸ ì¡´ì¬í•œë‹¤ë©´
-                {
-                    cout << "Right child already exists!" << endl;
-                    break;
-                }
-                else {}
-            }
-
-            if (myTree.BiTree_ins_right(target, newData) == 0) // 5. ë¶€ëª¨ ë…¸ë“œì˜ rightChildë¡œ newDataë¥¼ ì‚½ì…
-                cout << "Insert successfully!" << endl;
-            else
-                cout << "Failed to Insert!" << endl;
-
-			break;
-
-		case 3: // left remove
-            
-			cout << "Enter target Info " << endl;
-            inputData(parentsData);
-
-            target = myTree.BiTree_preOrder_search(myTree.BiTree_getRoot(), &parentsData);
-            if (target == nullptr)
-            {
-                cout << "Target node not found!" << endl;
-                break;
-            }
-
-            if (target->left == nullptr)
-            {
-                cout << "Left child does not exist!" << endl;
-                break;
-            }
-
-            if (myTree.BiTree_rem_left(target))
-            {
-                cout << "Remove successfully! " << endl;
-                printData(*(target->data));
-            }
-            else
-                cout << "Failed to Remove!" << endl;
-            break;
-
-		case 4: // right remove
-
-            cout << "Enter target Info " << endl;
-            inputData(parentsData);
-
-            target = myTree.BiTree_preOrder_search(myTree.BiTree_getRoot(), &parentsData);
-            if (target == nullptr)
-            {
-                cout << "Target node not found!" << endl;
-                break;
-            }
-
-            if (target->right == nullptr)
-            {
-                cout << "Right child does not exist!" << endl;
-                break;
-            }
-
-            if (myTree.BiTree_rem_right(target))
-            {
-                cout << "Remove successfully! " << endl;
-                printData(*(target->data));
-            }
-            else
-                cout << "Failed to Remove!" << endl;
-            break;
-
-		case 5: // get size
-            cout << "currentSize : " << myTree.BiTree_getSize() << endl;
-            break;
-
-		case 6: // reset tree
-            myTree.BiTree_init();
-            cout << "destroying Tree completed!" << endl;
-            break;
-
-		case 7: // print all
-			myTree.preOrderPrint(myTree.BiTree_getRoot());
-            break;
-
-		case 8: // skip
-            return 0;
-            break;
-
-        case 0:
-            terminationCmd = true;
-			return 0;
-            break;
-
-		default:
-			cout << "Invalid choice! Please try again." << endl;
-            break;
-        }
+    for (int i = 0; i < NUM_NODES; ++i) {
+        char id[8];
+        sprintf(id, "%02d", i);
+        nodeArr[i] = createSimple(id, "tester");
     }
 
-    return 0;
-}
+    // 3. ±ÕÇü ÀÌÁø Æ®¸® »ğÀÔ
+    insertBalanced(tree, nodeArr, 0, NUM_NODES, nullptr, true);
 
-int choice_myBiTree_merging(BiTree &mergeTree, BiTree &myTree1, BiTree &myTree2)
-{
-    int choice;
-    int makeResult;
+    // 4. Ãâ·Â
+    cout << "\n==== ÀüÀ§ ¼øÈ¸ ====" << endl;
+    printTraverse::preOrder(tree.get_bitreeRoot_Addr());
 
-    MyAddr* newData = nullptr;
+    cout << "\n==== ÁßÀ§ ¼øÈ¸ ====" << endl;
+    printTraverse::inOrder(tree.get_bitreeRoot_Addr());
 
-    if (mergeTree.BiTree_getErrCode() != NORMAL 
-    || myTree1.BiTree_getErrCode() != NORMAL 
-    || myTree2.BiTree_getErrCode() != NORMAL)
-        return 1;
+    cout << "\n==== ÈÄÀ§ ¼øÈ¸ ====" << endl;
+    printTraverse::postOrder(tree.get_bitreeRoot_Addr());
 
-    while (mergeTree.BiTree_getErrCode() == NORMAL)
+    // 5. ³ôÀÌ Ãâ·Â
+    cout << "\n==== Æ®¸® ³ôÀÌ ====" << endl;
+    cout << "Height: " << tree.get_maxHeight() << endl;
+
+    // 6. »èÁ¦ Å×½ºÆ®
+    cout << "\n==== »èÁ¦ Å×½ºÆ® ====" << endl;
+
+    SimpleData targetKey;
+    strcpy(targetKey.id, "01");  // ºÎ¸ğ ³ëµå "01"À» ±âÁØÀ¸·Î
+
+    void* key = &targetKey;
+    void* parentNode = lookupTraverse::preOrder(tree.get_bitreeRoot_Addr(), &key);
+
+    if (parentNode)
     {
-        printOperation();
-        cin >> choice;
+        cout << "¡æ ¿ŞÂÊ ÀÚ½Ä »èÁ¦" << endl;
+        tree.remove_leftChild(parentNode);
 
-        switch (choice)
-        {
-		case 1: // merge
-
-            makeResult = makeData(&newData);
-            if (makeResult)
-            {
-                terminationCmd = true;
-                break;
-            }
-
-			cout << "Enter new Data for mergeTree " << endl;
-            inputData(*newData);
-
-            if (mergeTree.BiTree_merge(&myTree1, &myTree2, newData) == true)
-                cout << "Merge successfully!" << endl;
-            else
-                cout << "Failed to Merge!" << endl;
-            break;
-
-		case 2: // reset tree
-            mergeTree.BiTree_init();
-            cout << "destroying Tree completed!" << endl;
-            break;
-
-		case 3: // print all
-			cout << "mergeTree's all nodes.." << endl;
-			mergeTree.preOrderPrint(mergeTree.BiTree_getRoot());
-            break;
-
-        case 4:
-            return 0;
-            break;
-
-        case 0:
-            terminationCmd = true;
-            return 0;
-            break;
-
-		default:   
-            cout << "Invalid choice! Please try again." << endl;
-            break;
-        }
+        cout << "¡æ »èÁ¦ ÈÄ ÀüÀ§ ¼øÈ¸" << endl;
+        printTraverse::preOrder(tree.get_bitreeRoot_Addr());
     }
-    return 0;
-}
-
-int main()
-{
-    BiTree tree1, tree2, tree3;
-
-    while (!terminationCmd)
+    else
     {
-        cout << "\n=== MAIN MENU ===\n";
-        cout << "1. Manage Tree 1\n";
-        cout << "2. Manage Tree 2\n";
-        cout << "3. Merge Tree1 & Tree2 into Tree3\n";
-        cout << "0. Exit\n";
-        cout << "==================\n";
-        cout << "Select: ";
-
-        int topChoice;
-        cin >> topChoice;
-
-        switch (topChoice)
-        {
-        case 1:
-            choice_myBiTree_menu(tree1, 1);
-            break;
-        case 2:
-            choice_myBiTree_menu(tree2, 2);
-            break;
-        case 3:
-            choice_myBiTree_merging(tree3, tree1, tree2);
-            break;
-        case 0:
-            terminationCmd = true;
-            break;
-        default:
-            cout << "Invalid choice!" << endl;
-            break;
-        }
+        cout << "³ëµå '01'À» Ã£À» ¼ö ¾ø½À´Ï´Ù." << endl;
     }
 
     return 0;
