@@ -2,20 +2,20 @@
 #include "../header/bitree.h"
 #include "../header/traverse.h"
 
-// ÃÖ¼ÒÇÑÀÇ ±¸Á¶Ã¼
+// ìµœì†Œí•œì˜ êµ¬ì¡°ì²´
 struct SimpleData {
     char id[8];
     char name[32];
 };
 
-// Ãâ·Â ÇÔ¼ö
+// ì¶œë ¥ í•¨ìˆ˜
 void printSimple(void* data) {
     if (!data) return;
     SimpleData* s = (SimpleData*)data;
     cout << "[ID: " << s->id << ", Name: " << s->name << "]" << endl;
 }
 
-// ºñ±³ ÇÔ¼ö
+// ë¹„êµ í•¨ìˆ˜
 typCmpResult compareSimple(const void* a, const void* b) {
     const SimpleData* s1 = (const SimpleData*)a;
     const SimpleData* s2 = (const SimpleData*)b;
@@ -23,12 +23,12 @@ typCmpResult compareSimple(const void* a, const void* b) {
         strcmp(s1->id, s2->id) > 0 ? GREATER : EQUAL;
 }
 
-// ¼Ò¸êÀÚ ÇÔ¼ö
+// ì†Œë©¸ì í•¨ìˆ˜
 void destroySimple(void* data) {
     delete (SimpleData*)data;
 }
 
-// ±¸Á¶Ã¼ »ı¼º
+// êµ¬ì¡°ì²´ ìƒì„±
 SimpleData* createSimple(const char* id, const char* name) {
     SimpleData* s = new SimpleData;
     strncpy(s->id, id, sizeof(s->id));
@@ -36,7 +36,7 @@ SimpleData* createSimple(const char* id, const char* name) {
     return s;
 }
 
-// ¿ÏÀü ÀÌÁøÆ®¸® ¼ø¼­ »ğÀÔÀ» À§ÇÑ ÇïÆÛ
+// ì™„ì „ ì´ì§„íŠ¸ë¦¬ ìˆœì„œ ì‚½ì…ì„ ìœ„í•œ í—¬í¼
 void insertBalanced(BiTree& tree, SimpleData** arr, int index, int size, void* parent, bool left) {
     if (index >= size) return;
 
@@ -46,7 +46,7 @@ void insertBalanced(BiTree& tree, SimpleData** arr, int index, int size, void* p
         left ? tree.insert_leftChild(parent, arr[index]) :
         tree.insert_rightChild(parent, arr[index]);
 
-    // ÇöÀç ³ëµå ÁÖ¼Ò Ã£¾Æ¼­ ÀÚ½Ä »ğÀÔÇÒ ¶§ »ç¿ë
+    // í˜„ì¬ ë…¸ë“œ ì£¼ì†Œ ì°¾ì•„ì„œ ìì‹ ì‚½ì…í•  ë•Œ ì‚¬ìš©
     void* nodeKey = arr[index];
     void* nodePtr = lookupTraverse::preOrder(tree.get_bitreeRoot_Addr(), &nodeKey);
 
@@ -57,12 +57,12 @@ void insertBalanced(BiTree& tree, SimpleData** arr, int index, int size, void* p
 int main() {
     BiTree tree;
 
-    // 1. ¼³Á¤
+    // 1. ì„¤ì •
     lookupTraverse::compareFunc = compareSimple;
     printTraverse::printNodeFunc = printSimple;
     tree.init(compareSimple, printSimple, destroySimple, lookupTraverse::preOrder);
 
-    // 2. µ¥ÀÌÅÍ ÁØºñ
+    // 2. ë°ì´í„° ì¤€ë¹„
     const int NUM_NODES = 15;
     SimpleData* nodeArr[NUM_NODES];
 
@@ -72,44 +72,97 @@ int main() {
         nodeArr[i] = createSimple(id, "tester");
     }
 
-    // 3. ±ÕÇü ÀÌÁø Æ®¸® »ğÀÔ
+    // 3. ê· í˜• ì´ì§„ íŠ¸ë¦¬ ì‚½ì…
     insertBalanced(tree, nodeArr, 0, NUM_NODES, nullptr, true);
 
-    // 4. Ãâ·Â
-    cout << "\n==== ÀüÀ§ ¼øÈ¸ ====" << endl;
+    SimpleData *tempData = new SimpleData { "99","addedBylookup" };
+    SimpleData findData = { "14","" };
+    SimpleData* tempPtr = &findData;
+
+    if (tree.insert_leftChild(tree.lookup((void**)&tempPtr), tempData) == INSERT_SUCCESS)
+    {
+        cout << "lookupê¸°ë°˜ ì‚½ì… ì„±ê³µ!" << endl;
+        printTraverse::preOrder(tree.get_bitreeRoot_Addr());
+    }
+    else
+        cout << "lookupê¸°ë°˜ ì‚½ì… ì‹¤íŒ¨!" << endl;
+
+    if (tree.remove_leftChild(tree.lookup((void**)&tempPtr)))
+        cout << "lookupê¸°ë°˜ ì‚­ì œ ì„±ê³µ!" << endl;
+    else
+        cout << "lookupê¸°ë°˜ ì‚­ì œ ì‹¤íŒ¨!" << endl;
+    
+    // 4. ì¶œë ¥
+    cout << "\n==== ì „ìœ„ ìˆœíšŒ ====" << endl;
     printTraverse::preOrder(tree.get_bitreeRoot_Addr());
 
-    cout << "\n==== ÁßÀ§ ¼øÈ¸ ====" << endl;
+    cout << "\n==== ì¤‘ìœ„ ìˆœíšŒ ====" << endl;
     printTraverse::inOrder(tree.get_bitreeRoot_Addr());
 
-    cout << "\n==== ÈÄÀ§ ¼øÈ¸ ====" << endl;
+    cout << "\n==== í›„ìœ„ ìˆœíšŒ ====" << endl;
     printTraverse::postOrder(tree.get_bitreeRoot_Addr());
 
-    // 5. ³ôÀÌ Ãâ·Â
-    cout << "\n==== Æ®¸® ³ôÀÌ ====" << endl;
+    // 5. ë†’ì´ ì¶œë ¥
+    cout << "\n==== íŠ¸ë¦¬ ë†’ì´ ====" << endl;
     cout << "Height: " << tree.get_maxHeight() << endl;
 
-    // 6. »èÁ¦ Å×½ºÆ®
-    cout << "\n==== »èÁ¦ Å×½ºÆ® ====" << endl;
+    // 6. ì‚­ì œ í…ŒìŠ¤íŠ¸
+    cout << "\n==== ì‚­ì œ í…ŒìŠ¤íŠ¸ ====" << endl;
 
     SimpleData targetKey;
-    strcpy(targetKey.id, "01");  // ºÎ¸ğ ³ëµå "01"À» ±âÁØÀ¸·Î
+    strcpy(targetKey.id, "01");  // ë¶€ëª¨ ë…¸ë“œ "01"ì„ ê¸°ì¤€ìœ¼ë¡œ
 
     void* key = &targetKey;
     void* parentNode = lookupTraverse::preOrder(tree.get_bitreeRoot_Addr(), &key);
 
     if (parentNode)
     {
-        cout << "¡æ ¿ŞÂÊ ÀÚ½Ä »èÁ¦" << endl;
+        cout << "â†’ ì™¼ìª½ ìì‹ ì‚­ì œ" << endl;
         tree.remove_leftChild(parentNode);
 
-        cout << "¡æ »èÁ¦ ÈÄ ÀüÀ§ ¼øÈ¸" << endl;
+        cout << "â†’ ì‚­ì œ í›„ ì „ìœ„ ìˆœíšŒ" << endl;
         printTraverse::preOrder(tree.get_bitreeRoot_Addr());
     }
     else
     {
-        cout << "³ëµå '01'À» Ã£À» ¼ö ¾ø½À´Ï´Ù." << endl;
+        cout << "ë…¸ë“œ '01'ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤." << endl;
     }
+
+   // 7. ìƒˆë¡œìš´ íŠ¸ë¦¬ otherTree êµ¬ì„±
+    cout << "\n==== ìƒˆë¡œìš´ íŠ¸ë¦¬(otherTree) ìƒì„± ====" << endl;
+    BiTree otherTree;
+    otherTree.init(compareSimple, printSimple, destroySimple, lookupTraverse::preOrder);
+
+    SimpleData* otherNodes[15];
+    for (int i = 0; i < 15; ++i) {
+        char id[8];
+        sprintf(id, "X%02d", i); // ë‹¤ë¥¸ prefixë¡œ êµ¬ë¶„
+        otherNodes[i] = createSimple(id, "other");
+    }
+
+    insertBalanced(otherTree, otherNodes, 0, NUM_NODES, nullptr, true);
+    cout << "â†’ otherTree ì „ìœ„ ìˆœíšŒ:" << endl;
+    printTraverse::preOrder(otherTree.get_bitreeRoot_Addr());
+
+    // -------------------------------
+    // 8. merge í…ŒìŠ¤íŠ¸
+    cout << "\n==== merge í…ŒìŠ¤íŠ¸ ====" << endl;
+    BiTree mergedTree;
+    mergedTree.init(compareSimple, printSimple, destroySimple, lookupTraverse::preOrder);
+
+    // ìƒˆë¡œìš´ ë£¨íŠ¸ ë…¸ë“œ ìƒì„± ë° ì‚½ì…
+    SimpleData* rootNode = createSimple("ROOT", "merged");
+
+    // ë³‘í•© ì‹¤í–‰: tree â†’ left, otherTree â†’ right
+    mergedTree.mergeTree(&tree, &otherTree, rootNode);
+
+    cout << "â†’ merge í›„ ì „ìœ„ ìˆœíšŒ:" << endl;
+    printTraverse::preOrder(mergedTree.get_bitreeRoot_Addr());
+
+    // -------------------------------
+    // 9. ë³‘í•© íŠ¸ë¦¬ ë†’ì´ í™•ì¸
+    cout << "\n==== ë³‘í•© íŠ¸ë¦¬ ë†’ì´ ====" << endl;
+    cout << "Height of mergedTree: " << mergedTree.get_maxHeight() << endl;
 
     return 0;
 }
