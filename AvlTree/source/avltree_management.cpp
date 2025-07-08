@@ -1,8 +1,47 @@
-#include "../header/AVLtree.h"
+#include "../header/avltree.h"
 
-#define FOR_TEST
+int AvlTree::insert(const void* data)
+{
+	typBalancedFlag balanced = AVLNODE_BALANCED;
 
-void AvlTree::rotate_left(typAvlTreeNode** node) // ï¿½ï¿½ï¿½ï¿½ï¿½ balFactorï¿½ï¿½ AVL_LEFT_HEAVYï¿½ï¿½ ï¿½ï¿½ï¿½
+	if (data == nullptr)
+	{
+		this->errCode = SYS_FAULT;
+		return INSERT_FAILED;
+	}
+
+	return this->recursive_insert(&this->AvlTreeRoot, data, &balanced);
+}
+
+bool AvlTree::remove(const void* data)
+{
+	if (data == nullptr)
+	{
+		return false;
+	}
+	else
+	{
+		return this->recursive_hide(this->AvlTreeRoot, data);
+	}
+}
+
+bool AvlTree::search(void** data)
+{
+	if (data == nullptr || *data == nullptr)
+	{
+		this->errCode = SYS_FAULT;
+		return false;
+	}
+
+	return this->recursive_lookup(this->AvlTreeRoot, (void**)data);
+}
+
+bool AvlTree::mergeTree(void* leftTree, void* rightTree, void* data)
+{
+	return this->merge(leftTree, rightTree, data);
+}
+
+void AvlTree::rotate_left(typAvlTreeNode** node) // ´ë»óÀÇ balFactor°¡ AVL_LEFT_HEAVYÀÎ °æ¿ì
 {
 	typAvlTreeNode* left_subTree, * grandChild;
 
@@ -10,27 +49,27 @@ void AvlTree::rotate_left(typAvlTreeNode** node) // ï¿½ï¿½ï¿½ï¿½ï¿½ balFactorï¿½
 
 	if (this->get_balFactor(*node) == AVL_LEFT_HEAVY)
 	{
-		// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ balFactorï¿½ï¿½ AVL_LEFT_HEAVYï¿½ï¿½ ï¿½ï¿½ï¿½ (LLÈ¸ï¿½ï¿½)
-		this->set_leftPtr(*node, this->get_rightPtr(left_subTree));			// 1. ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtr				->		leftSubTreeï¿½ï¿½ rightPtr
-		this->set_rightPtr(left_subTree, *node);							// 2. leftSubTreeï¿½ï¿½ rightPtr		->		ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtr
+		// ¼­ºêÆ®¸®ÀÇ balFactor°¡ AVL_LEFT_HEAVYÀÎ °æ¿ì (LLÈ¸Àü)
+		this->set_leftPtr(*node, this->get_rightPtr(left_subTree));			// 1. ´ë»óÀÇ leftPtr				->		leftSubTreeÀÇ rightPtr
+		this->set_rightPtr(left_subTree, *node);							// 2. leftSubTreeÀÇ rightPtr		->		´ë»óÀÇ rightPtr
 
-		this->set_balFactor(*node, AVL_BALANCED);							// 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ leftSubTreeï¿½ï¿½ balFactor = AVL_BALANCED
+		this->set_balFactor(*node, AVL_BALANCED);							// 3. ´ë»ó°ú ÀÌÀü leftSubTreeÀÇ balFactor = AVL_BALANCED
 		this->set_balFactor(left_subTree, AVL_BALANCED);
 
-		*node = left_subTree;												// 4. ï¿½ï¿½ï¿½ï¿½ï¿½ leftSubTreeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½	=> 		ï¿½Îºï¿½Æ®ï¿½ï¿½ï¿½ï¿½ rootï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ leftSubTree
+		*node = left_subTree;												// 4. ´ë»óÀ» leftSubTree·Î º¯°æ	=> 		ºÎºÐÆ®¸®ÀÇ root°¡ ÀÌÁ¦ leftSubTree
 	}
 	else
 	{
-		// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ balFactorï¿½ï¿½ AVL_RIGHT_HEAVYï¿½ï¿½ ï¿½ï¿½ï¿½ (LRÈ¸ï¿½ï¿½)
+		// ¼­ºêÆ®¸®ÀÇ balFactor°¡ AVL_RIGHT_HEAVYÀÎ °æ¿ì (LRÈ¸Àü)
 
-		grandChild = (typAvlTreeNode*)this->get_rightPtr(left_subTree);		// grandChild = leftSubTreeï¿½ï¿½ rightPtr (LR È¸ï¿½ï¿½)
+		grandChild = (typAvlTreeNode*)this->get_rightPtr(left_subTree);		// grandChild = leftSubTreeÀÇ rightPtr (LR È¸Àü)
 
-		this->set_rightPtr(left_subTree, this->get_leftPtr(grandChild));	// 1. leftSubTreeï¿½ï¿½ rightPtr		->		grandChildï¿½ï¿½ leftChild
-		this->set_leftPtr(grandChild, left_subTree);						// 2. grandChildï¿½ï¿½ leftPtr		->		leftSubTree
-		this->set_leftPtr(*node, this->get_rightPtr(grandChild));			// 3. ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtr				->		grandChildï¿½ï¿½ rightChild
-		this->set_rightPtr(grandChild, *node);								// 4. grandChildï¿½ï¿½ rightPtr		->		ï¿½ï¿½ï¿½
+		this->set_rightPtr(left_subTree, this->get_leftPtr(grandChild));	// 1. leftSubTreeÀÇ rightPtr		->		grandChildÀÇ leftChild
+		this->set_leftPtr(grandChild, left_subTree);						// 2. grandChildÀÇ leftPtr		->		leftSubTree
+		this->set_leftPtr(*node, this->get_rightPtr(grandChild));			// 3. ´ë»óÀÇ leftPtr				->		grandChildÀÇ rightChild
+		this->set_rightPtr(grandChild, *node);								// 4. grandChildÀÇ rightPtr		->		´ë»ó
 
-		switch (this->get_balFactor(grandChild))							// 5. grandChildï¿½ï¿½ balFactorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 'ï¿½ï¿½ï¿½'ï¿½ï¿½ 'leftSubTree'ï¿½ï¿½ balFactorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½	
+		switch (this->get_balFactor(grandChild))							// 5. grandChildÀÇ balFactor¿¡ µû¶ó '´ë»ó'°ú 'leftSubTree'ÀÇ balFactor¸¦ °áÁ¤	
 		{
 		case AVL_LEFT_HEAVY:
 			this->set_balFactor(*node, AVL_RIGHT_HEAVY);
@@ -52,39 +91,39 @@ void AvlTree::rotate_left(typAvlTreeNode** node) // ï¿½ï¿½ï¿½ï¿½ï¿½ balFactorï¿½
 		}
 
 		this->set_balFactor(grandChild, AVL_BALANCED);
-		*node = grandChild;													// 6. ï¿½ï¿½ï¿½ï¿½ï¿½ grandChildï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½		=> 		ï¿½Îºï¿½Æ®ï¿½ï¿½ï¿½ï¿½ rootï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ grandChild
+		*node = grandChild;													// 6. ´ë»óÀ» grandChild·Î º¯°æ		=> 		ºÎºÐÆ®¸®ÀÇ root°¡ ÀÌÁ¦ grandChild
 	}
 	return;
 }
 
-void AvlTree::rotate_right(typAvlTreeNode** node) // ï¿½ï¿½ï¿½ï¿½ï¿½ balFactorï¿½ï¿½ AVL_RIGHT_HEAVYï¿½ï¿½ ï¿½ï¿½ï¿½
+void AvlTree::rotate_right(typAvlTreeNode** node) // ´ë»óÀÇ balFactor°¡ AVL_RIGHT_HEAVYÀÎ °æ¿ì
 {
 	typAvlTreeNode* right_subTree, * grandChild;
 
-	right_subTree = (typAvlTreeNode*)this->get_rightPtr(*node);				
+	right_subTree = (typAvlTreeNode*)this->get_rightPtr(*node);
 
 	if (this->get_balFactor(*node) == AVL_RIGHT_HEAVY)
 	{
-		// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ balFactorï¿½ï¿½ AVL_RIGHT_HEAVYï¿½ï¿½ ï¿½ï¿½ï¿½ (RRÈ¸ï¿½ï¿½)
+		// ¼­ºêÆ®¸®ÀÇ balFactor°¡ AVL_RIGHT_HEAVYÀÎ °æ¿ì (RRÈ¸Àü)
 
-		this->set_rightPtr(*node, this->get_leftPtr(right_subTree));		// 1. ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtr				->		rightSubTreeï¿½ï¿½ leftPtr
-		this->set_leftPtr(right_subTree, *node);							// 2. rightSubTreeï¿½ï¿½ leftPtr		->		ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtr		
+		this->set_rightPtr(*node, this->get_leftPtr(right_subTree));		// 1. ´ë»óÀÇ rightPtr				->		rightSubTreeÀÇ leftPtr
+		this->set_leftPtr(right_subTree, *node);							// 2. rightSubTreeÀÇ leftPtr		->		´ë»óÀÇ leftPtr		
 
-		this->set_balFactor(*node, AVL_BALANCED);							// 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ rightSubTreeï¿½ï¿½ balFactor = AVL_BALANCED	
+		this->set_balFactor(*node, AVL_BALANCED);							// 3. ´ë»ó°ú ÀÌÀü rightSubTreeÀÇ balFactor = AVL_BALANCED	
 		this->set_balFactor(right_subTree, AVL_BALANCED);
 
-		*node = right_subTree;												// 4. ï¿½ï¿½ï¿½ï¿½ï¿½ rightSubTreeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½	=> 		ï¿½Îºï¿½Æ®ï¿½ï¿½ï¿½ï¿½ rootï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ rightSubTree
+		*node = right_subTree;												// 4. ´ë»óÀ» rightSubTree·Î º¯°æ	=> 		ºÎºÐÆ®¸®ÀÇ root°¡ ÀÌÁ¦ rightSubTree
 	}
 	else
 	{
-		grandChild = (typAvlTreeNode*)this->get_leftPtr(right_subTree);	// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ balFactorï¿½ï¿½ AVL_LEFT_HEAVYï¿½ï¿½ ï¿½ï¿½ï¿½ (RLÈ¸ï¿½ï¿½)
+		grandChild = (typAvlTreeNode*)this->get_leftPtr(right_subTree);	// ¼­ºêÆ®¸®ÀÇ balFactor°¡ AVL_LEFT_HEAVYÀÎ °æ¿ì (RLÈ¸Àü)
 
-		this->set_leftPtr(right_subTree, this->get_rightPtr(grandChild));	// 1. rightSubTreeï¿½ï¿½ leftPtr		->		grandChildï¿½ï¿½ rightPtr
-		this->set_rightPtr(grandChild, right_subTree);						// 2. grandChildï¿½ï¿½ rightPtr		->		rightSubTree
-		this->set_rightPtr(*node, this->get_leftPtr(grandChild));			// 3. ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtr				->		grandChildï¿½ï¿½ leftPtr
-		this->set_leftPtr(grandChild, *node);								// 4. grandChildï¿½ï¿½ leftPtr		->		ï¿½ï¿½ï¿½
+		this->set_leftPtr(right_subTree, this->get_rightPtr(grandChild));	// 1. rightSubTreeÀÇ leftPtr		->		grandChildÀÇ rightPtr
+		this->set_rightPtr(grandChild, right_subTree);						// 2. grandChildÀÇ rightPtr		->		rightSubTree
+		this->set_rightPtr(*node, this->get_leftPtr(grandChild));			// 3. ´ë»óÀÇ rightPtr				->		grandChildÀÇ leftPtr
+		this->set_leftPtr(grandChild, *node);								// 4. grandChildÀÇ leftPtr		->		´ë»ó
 
-		switch (this->get_balFactor(grandChild))							// 5. grandChildï¿½ï¿½ balFactorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 'ï¿½ï¿½ï¿½'ï¿½ï¿½ 'rightSubTree'ï¿½ï¿½ balFactorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		switch (this->get_balFactor(grandChild))							// 5. grandChildÀÇ balFactor¿¡ µû¶ó '´ë»ó'°ú 'rightSubTree'ÀÇ balFactor¸¦ °áÁ¤
 		{
 		case AVL_LEFT_HEAVY:
 			this->set_balFactor(*node, AVL_BALANCED);
@@ -106,7 +145,7 @@ void AvlTree::rotate_right(typAvlTreeNode** node) // ï¿½ï¿½ï¿½ï¿½ï¿½ balFactorï¿
 		}
 
 		this->set_balFactor(grandChild, AVL_BALANCED);
-		*node = grandChild;													// 6. ï¿½ï¿½ï¿½ï¿½ï¿½ grandChildï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½		=> 		ï¿½Îºï¿½Æ®ï¿½ï¿½ï¿½ï¿½ rootï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ grandChild
+		*node = grandChild;													// 6. ´ë»óÀ» grandChild·Î º¯°æ		=> 		ºÎºÐÆ®¸®ÀÇ root°¡ ÀÌÁ¦ grandChild
 	}
 	return;
 }
@@ -123,7 +162,7 @@ void AvlTree::destroy_left(typAvlTreeNode* node)
 	if (node == nullptr)
 		position = &this->AvlTreeRoot;
 	else
-		position = (typAvlTreeNode**)&(((typBiTreeNode*)node)->left); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ : nodeï¿½ï¿½ leftPtr -> ï¿½ï¿½ï¿½ï¿½ï¿½Íºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½È¹ï¿½ï¿½
+		position = (typAvlTreeNode**)&(((typBiTreeNode*)node)->left); // »èÁ¦ÇÒ ´ë»ó : nodeÀÇ leftPtr -> Æ÷ÀÎÅÍº¯¼öÀÇ ÁÖ¼ÒÈ¹µæ
 
 	if (*position != nullptr)
 	{
@@ -132,7 +171,7 @@ void AvlTree::destroy_left(typAvlTreeNode* node)
 
 		if (this->destroyDataFunc != nullptr)
 		{
-			this->destroyDataFunc((*position)->data); // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
+			this->destroyDataFunc((*position)->data); // »ç¿ëÀÚ Á¤ÀÇ data ÇØÁ¦ ÇÔ¼ö È£Ãâ
 
 			this->deleteNode((void**)position);
 		}
@@ -155,7 +194,7 @@ void AvlTree::destroy_right(typAvlTreeNode* node)
 	if (node == nullptr)
 		position = &this->AvlTreeRoot;
 	else
-		position = (typAvlTreeNode**)&(((typBiTreeNode*)node)->right); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ : nodeï¿½ï¿½ rightPtr -> ï¿½ï¿½ï¿½ï¿½ï¿½Íºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½È¹ï¿½ï¿½
+		position = (typAvlTreeNode**)&(((typBiTreeNode*)node)->right); // »èÁ¦ÇÒ ´ë»ó : nodeÀÇ rightPtr -> Æ÷ÀÎÅÍº¯¼öÀÇ ÁÖ¼ÒÈ¹µæ
 
 	if (*position != nullptr)
 	{
@@ -163,7 +202,7 @@ void AvlTree::destroy_right(typAvlTreeNode* node)
 		this->remove_right(*position);
 		if (this->destroyDataFunc != nullptr)
 		{
-			this->destroyDataFunc((*position)->data); // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
+			this->destroyDataFunc((*position)->data); // »ç¿ëÀÚ Á¤ÀÇ data ÇØÁ¦ ÇÔ¼ö È£Ãâ
 
 			this->deleteNode((void**)position);
 		}
@@ -177,38 +216,38 @@ void AvlTree::destroy_right(typAvlTreeNode* node)
 
 int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalancedFlag* balanced)
 {
-	// Æ®ï¿½ï¿½ï¿½ï¿½ rootï¿½Ö¼Ò¸ï¿½ ï¿½Þ´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ root ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½
+	// Æ®¸®ÀÇ rootÁÖ¼Ò¸¦ ¹Þ´Â ÀÌÀ¯´Â root ºÎÅÍ ½ÃÀÛÇØ¼­ ³ëµå°¡ Á¤ÇØÁø À§Ä¡±îÁö ¸»´ÜÀ¸·Î ÀÌµ¿ÇÏ±â À§ÇÔ
 	typAvlTreeNode* newNode = nullptr, ** tempNode = nullptr;
 	typCmpResult cmpResult = EQUAL;
 	int retVal = 0;
 
-	if (this->is_emptyNode(*node))															// 1. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö°Å³ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	if (this->is_emptyNode(*node))															// 1. Æ®¸®°¡ ºñ¾îÀÖ°Å³ª, ¸»´Ü ³ëµå¿¡ µµ´ÞÇÑ °æ¿ì
 	{
-		return this->insert_left(*node, data);												// 2. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½ï¿½ï¿½ï¿½
+		return this->insert_left(*node, data);												// 2. Æ®¸®¿¡ ÀÚ·á»ðÀÔ
 	}
-	else																					// 1-1. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	else																					// 1-1. Æ®¸®°¡ ºñ¾îÀÖÁö ¾ÊÀº °æ¿ì
 	{
-		cmpResult = this->compareFunc(data, (*node)->data);									// 2. dataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ dataï¿½ï¿½ ï¿½ï¿½
+		cmpResult = this->compareFunc(data, (*node)->data);									// 2. data¿Í ÇöÀç ³ëµåÀÇ data¸¦ ºñ±³
 
-		if (cmpResult == LESS)																//-----data < ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ ï¿½ï¿½ï¿½ (LeftChildï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ê¿ï¿½)
+		if (cmpResult == LESS)																//-----data < ÇöÀç ³ëµåÀÇ data ÀÎ °æ¿ì (LeftChild·Î »ðÀÔÇÊ¿ä)
 		{
-			if (this->is_emptyNode(this->get_leftPtr(*node)))								// 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ ï¿½Ø´ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ú·ï¿½ï¿½ï¿½ï¿½
+			if (this->is_emptyNode(this->get_leftPtr(*node)))								// 3. ÇöÀç ³ëµåÀÇ leftPtrÀÌ ºñ¾îÀÖ´Ù¸é ÇØ´çÀ§Ä¡¿¡ ÀÚ·á»ðÀÔ
 			{
 				if (this->insert_left(*node, data) != INSERT_SUCCESS)
 					return INSERT_FAILED;
 				else
-					*balanced = AVLNODE_UNBALANCED;											// 4. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½Ï´Ù°ï¿½ ï¿½Ë¸ï¿½
+					*balanced = AVLNODE_UNBALANCED;											// 4. »ðÀÔ ÈÄ Æ®¸®ÀÇ ÆòÇüÈ­°¡ ÇÊ¿äÇÏ´Ù°í ¾Ë¸²
 			}
-			else																			// 3-1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½
+			else																			// 3-1. ÇöÀç ³ëµåÀÇ leftPtrÀÌ ºñ¾îÀÖÁö ¾Ê´Ù¸é
 			{
 				tempNode = (typAvlTreeNode**)&(((typBiTreeNode*)(*node))->left);
-				retVal = this->recursive_insert(tempNode, data, balanced);					// 4. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å½ï¿½ï¿½ï¿½Ï¿ï¿½ data ï¿½ï¿½ï¿½ï¿½
+				retVal = this->recursive_insert(tempNode, data, balanced);					// 4. ÇöÀç ³ëµåÀÇ leftPtrÀ» Àç±ÍÀûÀ¸·Î Å½»öÇÏ¿© data »ðÀÔ
 
 				if (retVal != INSERT_SUCCESS)
 					return retVal;
 			}
 
-			if (*balanced == AVLNODE_UNBALANCED)											 // 5. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½å¸¸ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+			if (*balanced == AVLNODE_UNBALANCED)											 // 5. »ðÀÔ ÈÄ Æ®¸®ÀÇ ÆòÇüÈ­°¡ ÇÊ¿äÇÑ ³ëµå¸¸ °ñ¶ó ÆòÇüÈ­ ÀÛ¾÷ ¼öÇà
 			{
 				switch (this->get_balFactor(*node))
 				{
@@ -233,25 +272,25 @@ int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalanc
 			}
 		} // End of cmpResult = LESS
 
-		else if (cmpResult == GREATER) 														//-----data > ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ ï¿½ï¿½ï¿½ (RightChildï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ê¿ï¿½)
+		else if (cmpResult == GREATER) 														//-----data > ÇöÀç ³ëµåÀÇ data ÀÎ °æ¿ì (RightChild·Î »ðÀÔÇÊ¿ä)
 		{
-			if (this->is_emptyNode(this->get_rightPtr(*node)))								// 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ ï¿½Ø´ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ú·ï¿½ï¿½ï¿½ï¿½
+			if (this->is_emptyNode(this->get_rightPtr(*node)))								// 3. ÇöÀç ³ëµåÀÇ rightPtrÀÌ ºñ¾îÀÖ´Ù¸é ÇØ´çÀ§Ä¡¿¡ ÀÚ·á»ðÀÔ
 			{
 				if (this->insert_right(*node, data) != INSERT_SUCCESS)
 					return INSERT_FAILED;
 				else
-					*balanced = AVLNODE_UNBALANCED;											// 4. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½Ï´Ù°ï¿½ ï¿½Ë¸ï¿½
+					*balanced = AVLNODE_UNBALANCED;											// 4. »ðÀÔ ÈÄ Æ®¸®ÀÇ ÆòÇüÈ­°¡ ÇÊ¿äÇÏ´Ù°í ¾Ë¸²
 			}
-			else 																			// 3-1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½
+			else 																			// 3-1. ÇöÀç ³ëµåÀÇ rightPtrÀÌ ºñ¾îÀÖÁö ¾Ê´Ù¸é
 			{
 				tempNode = (typAvlTreeNode**)&(((typBiTreeNode*)(*node))->right);
-				retVal = this->recursive_insert(tempNode, data, balanced);					// 4. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å½ï¿½ï¿½ï¿½Ï¿ï¿½ data ï¿½ï¿½ï¿½ï¿½
+				retVal = this->recursive_insert(tempNode, data, balanced);					// 4. ÇöÀç ³ëµåÀÇ leftPtrÀ» Àç±ÍÀûÀ¸·Î Å½»öÇÏ¿© data »ðÀÔ
 
 				if (retVal != INSERT_SUCCESS)
 					return retVal;
 			}
 
-			if (*balanced == AVLNODE_UNBALANCED)											 // 5. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½å¸¸ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+			if (*balanced == AVLNODE_UNBALANCED)											 // 5. »ðÀÔ ÈÄ Æ®¸®ÀÇ ÆòÇüÈ­°¡ ÇÊ¿äÇÑ ³ëµå¸¸ °ñ¶ó ÆòÇüÈ­ ÀÛ¾÷ ¼öÇà
 			{
 				switch (this->get_balFactor(*node))
 				{
@@ -275,26 +314,26 @@ int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalanc
 			}
 		} // End of cmpResult = GREATER
 
-		else if (cmpResult == EQUAL)														//-----data == ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ ï¿½ï¿½ï¿½
+		else if (cmpResult == EQUAL)														//-----data == ÇöÀç ³ëµåÀÇ data ÀÎ °æ¿ì
 		{
-			if (this->get_hiddenFlag(*node) == NODE_AVAILABLE)								// 3. ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½Ì¹ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ßºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			if (this->get_hiddenFlag(*node) == NODE_AVAILABLE)								// 3. ÇöÀç³ëµå°¡ ÀÌ¹Ì ÀÖ´Ù¸é Áßº¹¹æÁö Â÷¿ø¿¡¼­ »ðÀÔ »ý·«
 			{
-				return INSERT_FAILED; // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½
+				return INSERT_FAILED; // ÀÌ¹Ì Á¸ÀçÇÏ´Â ³ëµå
 			}
-			else																			// 3-1. ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ê¿ï¿½
+			else																			// 3-1. ÇöÀç³ëµå°¡ ¼û°ÜÁø ³ëµå¶ó¸é ±âÁ¸³ëµåÀÇ µ¥ÀÌÅÍ ¾÷µ¥ÀÌÆ® ÇÊ¿ä
 			{
 				if (this->destroyDataFunc != nullptr)
 				{
-					this->destroyDataFunc((*node)->data);									// 4. ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+					this->destroyDataFunc((*node)->data);									// 4. ³ëµå°¡ °¡¸®Å°´Â µ¥ÀÌÅÍ »èÁ¦
 
-					this->set_hiddenFlag(*node, NODE_AVAILABLE);							// 5. ï¿½ï¿½ï¿½ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+					this->set_hiddenFlag(*node, NODE_AVAILABLE);							// 5. ³ëµåÃÊ±âÈ­ °úÁ¤ÁøÇà
 					this->set_data(*node, (void*)data);
 					*balanced = AVLNODE_BALANCED;
 				}
 				else
 				{
 					this->errCode = SYS_FAULT;
-					return INSERT_FAILED; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+					return INSERT_FAILED; // µ¥ÀÌÅÍ ÆÄ±« ÇÔ¼ö°¡ ¾øÀ» ¶§
 				}
 			}
 		} // End of cmpResult = EQUAL
@@ -308,36 +347,36 @@ bool AvlTree::recursive_hide(typAvlTreeNode* node, const void* data)
 	typAvlTreeNode* tempPtr = nullptr;
 	bool retFlag = false;
 
-	if (this->is_emptyNode(node))															// 1. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö°Å³ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	if (this->is_emptyNode(node))															// 1. Æ®¸®°¡ ºñ¾îÀÖ°Å³ª, ¸»´Ü ³ëµå¿¡ µµ´ÞÇÑ °æ¿ì
 	{
 		return retFlag;
 	}
-	else																					// 1-1. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	else																					// 1-1. Æ®¸®°¡ ºñ¾îÀÖÁö ¾ÊÀº °æ¿ì
 	{
-		cmpResult = this->compareFunc(data, this->get_data(node));							// 2. dataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ dataï¿½ï¿½ ï¿½ï¿½
+		cmpResult = this->compareFunc(data, this->get_data(node));							// 2. data¿Í ÇöÀç ³ëµåÀÇ data¸¦ ºñ±³
 
-		if (cmpResult == LESS)																//-----data < ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ ï¿½ï¿½ï¿½ (LeftChildï¿½ï¿½ Å½ï¿½ï¿½ï¿½Ê¿ï¿½)
+		if (cmpResult == LESS)																//-----data < ÇöÀç ³ëµåÀÇ data ÀÎ °æ¿ì (LeftChild·Î Å½»öÇÊ¿ä)
 		{
-			tempPtr = (typAvlTreeNode*)this->get_leftPtr(node);								// 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½È£ï¿½ï¿½
+			tempPtr = (typAvlTreeNode*)this->get_leftPtr(node);								// 3. ÇöÀç ³ëµåÀÇ leftPtrÀ» °¡Á®¿Í ÇÔ¼ö Àç±ÍÈ£Ãâ
 			retFlag = this->recursive_hide(tempPtr, data);
 		}
 
-		else if (cmpResult == GREATER)														//-----data > ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ ï¿½ï¿½ï¿½ (RightChildï¿½ï¿½ Å½ï¿½ï¿½ï¿½Ê¿ï¿½)
+		else if (cmpResult == GREATER)														//-----data > ÇöÀç ³ëµåÀÇ data ÀÎ °æ¿ì (RightChild·Î Å½»öÇÊ¿ä)
 		{
-			tempPtr = (typAvlTreeNode*)this->get_rightPtr(node);							// 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½È£ï¿½ï¿½
+			tempPtr = (typAvlTreeNode*)this->get_rightPtr(node);							// 3. ÇöÀç ³ëµåÀÇ rightPtrÀ» °¡Á®¿Í ÇÔ¼ö Àç±ÍÈ£Ãâ
 			retFlag = this->recursive_hide(tempPtr, data);
 		}
 
-		else                                                                                //-----data == ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ data ï¿½ï¿½ ï¿½ï¿½ï¿½
+		else                                                                                //-----data == ÇöÀç ³ëµåÀÇ data ÀÎ °æ¿ì
 		{
-			if (this->get_hiddenFlag(node) == NODE_AVAILABLE)								// 3. ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+			if (this->get_hiddenFlag(node) == NODE_AVAILABLE)								// 3. ÇöÀç³ëµå°¡ ¼û°ÜÁöÁö ¾ÊÀº ³ëµå¶ó¸é
 			{
-				this->set_hiddenFlag(node, NODE_HIDDEN);									// 4. ï¿½ï¿½ï¿½ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½
+				this->set_hiddenFlag(node, NODE_HIDDEN);									// 4. ÇöÀç³ëµå¸¦ ¼û±èÃ³¸®
 				retFlag = true;
 			}
-			else																			
+			else
 			{
-				retFlag = false; // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+				retFlag = false; // ÀÌ¹Ì ¼û°ÜÁø ³ëµå
 			}
 		}
 		{
@@ -388,67 +427,63 @@ bool AvlTree::recursive_lookup(typAvlTreeNode* node, void** data)
 	}
 }
 
-int AvlTree::insert(const void* data)
+bool AvlTree::merge(void* leftTree, void* rightTree, void* data)
 {
-	typBalancedFlag balanced = AVLNODE_BALANCED;
+	AvlTree* left = (AvlTree*)leftTree, * right = (AvlTree*)rightTree;
+	typAvlTreeNode* tempNode = nullptr;
 
-	if (data == nullptr)
+	// 1. root »ðÀÔ
+	if (this->insert_left(nullptr, data) != 0)
 	{
-		this->errCode = SYS_FAULT;
-		return INSERT_FAILED;
-	}
-
-	return this->recursive_insert(&this->AvlTreeRoot, data, &balanced);
-}
-
-bool AvlTree::remove(const void* data)
-{
-	if (data == nullptr)
-	{
+		this->init(this->compareFunc, this->printTreeFunc, this->destroyDataFunc, this->traverseFunc);
 		return false;
 	}
+
+	// 2. »õ Æ®¸®ÀÇ ·çÆ®ÀÇ ÀÚ½Ä³ëµå·Î µÎ Æ®¸®¸¦ »ðÀÔ
 	else
 	{
-		return this->recursive_hide(this->AvlTreeRoot, data);
-	}
-}
+		tempNode = this->get_AvlTreeRoot();
+		this->set_leftPtr(tempNode, left->get_AvlTreeRoot());
+		this->set_rightPtr(tempNode, right->get_AvlTreeRoot());
 
-bool AvlTree::lookup(const void** data)
-{
-	if (data == nullptr || *data == nullptr)
-	{
-		this->errCode = SYS_FAULT;
-		return false;
-	}
+		// 3. ¼¼ Æ®¸®ÀÇ Å©±â ¾÷µ¥ÀÌÆ®
+		this->treeSize += left->get_Size() + right->get_Size();
 
-	return this->recursive_lookup(this->AvlTreeRoot, (void**)data);
+		// 4. ÀÎÀÚ·Î ¹ÞÀº µÎ Æ®¸®ÀÇ ¸â¹öÁ¤º¸¸¦ ¼Õ»ó½ÃÄÑ »ç¿ëÀ» ¸·À½
+		left->set_AvlTreeRoot(nullptr);
+		left->treeSize = 0;
+		right->set_AvlTreeRoot(nullptr);
+		right->treeSize = 0;
+
+		return true;
+	}
 }
 
 int AvlTree::insert_left(void* node, const void* data)
 {
 	typAvlTreeNode* newNode = nullptr, * targetNode = (typAvlTreeNode*)node,
 		** position = nullptr;
-	if (targetNode == nullptr)													// 1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Î¸ï¿½ ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½
+	if (targetNode == nullptr)													// 1. ³ÖÀ» À§Ä¡ÀÇ ºÎ¸ð ³ëµå°¡ ºñ¾îÀÖ´Ù¸é
 	{
 		if (this->get_Size() == 0)
-			position = &this->AvlTreeRoot;										// 2. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ Root
+			position = &this->AvlTreeRoot;										// 2. Æ®¸®°¡ ºñ¾îÀÖ´Ù¸é -> ³ÖÀ» À§Ä¡´Â Æ®¸®ÀÇ Root
 		else
 		{
 			this->errCode = SYS_FAULT;
 			return INSERT_FAILED;
 		}
 	}
-	else																		// 1-1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Î¸ï¿½ ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½
+	else																		// 1-1. ³ÖÀ» À§Ä¡ÀÇ ºÎ¸ð ³ëµå°¡ ºñ¾îÀÖÁö ¾Ê´Ù¸é
 	{
-		if (!this->is_emptyNode(targetNode->left))								// 2. ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftChildï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtr
+		if (!this->is_emptyNode(targetNode->left))								// 2. ÇØ´ç ³ëµåÀÇ leftChild°¡ ¾ø´Ù¸é -> ³ÖÀ» À§Ä¡´Â ³ëµåÀÇ leftPtr
 		{
 			this->errCode = SYS_FAULT;
 			return INSERT_CHILD_EXISTS;
 		}
 		else
-			position = (typAvlTreeNode**)&targetNode->left; 
+			position = (typAvlTreeNode**)&targetNode->left;
 	}
-	this->makeNode((void**)&newNode);											// 3. ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	this->makeNode((void**)&newNode);											// 3. »õ·Î¿î ³ëµå »ý¼º
 	if (newNode == nullptr)
 	{
 		this->errCode = MEMORY_ERR;
@@ -456,8 +491,8 @@ int AvlTree::insert_left(void* node, const void* data)
 	}
 	else
 	{
-		this->initNode(newNode, (void*)data);									// 4. ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
-		*position = newNode;													// 5. ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ leftPtr => ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		this->initNode(newNode, (void*)data);									// 4. »õ·Î¿î ³ëµå ÃÊ±âÈ­
+		*position = newNode;													// 5. ºÎ¸ð ³ëµåÀÇ leftPtr => »õ·Î¿î ³ëµå ÁÖ¼Ò Æ÷ÀÎÆÃ
 		this->treeSize++;
 		return INSERT_SUCCESS;
 	}
@@ -467,19 +502,19 @@ int AvlTree::insert_right(void* node, const void* data)
 {
 	typAvlTreeNode* newNode = nullptr, * targetNode = (typAvlTreeNode*)node,
 		** position = nullptr;
-	if (targetNode == nullptr)													// 1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Î¸ï¿½ ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½
+	if (targetNode == nullptr)													// 1. ³ÖÀ» À§Ä¡ÀÇ ºÎ¸ð ³ëµå°¡ ºñ¾îÀÖ´Ù¸é
 	{
 		if (this->get_Size() == 0)
-			position = &this->AvlTreeRoot;										// 2. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ Root
+			position = &this->AvlTreeRoot;										// 2. Æ®¸®°¡ ºñ¾îÀÖ´Ù¸é -> ³ÖÀ» À§Ä¡´Â Æ®¸®ÀÇ Root
 		else
 		{
 			this->errCode = SYS_FAULT;
 			return INSERT_FAILED;
 		}
 	}
-	else 																		// 1-1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Î¸ï¿½ ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½
+	else 																		// 1-1. ³ÖÀ» À§Ä¡ÀÇ ºÎ¸ð ³ëµå°¡ ºñ¾îÀÖÁö ¾Ê´Ù¸é
 	{
-		if (!this->is_emptyNode(targetNode->right))								// 2. ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ rightChildï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtr
+		if (!this->is_emptyNode(targetNode->right))								// 2. ÇØ´ç ³ëµåÀÇ rightChild°¡ ¾ø´Ù¸é -> ³ÖÀ» À§Ä¡´Â ³ëµåÀÇ rightPtr
 		{
 			this->errCode = SYS_FAULT;
 			return INSERT_CHILD_EXISTS;
@@ -487,7 +522,7 @@ int AvlTree::insert_right(void* node, const void* data)
 		else
 			position = (typAvlTreeNode**)&targetNode->right;
 	}
-	this->makeNode((void**)&newNode);											// 3. ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	this->makeNode((void**)&newNode);											// 3. »õ·Î¿î ³ëµå »ý¼º
 	if (newNode == nullptr)
 	{
 		this->errCode = MEMORY_ERR;
@@ -495,8 +530,8 @@ int AvlTree::insert_right(void* node, const void* data)
 	}
 	else
 	{
-		this->initNode(newNode, (void*)data);									// 4. ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
-		*position = newNode;													// 5. ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ rightPtr => ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		this->initNode(newNode, (void*)data);									// 4. »õ·Î¿î ³ëµå ÃÊ±âÈ­
+		*position = newNode;													// 5. ºÎ¸ð ³ëµåÀÇ rightPtr => »õ·Î¿î ³ëµå ÁÖ¼Ò Æ÷ÀÎÆÃ
 		this->treeSize++;
 		return INSERT_SUCCESS;
 	}
@@ -509,17 +544,17 @@ bool AvlTree::remove_left(void* node)
 
 	if (this->treeSize == 0)
 		return result;
-	else																		// 1. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	else																		// 1. Æ®¸®°¡ ºñ¾îÀÖÁö ¾ÊÀº °æ¿ì
 	{
-		if (this->is_emptyNode(targetNode))										// 2. targetNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ -> targetï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ Rootï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å´			
+		if (this->is_emptyNode(targetNode))										// 2. targetNode°¡ ºñ¾îÀÖ´Ù¸é -> targetÀº Æ®¸®ÀÇ Root¸¦ °¡¸®Å´			
 			target = &this->AvlTreeRoot;
 		else
-			target = (typAvlTreeNode**)&targetNode->left;						// 2.1 targetNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½ -> targetï¿½ï¿½ targetNodeï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å´
+			target = (typAvlTreeNode**)&targetNode->left;						// 2.1 targetNode°¡ ºñ¾îÀÖÁö ¾Ê´Ù¸é -> targetÀº targetNodeÀÇ leftPtrÀ» °¡¸®Å´
 	}
 
-	if (!this->is_emptyNode(targetNode))										// 3. targetNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½
+	if (!this->is_emptyNode(targetNode))										// 3. targetNode°¡ ºñ¾îÀÖÁö ¾Ê´Ù¸é
 	{
-		this->remove_left(*target);												// 4. targetNodeï¿½ï¿½ children ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		this->remove_left(*target);												// 4. targetNodeÀÇ children ³ëµåµéÀ» Àç±ÍÀûÀ¸·Î Á¦°Å
 		this->remove_right(*target);
 		this->deleteNode((void**)target);
 
@@ -534,48 +569,19 @@ bool AvlTree::remove_right(void* node)
 	bool result = false;
 	if (this->treeSize == 0)
 		return result;
-	else																		// 1. Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	else																		// 1. Æ®¸®°¡ ºñ¾îÀÖÁö ¾ÊÀº °æ¿ì
 	{
-		if (this->is_emptyNode(targetNode))										// 2. targetNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ -> targetï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ Rootï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å´	
+		if (this->is_emptyNode(targetNode))										// 2. targetNode°¡ ºñ¾îÀÖ´Ù¸é -> targetÀº Æ®¸®ÀÇ Root¸¦ °¡¸®Å´	
 			target = &this->AvlTreeRoot;
 		else
-			target = (typAvlTreeNode**)&targetNode->right;						// 2.1 targetNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½ -> targetï¿½ï¿½ targetNodeï¿½ï¿½ leftPtrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å´
+			target = (typAvlTreeNode**)&targetNode->right;						// 2.1 targetNode°¡ ºñ¾îÀÖÁö ¾Ê´Ù¸é -> targetÀº targetNodeÀÇ leftPtrÀ» °¡¸®Å´
 	}
-	if (!this->is_emptyNode(targetNode))										// 3. targetNodeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Ù¸ï¿½
+	if (!this->is_emptyNode(targetNode))										// 3. targetNode°¡ ºñ¾îÀÖÁö ¾Ê´Ù¸é
 	{
-		this->remove_left(*target);												// 4. targetNodeï¿½ï¿½ children ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		this->remove_left(*target);												// 4. targetNodeÀÇ children ³ëµåµéÀ» Àç±ÍÀûÀ¸·Î Á¦°Å
 		this->remove_right(*target);
 		this->deleteNode((void**)target);
 		result = true;
 	}
 	return result;
-}
-
-void AvlTree::printAll()
-{
-	if (this->treeSize == 0 || this->get_AvlTreeRoot() == nullptr)
-		return;
-
-	this->inOrder_printNode(this->get_AvlTreeRoot()); // call the recursive function
-}
-
-void AvlTree::inOrder_printNode(typAvlTreeNode* node)
-{
-	if (node == nullptr)
-		return;
-	this->inOrder_printNode(static_cast<typAvlTreeNode*>(this->get_leftPtr(node)));
-
-	if (this->get_hiddenFlag(node) == NODE_HIDDEN)
-	{
-		// do nothing, skip hidden node
-	}
-	else
-	{
-#ifdef FOR_TEST
-		printf("(%d)", this->get_balFactor(node));
-#endif
-		this->printFunc(node->data);
-	}
-	this->inOrder_printNode(static_cast<typAvlTreeNode*>(this->get_rightPtr(node)));
-
 }

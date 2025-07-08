@@ -1,107 +1,128 @@
-#include "../header/bitree.h"
-#include "../header/AVLtree.h"
+#include "../header/avltree.h"
+#include "../header/traverse.h"
+#include <iostream>
+#include <string>
 
-//#define LLTEST
-//#define LRTEST
-//#define RRTEST
-//#define RLTEST
+using namespace std;
 
-struct MyData
-{
-	int key;
+struct MyData {
+    int key;
+    std::string name;
 };
 
-typCmpResult compareFunc(const void* key1, const void* key2) 
-{
-    const MyData* d1 = static_cast<const MyData*>(key1);
-    const MyData* d2 = static_cast<const MyData*>(key2);
-    if (d1->key < d2->key)
-        return LESS;
-    else if (d1->key > d2->key)
-        return GREATER;
-    else
-        return EQUAL;
+// ----------------------- À¯Æ¿¸®Æ¼ ÇÔ¼ö -----------------------
+
+typCmpResult compareFunc(const void* a, const void* b) {
+    const MyData* d1 = static_cast<const MyData*>(a);
+    const MyData* d2 = static_cast<const MyData*>(b);
+    if (d1->key < d2->key) return LESS;
+    else if (d1->key > d2->key) return GREATER;
+    else return EQUAL;
 }
 
-void printFunc(const void* data) {
-    const MyData* mydata = static_cast<const MyData*>(data);
-    cout << mydata->key << " ";
+void printFunc(void* data) {
+    const MyData* d = static_cast<MyData*>(data);
+    cout << d->key << "(" << d->name << ") ";
 }
 
-void destroyDataFunc(void* data) 
-{
-	delete static_cast<MyData*>(data);
+void destroyFunc(void* data) {
+    delete static_cast<MyData*>(data);
 }
 
-int main()
-{
-    AvlTree avlTree;
+MyData* create(int key, const string& name) {
+    return new MyData{ key, name };
+}
 
-    // ï¿½Ê±ï¿½È­ (compare, print, destroy ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½)
-    if (!avlTree.init(compareFunc, printFunc, destroyDataFunc)) {
-        std::cout << "1. Initialization failed" << std::endl;
-        return 1;
+// ----------------------- Å×½ºÆ® º»¹® -----------------------
+
+int main() {
+    // 1. Æ®¸® 4°³ »ý¼º (LL, LR, RR, RL)
+    AvlTree treeLL, treeLR, treeRR, treeRL;
+
+    avltree_lookupTraverse::compareFunc = compareFunc;
+    avltree_printTraverse::printNodeFunc = printFunc;
+
+    treeLL.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeLR.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeRR.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeRL.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+
+    // µ¥ÀÌÅÍ »ðÀÔ
+    int keysLL[] = { 50, 30, 70, 20, 40, 10, 25, 5, 3, 1, 0};     // LL
+    int keysLR[] = { 50, 30, 70, 20, 40, 10, 25, 15, 27, 26 };  // LR
+    int keysRR[] = { 50, 30, 70, 60, 80, 90, 100, 110, 105, 120, 25 }; // RR
+    int keysRL[] = { 50, 30, 70, 60, 80, 75, 90, 85, 77, 76, 25 };     // RL
+
+    for (int k : keysLL) treeLL.insert(create(k, "LL"));
+	cout << "===Result of Inserting...===" << endl;
+	cout << "Inserted into treeLL: ";
+	treeLL.printAll();
+	cout << endl ;
+    for (int k : keysLR) treeLR.insert(create(k, "LR"));
+    cout << "Inserted into treeLR: ";
+    treeLR.printAll();
+    cout << endl ;
+    for (int k : keysRR) treeRR.insert(create(k, "RR"));
+    cout << "Inserted into treeRR: ";
+    treeRR.printAll();
+    cout << endl ;
+    for (int k : keysRL) treeRL.insert(create(k, "RL"));
+    cout << "Inserted into treeRL: ";
+    treeRL.printAll();
+    cout << endl ;
+
+    // 2. °¢ Æ®¸®ÀÇ ³ôÀÌ ÃøÁ¤
+    cout << endl << "===Print of height of Trees...===" << endl;
+    cout << "treeLL height: " << treeLL.get_maxHeight() << endl;
+    cout << "treeLR height: " << treeLR.get_maxHeight() << endl;
+    cout << "treeRR height: " << treeRR.get_maxHeight() << endl;
+    cout << "treeRL height: " << treeRL.get_maxHeight() << endl;
+
+    // 3. °Ë»ö Å×½ºÆ®
+    cout << endl << "===Search of ID=25 nodes...===" << endl;
+    for (auto tree : { &treeLL, &treeLR, &treeRR, &treeRL }) {
+        MyData query = { 25, "" };
+        MyData* ptr = &query;
+        if (tree->search((void**)&ptr)) {
+            cout << "Found 25 in tree: " ;
+			printFunc(ptr);
+            cout << endl;
+        }
+        else {
+            cout << "25 not found in tree!" << endl;
+        }
     }
-    else
-        cout << "1. Initalization successed" << endl;
 
-    // ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-#if defined(LLTEST)
-    int testData[] = { 50, 30, 70, 20, 40, 60, 80, 25, 35 };
-#elif defined(LRTEST)
-    int testData[] = { 50, 30, 70, 20, 40, 10, 25, 60, 80 };
-#elif defined(RRTEST)
-    int testData[] = { 50, 30, 70, 60, 80, 90, 100, 85, 95 };
-#elif defined(RLTEST)
-    int testData[] = { 50, 30, 70, 60, 80, 75, 90, 85, 77 };
-#else
-    int testData[] = { 50, 30, 70, 20, 40, 60, 80, 25, 35 };
-#endif
-    const int N = sizeof(testData) / sizeof(testData[0]);
-
-	for (int i = 0; i < N; ++i) {
-		MyData* data = new MyData{ testData[i] };
-		if (avlTree.insert(data) != INSERT_SUCCESS) {
-			std::cout << "2. Insert failed for key: " << data->key << std::endl;
-			delete data; // ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½
-            return 0;
-		}
-		else 
-			std::cout << "Inserted: " << data->key << std::endl;
-	}
-    cout << "2. Inserting successed" << endl;
-
-
-    // ï¿½Ë»ï¿½ ï¿½×½ï¿½Æ®
-    MyData query1{ 25 };
-    MyData* query1ptr = &query1;
-    if (avlTree.lookup((const void**)&query1ptr)) {
-        std::cout << "3. found 25 in the tree." << std::endl;
-    }
-    else {
-        std::cout << "3. 25 not found." << std::endl;
-        return 0;
+    // 4. ¸ðµç Æ®¸®¿¡¼­ »èÁ¦ ¹× Àç°Ë»ö Å×½ºÆ®
+    cout << endl << "===Delete and Retry of Searching Test..===" << endl;
+    cout << "[»èÁ¦ ¹× Àç°Ë»ö Å×½ºÆ®]\n";
+    for (auto tree : { &treeLL, &treeLR, &treeRR, &treeRL }) {
+        MyData* q = new MyData{ 25, "" };
+        tree->remove(q);
+        if (tree->search((void**)&q)) {
+            cout << "»èÁ¦ ½ÇÆÐ: 25 ¿©ÀüÈ÷ Á¸Àç\n";
+        }
+        else {
+            cout << "»èÁ¦ ¼º°ø: 25 ¾øÀ½\n";
+            tree->printAll();
+			cout << endl;
+        }
+        delete q;
     }
 
-    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ë»ï¿½ ï¿½×½ï¿½Æ®
-    MyData query2{ 25 };
-    MyData* query2ptr = &query2;
-    avlTree.remove((const void*)&query2);
-    if (avlTree.lookup((const void**)&query2ptr)) {
-        std::cout << "4. found 25 (should not happen)." << std::endl;
-        return 0;
-    }
-    else {
-        std::cout << "4. 25 not found after deletion." << std::endl;
-    }
+    // 5. µÎ Æ®¸® º´ÇÕ ÈÄ Ãâ·Â
+    cout << "\n===[Æ®¸® º´ÇÕ Å×½ºÆ® - treeLL + treeRR]===\n";
+    AvlTree mergedTree;
+    mergedTree.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
 
-    std::cout << "5. Final In-order traversal: ";
-    avlTree.printAll();
-    std::cout << std::endl;
+    MyData* rootData = create(999, "merged");
+    mergedTree.mergeTree(&treeLL, &treeRR, rootData);
 
-    // ï¿½ï¿½Ã¼ Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-    avlTree.destroyTree();
-    std::cout << "6. Tree destroyed." << std::endl;
+    mergedTree.printAll();
+    cout << endl;
 
-	return 0;
+    // 6. º´ÇÕ Æ®¸® ³ôÀÌ Ãâ·Â
+    cout << "mergedTree height: " << mergedTree.get_maxHeight() << endl;
+
+    return 0;
 }

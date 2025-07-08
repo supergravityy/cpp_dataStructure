@@ -1,4 +1,4 @@
-#include "../header/AVLtree.h"
+#include "../header/avltree.h"
 
 void AvlTree::set_balFactor(typAvlTreeNode* node, typBalFactor balFactor)
 {
@@ -29,6 +29,11 @@ typHiddenFlag AvlTree::get_hiddenFlag(typAvlTreeNode* node)
 typAvlTreeNode* AvlTree::get_AvlTreeRoot()
 {
 	return this->AvlTreeRoot;
+}
+
+void AvlTree::set_AvlTreeRoot(typAvlTreeNode* node)
+{
+	this->AvlTreeRoot = node;
 }
 
 /*Overriding parent's methods*/

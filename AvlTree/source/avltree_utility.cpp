@@ -1,30 +1,37 @@
-#include "../header/AVLtree.h"
+#include "../header/avltree.h"
 
 void AvlTree::destroyTree()
 {
-	this->destroy_left(nullptr); // remove all nodes at the beginning(root)
+	this->destroy_left(nullptr); // 모든 노드 삭제
 
 	return;
 }
 
-bool AvlTree::init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
-	, void (*printFunc)(const void* data)
-	, void (*destroyDataFunc)(void* data))
+int AvlTree::get_maxHeight()
 {
-	if (compareFunc == nullptr || printFunc == nullptr || destroyDataFunc == nullptr)
-		return false;
+	int temp = cal_maxHeight(this->get_AvlTreeRoot());
 
+	if (temp > 0)
+		return temp - 1;
+	else
+		return temp;
+}
+
+int AvlTree::cal_maxHeight(void* node)
+{
+	int tempLeftHeight = 0, tempRightHeight = 0;
+
+	if (node == nullptr)
+	{
+		this->errCode = SYS_FAULT;
+		return 0;
+	}
 	else
 	{
-		this->destroyTree(); // remove all nodes at the beginning(root)
+		tempLeftHeight = this->cal_maxHeight(this->get_leftPtr(node));
+		tempRightHeight = this->cal_maxHeight(this->get_rightPtr(node));
 
-		this->AvlTreeRoot = nullptr;
-		this->treeSize = 0;
-		this->compareFunc = compareFunc;
-		this->printFunc = printFunc;
-		this->destroyDataFunc = destroyDataFunc;
-		this->errCode = NORMAL;
-		return true;
+		return 1 + std::max(tempLeftHeight, tempRightHeight);
 	}
 }
 
@@ -35,6 +42,14 @@ void AvlTree::initNode(void* node, void* data)
 	this->set_rightPtr(node, nullptr);
 	this->set_balFactor((typAvlTreeNode*)node, AVL_BALANCED);
 	this->set_hiddenFlag((typAvlTreeNode*)node, NODE_AVAILABLE);
+}
+
+void AvlTree::printAll()
+{
+	if (this->printTreeFunc == nullptr)
+		this->errCode = SYS_FAULT;
+	else
+		this->printTreeFunc(this->get_AvlTreeRoot());
 }
 
 bool AvlTree::makeNode(void** node)
@@ -78,7 +93,7 @@ AvlTree::~AvlTree()
 	this->AvlTreeRoot = nullptr;
 	this->treeSize = 0;
 	this->compareFunc = nullptr;
-	this->printFunc = nullptr;
+	this->printTreeFunc = nullptr;
 	this->destroyDataFunc = nullptr;
 	this->errCode = NORMAL;
 }

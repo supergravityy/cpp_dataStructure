@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../header/BiTreeNode.h"
+#include "bitreeNode.h"
 
 typedef enum eBalFactor
 {

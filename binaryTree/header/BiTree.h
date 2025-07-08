@@ -64,7 +64,7 @@ protected:
     virtual bool remove_left(void* node);
     virtual bool remove_right(void* node);
     virtual bool merge(void* leftTree, void* rightTree, void* data);
-    int cal_maxHeight(void* node);
+    virtual int cal_maxHeight(void* node);
 
     /*Accessors*/
     typBiTreeNode* get_BiTreeRoot();
@@ -89,11 +89,3 @@ private:
     /*Private*/
     typBiTreeNode* BiTreeRoot = nullptr;
 };
-
-// 리팩토링 문서
-
-// 1. 내부 함수포인터 변수 traverse 추가 -> 어떤 방식으로 traverse가 되는지를 선택가능
-// 2. 메서드 traverse 모두 삭제 -> 따로 네임스페이스를 만들어서 거기서 정의
-// 3. init 메서드에서 traverse 함수주소도 가져가게끔 추가
-// 4. traverse를 이용한 lookup 메서드 작성 필요
-// 5. printAll에서 내부 traverse 부분도 재작성 필요

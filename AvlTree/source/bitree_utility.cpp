@@ -5,11 +5,30 @@ void BiTree::destroyTree()
 	this->remove_left(nullptr); // remove all nodes at the beginning(root)
 }
 
-bool BiTree::init(typCmpResult (*compareFunc)(const void* key1, const void* key2)
-	, void (*printFunc)(const void* data)
-	, void (*destroyDataFunc)(void* data))
+int BiTree::get_maxHeight()
 {
-	if(compareFunc == nullptr || printFunc == nullptr || destroyDataFunc == nullptr)
+	int temp = cal_maxHeight(this->get_BiTreeRoot());
+
+	if (temp > 0)
+		return temp - 1;
+	else
+		return temp;
+}
+
+void BiTree::printAll()
+{
+	if (this->printTreeFunc == nullptr)
+		this->errCode = SYS_FAULT;
+	else
+		this->printTreeFunc(this->get_BiTreeRoot());
+}
+
+bool BiTree::init(typCmpResult (*compareFunc)(const void* key1, const void* key2)
+	, void (*printFunc)(void* node)
+	, void (*destroyDataFunc)(void* data)
+	, void* (*traverseFunc)(void* node, void** saveData))
+{
+	if(compareFunc == nullptr || printFunc == nullptr || destroyDataFunc == nullptr || traverseFunc == nullptr)
 		return false;
 
 	else
@@ -19,8 +38,9 @@ bool BiTree::init(typCmpResult (*compareFunc)(const void* key1, const void* key2
 		this->BiTreeRoot = nullptr;
 		this->treeSize = 0;
 		this->compareFunc = compareFunc;
-		this->printFunc = printFunc;
+		this->printTreeFunc = printFunc;
 		this->destroyDataFunc = destroyDataFunc;
+		this->traverseFunc = traverseFunc;
 		this->errCode = NORMAL;
 		return true;
 	}
@@ -58,6 +78,7 @@ bool BiTree::makeNode(void** node)
 		return true; 
 	}
 }
+
 bool BiTree::deleteNode(void** node)
 {
 	if (node == nullptr)
@@ -84,12 +105,30 @@ bool BiTree::deleteNode(void** node)
 	}
 }
 
+int BiTree::cal_maxHeight(void* node)
+{
+	int tempLeftHeight = 0, tempRightHeight = 0;
+
+	if (node == nullptr)
+	{
+		this->errCode = SYS_FAULT;
+		return 0;
+	}
+	else
+	{
+		tempLeftHeight = this->cal_maxHeight(this->get_leftPtr(node));
+		tempRightHeight = this->cal_maxHeight(this->get_rightPtr(node));
+
+		return 1 + std::max(tempLeftHeight, tempRightHeight);
+	}
+}
+
 BiTree::BiTree()
 {
 	this->BiTreeRoot = nullptr;
 	this->treeSize = 0;
 	this->compareFunc = nullptr;
-	this->printFunc = nullptr;
+	this->printTreeFunc = nullptr;
 	this->destroyDataFunc = nullptr;
 	this->errCode = NORMAL;
 }
@@ -101,142 +140,22 @@ BiTree::~BiTree()
 	this->BiTreeRoot = nullptr;
 	this->treeSize = 0;
 	this->compareFunc = nullptr;
-	this->printFunc = nullptr;
+	this->printTreeFunc = nullptr;
 	this->destroyDataFunc = nullptr;
 	this->errCode = NORMAL;
 }
 
-int BiTree::insert_left(void* node, const void* data)
+#ifdef DEBUG
+typBiTreeNode* BiTree::get_bitreeRoot_Addr()
 {
-
-	typBiTreeNode* newNode = nullptr, * targetNode = (typBiTreeNode*)node,
-		** position = nullptr;
-
-	if (targetNode == nullptr)
-	{
-		if (this->treeSize == 0)
-			position = &this->BiTreeRoot;
-		else
-		{
-			this->errCode = SYS_FAULT;
-			return INSERT_FAILED;
-		}
-	}
-	else
-	{
-		if (!this->is_emptyNode(targetNode->left))
-		{
-			this->errCode = SYS_FAULT;
-			return INSERT_CHILD_EXISTS;
-		}
-		else
-			position = &targetNode->left;
-	}
-
-	this->makeNode((void**)&newNode);
-	if (newNode == nullptr)
-	{
-		this->errCode = MEMORY_ERR;
-		return INSERT_MEMORY_ERR;
-	}
-	else
-	{
-		this->initNode(newNode, (void*)data);
-		*position = newNode;
-		this->treeSize++;
-		return INSERT_SUCCESS;
-	}
+	return this->get_BiTreeRoot();
 }
-
-int BiTree::insert_right(void* node, const void* data)
+typBiTreeNode* BiTree::get_leftAddr(void* node)
 {
-	typBiTreeNode* newNode = nullptr, * targetNode = (typBiTreeNode*)node,
-		** position = nullptr;
-
-	if (targetNode == nullptr)
-	{
-		if (this->treeSize == 0)
-			position = &this->BiTreeRoot;
-		else
-		{
-			this->errCode = SYS_FAULT;
-			return INSERT_FAILED;
-		}
-	}
-	else
-	{
-		if (!this->is_emptyNode(targetNode->right))
-		{
-			this->errCode = SYS_FAULT;
-			return INSERT_CHILD_EXISTS;
-		}
-		else
-			position = &targetNode->right;
-	}
-
-	this->makeNode((void**)&newNode);
-	if (newNode == nullptr)
-	{
-		this->errCode = MEMORY_ERR;
-		return INSERT_MEMORY_ERR;
-	}
-	else
-	{
-		this->initNode(newNode, (void*)data);
-		*position = newNode;
-		this->treeSize++;
-		return INSERT_SUCCESS;
-	}
+	return (typBiTreeNode*)this->get_leftPtr(node);
 }
-
-bool BiTree::remove_left(void* node)
+typBiTreeNode* BiTree::get_rightAddr(void* node)
 {
-	typBiTreeNode** target = nullptr, * targetNode = (typBiTreeNode*)node;
-	bool result = false;
-
-	if (this->treeSize == 0)
-		return result;
-	else
-	{
-		if (this->is_emptyNode(targetNode))
-			target = &this->BiTreeRoot;
-		else
-			target = &targetNode->left;
-	}
-
-	if (!this->is_emptyNode(targetNode))
-	{
-		this->remove_left(*target);
-		this->remove_right(*target);
-		this->deleteNode((void**)target);
-
-		result = true;
-	}
-	return result;
+	return (typBiTreeNode*)this->get_rightPtr(node);
 }
-
-bool BiTree::remove_right(void* node)
-{
-	typBiTreeNode** target = nullptr, * targetNode = (typBiTreeNode*)node;
-	bool result = false;
-
-	if (this->treeSize == 0)
-		return result;
-	else
-	{
-		if (targetNode == nullptr)
-			target = &this->BiTreeRoot;
-		else
-			target = &targetNode->right;
-	}
-
-	if (!this->is_emptyNode(targetNode))
-	{
-		this->remove_left(*target);
-		this->remove_right(*target);
-		this->deleteNode((void**)target);
-
-		result = true;
-	}
-	return result;
-}
+#endif // DEBUG
