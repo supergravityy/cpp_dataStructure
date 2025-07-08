@@ -3,8 +3,6 @@
 #include "bitree.h"
 #include "avltreeNode.h"
 
-// todo : traverse 함수 avl에 맞게 수정하기
-
 class AvlTree : public BiTree
 {
 public:
