@@ -1,5 +1,7 @@
 #include "../header/avltree.h"
 
+#define forDebug
+
 int AvlTree::insert(const void* data)
 {
 	typBalancedFlag balanced = AVLNODE_BALANCED;
@@ -36,19 +38,18 @@ bool AvlTree::search(void** data)
 	return this->recursive_lookup(this->AvlTreeRoot, (void**)data);
 }
 
-bool AvlTree::mergeTree(void* leftTree, void* rightTree, void* data)
-{
-	return this->merge(leftTree, rightTree, data);
-}
-
 void AvlTree::rotate_left(typAvlTreeNode** node) // 대상의 balFactor가 AVL_LEFT_HEAVY인 경우
 {
 	typAvlTreeNode* left_subTree, * grandChild;
 
 	left_subTree = (typAvlTreeNode*)this->get_leftPtr(*node);
 
-	if (this->get_balFactor(*node) == AVL_LEFT_HEAVY)
+	if (this->get_balFactor(*node) == AVL_LEFT_HEAVY &&
+		this->get_balFactor(left_subTree) == AVL_LEFT_HEAVY)
 	{
+#ifdef forDebug
+		cout << "LL rotation!" << endl;
+#endif
 		// 서브트리의 balFactor가 AVL_LEFT_HEAVY인 경우 (LL회전)
 		this->set_leftPtr(*node, this->get_rightPtr(left_subTree));			// 1. 대상의 leftPtr				->		leftSubTree의 rightPtr
 		this->set_rightPtr(left_subTree, *node);							// 2. leftSubTree의 rightPtr		->		대상의 rightPtr
@@ -60,8 +61,10 @@ void AvlTree::rotate_left(typAvlTreeNode** node) // 대상의 balFactor가 AVL_LEFT_
 	}
 	else
 	{
+#ifdef forDebug
+		cout << "LR rotation!" << endl;
+#endif
 		// 서브트리의 balFactor가 AVL_RIGHT_HEAVY인 경우 (LR회전)
-
 		grandChild = (typAvlTreeNode*)this->get_rightPtr(left_subTree);		// grandChild = leftSubTree의 rightPtr (LR 회전)
 
 		this->set_rightPtr(left_subTree, this->get_leftPtr(grandChild));	// 1. leftSubTree의 rightPtr		->		grandChild의 leftChild
@@ -102,10 +105,13 @@ void AvlTree::rotate_right(typAvlTreeNode** node) // 대상의 balFactor가 AVL_RIGH
 
 	right_subTree = (typAvlTreeNode*)this->get_rightPtr(*node);
 
-	if (this->get_balFactor(*node) == AVL_RIGHT_HEAVY)
+	if (this->get_balFactor(*node) == AVL_RIGHT_HEAVY &&
+		this->get_balFactor(right_subTree) == AVL_RIGHT_HEAVY)
 	{
+#ifdef forDebug
+		cout << "RR rotation!" << endl;
+#endif
 		// 서브트리의 balFactor가 AVL_RIGHT_HEAVY인 경우 (RR회전)
-
 		this->set_rightPtr(*node, this->get_leftPtr(right_subTree));		// 1. 대상의 rightPtr				->		rightSubTree의 leftPtr
 		this->set_leftPtr(right_subTree, *node);							// 2. rightSubTree의 leftPtr		->		대상의 leftPtr		
 
@@ -116,6 +122,9 @@ void AvlTree::rotate_right(typAvlTreeNode** node) // 대상의 balFactor가 AVL_RIGH
 	}
 	else
 	{
+#ifdef forDebug
+		cout << "RL rotation!" << endl;
+#endif
 		grandChild = (typAvlTreeNode*)this->get_leftPtr(right_subTree);	// 서브트리의 balFactor가 AVL_LEFT_HEAVY인 경우 (RL회전)
 
 		this->set_leftPtr(right_subTree, this->get_rightPtr(grandChild));	// 1. rightSubTree의 leftPtr		->		grandChild의 rightPtr
@@ -222,8 +231,11 @@ int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalanc
 	int retVal = 0;
 
 	if (this->is_emptyNode(*node))															// 1. 트리가 비어있거나, 말단 노드에 도달한 경우
-	{
-		return this->insert_left(*node, data);												// 2. 트리에 자료삽입
+	{										
+		if(retVal = this->insert_left(*node, data) == INSERT_SUCCESS)						// 2. 트리에 자료삽입
+			this->availableNodeCnt++; // 접근가능한 노드 수 증가
+
+		return retVal;
 	}
 	else																					// 1-1. 트리가 비어있지 않은 경우
 	{
@@ -236,7 +248,10 @@ int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalanc
 				if (this->insert_left(*node, data) != INSERT_SUCCESS)
 					return INSERT_FAILED;
 				else
+				{
 					*balanced = AVLNODE_UNBALANCED;											// 4. 삽입 후 트리의 평형화가 필요하다고 알림
+					this->availableNodeCnt++; // 접근가능한 노드 수 증가
+				}
 			}
 			else																			// 3-1. 현재 노드의 leftPtr이 비어있지 않다면
 			{
@@ -279,7 +294,10 @@ int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalanc
 				if (this->insert_right(*node, data) != INSERT_SUCCESS)
 					return INSERT_FAILED;
 				else
+				{
 					*balanced = AVLNODE_UNBALANCED;											// 4. 삽입 후 트리의 평형화가 필요하다고 알림
+					this->availableNodeCnt++; // 접근가능한 노드 수 증가
+				}
 			}
 			else 																			// 3-1. 현재 노드의 rightPtr이 비어있지 않다면
 			{
@@ -329,6 +347,7 @@ int AvlTree::recursive_insert(typAvlTreeNode** node, const void* data, typBalanc
 					this->set_hiddenFlag(*node, NODE_AVAILABLE);							// 5. 노드초기화 과정진행
 					this->set_data(*node, (void*)data);
 					*balanced = AVLNODE_BALANCED;
+					this->availableNodeCnt++; // 접근가능한 노드 수 증가
 				}
 				else
 				{
@@ -373,15 +392,12 @@ bool AvlTree::recursive_hide(typAvlTreeNode* node, const void* data)
 			{
 				this->set_hiddenFlag(node, NODE_HIDDEN);									// 4. 현재노드를 숨김처리
 				retFlag = true;
+				this->availableNodeCnt--; // 접근가능한 노드 수 감소
 			}
 			else
 			{
 				retFlag = false; // 이미 숨겨진 노드
 			}
-		}
-		{
-			this->set_hiddenFlag(node, NODE_HIDDEN);
-			retFlag = true;
 		}
 
 		return retFlag;
@@ -424,38 +440,6 @@ bool AvlTree::recursive_lookup(typAvlTreeNode* node, void** data)
 			}
 		}
 		return retFlag;
-	}
-}
-
-bool AvlTree::merge(void* leftTree, void* rightTree, void* data)
-{
-	AvlTree* left = (AvlTree*)leftTree, * right = (AvlTree*)rightTree;
-	typAvlTreeNode* tempNode = nullptr;
-
-	// 1. root 삽입
-	if (this->insert_left(nullptr, data) != 0)
-	{
-		this->init(this->compareFunc, this->printTreeFunc, this->destroyDataFunc, this->traverseFunc);
-		return false;
-	}
-
-	// 2. 새 트리의 루트의 자식노드로 두 트리를 삽입
-	else
-	{
-		tempNode = this->get_AvlTreeRoot();
-		this->set_leftPtr(tempNode, left->get_AvlTreeRoot());
-		this->set_rightPtr(tempNode, right->get_AvlTreeRoot());
-
-		// 3. 세 트리의 크기 업데이트
-		this->treeSize += left->get_Size() + right->get_Size();
-
-		// 4. 인자로 받은 두 트리의 멤버정보를 손상시켜 사용을 막음
-		left->set_AvlTreeRoot(nullptr);
-		left->treeSize = 0;
-		right->set_AvlTreeRoot(nullptr);
-		right->treeSize = 0;
-
-		return true;
 	}
 }
 
@@ -557,6 +541,7 @@ bool AvlTree::remove_left(void* node)
 		this->remove_left(*target);												// 4. targetNode의 children 노드들을 재귀적으로 제거
 		this->remove_right(*target);
 		this->deleteNode((void**)target);
+		this->treeSize--;
 
 		result = true;
 	}
@@ -581,6 +566,8 @@ bool AvlTree::remove_right(void* node)
 		this->remove_left(*target);												// 4. targetNode의 children 노드들을 재귀적으로 제거
 		this->remove_right(*target);
 		this->deleteNode((void**)target);
+		this->treeSize--;
+
 		result = true;
 	}
 	return result;

@@ -2,6 +2,8 @@
 
 #include "../header/bitreeNode.h"
 
+#define DEBUG
+
 #define INSERT_SUCCESS          0
 #define INSERT_FAILED           1
 #define INSERT_CHILD_EXISTS     2
@@ -43,6 +45,12 @@ public:
     int get_Size();
     virtual int get_maxHeight();
 	typErrcode get_ErrCode();
+
+#ifdef DEBUG
+    typBiTreeNode* get_bitreeRoot_Addr();
+    typBiTreeNode* get_leftAddr(void* node);
+    typBiTreeNode* get_rightAddr(void* node);
+#endif // DEBUG
 
 protected:
 	/*Utility-1*/

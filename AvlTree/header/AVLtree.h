@@ -3,6 +3,8 @@
 #include "bitree.h"
 #include "avltreeNode.h"
 
+// todo : traverse 함수 avl에 맞게 수정하기
+
 class AvlTree : public BiTree
 {
 public:
@@ -10,13 +12,13 @@ public:
 	int insert(const void* data);
 	bool remove(const void* data);
 	bool search(void** data);
-	bool mergeTree(void* leftTree, void* rightTree, void* data) override;
 	
 	/*Utility*/
 	AvlTree();
 	~AvlTree();
 	void printAll() override;
 	int get_maxHeight() override;
+	int get_Count();
 	// init()
 protected:
 	/*Utility-1*/
@@ -25,13 +27,14 @@ protected:
 	virtual bool deleteNode(void** node) override;
 	void destroyTree() override;
 	int cal_maxHeight(void* node) override;
+	using BiTree::get_Size; // Prevent using BiTree's get_Size method
+	using BiTree::mergeTree; // Prevent using BiTree's mergeTree method
 
 	/*Overriding parent's methods*/
 	int insert_left(void* node, const void* data) override;
 	int insert_right(void* node, const void* data) override;
 	bool remove_left(void* node) override;
 	bool remove_right(void* node) override;
-	bool merge(void* leftTree, void* rightTree, void* data) override;
 
 	/*Accessors*/
 	void set_balFactor(typAvlTreeNode* node, typBalFactor balFactor);
@@ -58,6 +61,9 @@ protected:
 	int recursive_insert(typAvlTreeNode** node, const void* data, typBalancedFlag* balanced);
 	bool recursive_hide(typAvlTreeNode* node, const void* data);
 	bool recursive_lookup(typAvlTreeNode* node, void** data);
+
+	/*Variables*/
+	int availableNodeCnt = 0;
 
 private:
 	/*Private*/

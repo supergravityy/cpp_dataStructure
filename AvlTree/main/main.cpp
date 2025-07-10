@@ -1,9 +1,5 @@
 #include "../header/avltree.h"
 #include "../header/traverse.h"
-#include <iostream>
-#include <string>
-
-using namespace std;
 
 struct MyData {
     int key;
@@ -48,26 +44,26 @@ int main() {
     treeRL.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
 
     // 데이터 삽입
-    int keysLL[] = { 50, 30, 70, 20, 40, 10, 25, 5, 3, 1, 0};     // LL
-    int keysLR[] = { 50, 30, 70, 20, 40, 10, 25, 15, 27, 26 };  // LR
-    int keysRR[] = { 50, 30, 70, 60, 80, 90, 100, 110, 105, 120, 25 }; // RR
-    int keysRL[] = { 50, 30, 70, 60, 80, 75, 90, 85, 77, 76, 25 };     // RL
-
+    int keysLL[] = { 50, 30, 70, 20, 40, 10, 25, 5, 3, 1, 0};           // LL
+    int keysLR[] = { 50, 30, 70, 20, 27, 35, 10, 45, 32, 38, 36 };      // LR
+    int keysRR[] = { 50, 30, 70, 60, 80, 90, 100, 110, 105, 120, 25 };  // RR
+	int keysRL[] = { 50, 70, 60, 65, 30, 90, 100, 55, 63, 68, 67 };     // RL
+    
+    cout << "===Result of Inserting...===" << endl;
     for (int k : keysLL) treeLL.insert(create(k, "LL"));
-	cout << "===Result of Inserting...===" << endl;
-	cout << "Inserted into treeLL: ";
-	treeLL.printAll();
+    cout << "Inserted into treeLL: " << treeLL.get_Count() << endl;
+	treeLL.printAll(); 
 	cout << endl ;
     for (int k : keysLR) treeLR.insert(create(k, "LR"));
-    cout << "Inserted into treeLR: ";
+    cout << "Inserted into treeLR: " << treeLR.get_Count() << endl;
     treeLR.printAll();
     cout << endl ;
     for (int k : keysRR) treeRR.insert(create(k, "RR"));
-    cout << "Inserted into treeRR: ";
+    cout << "Inserted into treeRR: " << treeRR.get_Count() << endl;
     treeRR.printAll();
     cout << endl ;
     for (int k : keysRL) treeRL.insert(create(k, "RL"));
-    cout << "Inserted into treeRL: ";
+    cout << "Inserted into treeRL: " << treeRL.get_Count() << endl;
     treeRL.printAll();
     cout << endl ;
 
@@ -79,17 +75,17 @@ int main() {
     cout << "treeRL height: " << treeRL.get_maxHeight() << endl;
 
     // 3. 검색 테스트
-    cout << endl << "===Search of ID=25 nodes...===" << endl;
+    cout << endl << "===Search of ID=70 nodes...===" << endl;
     for (auto tree : { &treeLL, &treeLR, &treeRR, &treeRL }) {
-        MyData query = { 25, "" };
+        MyData query = { 70, "" };
         MyData* ptr = &query;
         if (tree->search((void**)&ptr)) {
-            cout << "Found 25 in tree: " ;
+            cout << "Found 70 in tree: " ;
 			printFunc(ptr);
             cout << endl;
         }
         else {
-            cout << "25 not found in tree!" << endl;
+            cout << "70 not found in tree!" << endl;
         }
     }
 
@@ -97,32 +93,17 @@ int main() {
     cout << endl << "===Delete and Retry of Searching Test..===" << endl;
     cout << "[삭제 및 재검색 테스트]\n";
     for (auto tree : { &treeLL, &treeLR, &treeRR, &treeRL }) {
-        MyData* q = new MyData{ 25, "" };
+        MyData* q = new MyData{ 70, "" };
         tree->remove(q);
         if (tree->search((void**)&q)) {
-            cout << "삭제 실패: 25 여전히 존재\n";
+            cout << "삭제 실패: 70 여전히 존재\n";
         }
         else {
-            cout << "삭제 성공: 25 없음\n";
+            cout << "삭제 성공: 70 없음. 갯수 :" << tree->get_Count() << endl;
             tree->printAll();
 			cout << endl;
         }
-        delete q;
     }
-
-    // 5. 두 트리 병합 후 출력
-    cout << "\n===[트리 병합 테스트 - treeLL + treeRR]===\n";
-    AvlTree mergedTree;
-    mergedTree.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
-
-    MyData* rootData = create(999, "merged");
-    mergedTree.mergeTree(&treeLL, &treeRR, rootData);
-
-    mergedTree.printAll();
-    cout << endl;
-
-    // 6. 병합 트리 높이 출력
-    cout << "mergedTree height: " << mergedTree.get_maxHeight() << endl;
 
     return 0;
 }

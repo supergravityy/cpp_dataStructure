@@ -7,14 +7,16 @@ void AvlTree::destroyTree()
 	return;
 }
 
+int AvlTree::get_Count()
+{
+	return this->availableNodeCnt;
+}
+
 int AvlTree::get_maxHeight()
 {
 	int temp = cal_maxHeight(this->get_AvlTreeRoot());
 
-	if (temp > 0)
-		return temp - 1;
-	else
-		return temp;
+	return temp;
 }
 
 int AvlTree::cal_maxHeight(void* node)

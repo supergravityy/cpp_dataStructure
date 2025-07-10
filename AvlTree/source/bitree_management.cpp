@@ -128,6 +128,7 @@ bool BiTree::remove_left(void* node)
 		this->remove_left(*target);				// 3. 재귀적으로 하위 트리를 전부 삭제함
 		this->remove_right(*target);
 		this->deleteNode((void**)target);
+		this->treeSize--;
 
 		result = true;
 	}
@@ -154,6 +155,7 @@ bool BiTree::remove_right(void* node)
 		this->remove_left(*target);
 		this->remove_right(*target);
 		this->deleteNode((void**)target);
+		this->treeSize--;
 
 		result = true;
 	}

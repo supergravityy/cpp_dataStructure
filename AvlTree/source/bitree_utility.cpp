@@ -9,10 +9,7 @@ int BiTree::get_maxHeight()
 {
 	int temp = cal_maxHeight(this->get_BiTreeRoot());
 
-	if (temp > 0)
-		return temp - 1;
-	else
-		return temp;
+	return temp;
 }
 
 void BiTree::printAll()
