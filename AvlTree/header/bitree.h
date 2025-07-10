@@ -2,7 +2,7 @@
 
 #include "../header/bitreeNode.h"
 
-#define DEBUG
+//#define DEBUG
 
 #define INSERT_SUCCESS          0
 #define INSERT_FAILED           1
