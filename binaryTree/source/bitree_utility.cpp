@@ -7,7 +7,7 @@ void BiTree::destroyTree()
 
 int BiTree::get_maxHeight()
 {
-	return cal_maxHeight(this->get_BiTreeRoot()) - 1;
+	return cal_maxHeight(this->get_BiTreeRoot());
 }
 
 bool BiTree::init(typCmpResult (*compareFunc)(const void* key1, const void* key2)
