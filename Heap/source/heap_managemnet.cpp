@@ -55,7 +55,7 @@ void* Heap::peek()
 bool Heap::insert(void* data)
 {
 	void** tempAddr = nullptr;
-	int currIdx, parentIdx;
+	int index;
 
 	if (data == nullptr)
 	{
@@ -63,7 +63,7 @@ bool Heap::insert(void* data)
 		return false;
 	}
 	
-	tempAddr = this->reAlloc_treeAddr(this->size + 1);						// 1. Èü ¹è¿­ Å©±â Áõ°¡ (ÀçÇÒ´ç)
+	tempAddr = this->reAlloc_treeAddr(this->size + 1);						// 1. íž™ ë°°ì—´ í¬ê¸° ì¦ê°€ (ìž¬í• ë‹¹)
 	if (tempAddr == nullptr)
 	{
 		this->errCode = MEMORY_ERR;
@@ -72,21 +72,11 @@ bool Heap::insert(void* data)
 	this->set_treeAddr(tempAddr);
 	this->size++;
 
-	currIdx = this->get_size() - 1;											// 2. »õ ³ëµåÀÇ ÀÎµ¦½º¿Í ºÎ¸ð ³ëµå ÀÎµ¦½º °è»ê
-	parentIdx = this->get_parentIdx(currIdx);
+	index = this->get_size() - 1;											// 2. ìƒˆ ë…¸ë“œì˜ ì¸ë±ìŠ¤ ê³„ì‚°
 
-	this->set_treeNode(currIdx, data);										// 3. »õ ³ëµåÀÇ µ¥ÀÌÅÍ¸¦ ÇöÀç ÀÎµ¦½º¿¡ ÀúÀå
+	this->set_treeNode(index, data);										// 3. ìƒˆ ë…¸ë“œì˜ ë°ì´í„°ë¥¼ í˜„ìž¬ ì¸ë±ìŠ¤ì— ì €ìž¥
 
-																			// 4. »õ ³ëµå(leaf)°¡ ºÎ¸ð ³ëµåº¸´Ù Å©¸é »óÇâ½ÄÀ¸·Î Èü ¼Ó¼º À¯Áö (ÃÖ´ëÈü ±âÁØ)
-	while ((currIdx > 0) &&
-		(this->compareFunc(this->get_treeNode(currIdx), this->get_treeNode(parentIdx)) == GREATER)) 
-		// ÇöÀç ³ëµå°¡ ºÎ¸ð ³ëµåº¸´Ù Å©¸é À§·Î ¿Ã¶ó°¡¾ß ÇÑ´Ù. (ÃÖ´ëÈü ±âÁØ)
-	{
-		this->swapTreeNodes(currIdx, parentIdx);							// 5. ÇöÀç ³ëµå¿Í ºÎ¸ð ³ëµåÀÇ ³»¿ëÀ» ±³È¯
-		
-		currIdx = parentIdx;												// 6. ÇöÀç ³ëµå ÀÎµ¦½º¸¦ targetIdx·Î °»½Å (»óÇâ½Ä)
-		parentIdx = this->get_parentIdx(currIdx);
-	}
+	this->Heapify_up();														// 4. ìƒí–¥ì‹ìœ¼ë¡œ ìž¬íž™í™”
 
 	return true;
 }
@@ -98,13 +88,13 @@ bool Heap::extract(void** extractData)
 	if (this->get_size() == 0)
 		return false;
 
-	*extractData = this->treeAddr[0];							// 1. ·çÆ® ³ëµåÀÇ µ¥ÀÌÅÍ¸¦ ÀúÀå
-	saveData = this->treeAddr[this->get_size() - 1];			// 2. ¸Ç ¸¶Áö¸· ³ëµåÀÇ µ¥ÀÌÅÍ ÁÖ¼Ò ÀÓ½Ãº¸°ü
-	this->size--;												// 3. ÈüÀÇ Å©±â °¨¼Ò
+	*extractData = this->treeAddr[0];							// 1. ë£¨íŠ¸ ë…¸ë“œì˜ ë°ì´í„°ë¥¼ ì €ìž¥
+	saveData = this->treeAddr[this->get_size() - 1];			// 2. ë§¨ ë§ˆì§€ë§‰ ë…¸ë“œì˜ ë°ì´í„° ì£¼ì†Œ ìž„ì‹œë³´ê´€
+	this->size--;												// 3. íž™ì˜ í¬ê¸° ê°ì†Œ
 
 	if (this->get_size() > 0)
 	{
-		tempTree = this->reAlloc_treeAddr(this->get_size());	// 4. Èü ¹è¿­ Å©±â °¨¼Ò (ÀçÇÒ´ç)
+		tempTree = this->reAlloc_treeAddr(this->get_size());	// 4. íž™ ë°°ì—´ í¬ê¸° ê°ì†Œ (ìž¬í• ë‹¹)
 		if (tempTree == nullptr)
 		{
 			this->errCode = MEMORY_ERR;
@@ -113,15 +103,15 @@ bool Heap::extract(void** extractData)
 		else
 		{
 			this->set_treeAddr(tempTree);						
-			this->set_treeNode(0, saveData);					// 5. ·çÆ®³ëµå°¡ ºüÁ³±â¿¡ ÇØ´çÀ§Ä¡¿¡ ¸Ç ¸¶Áö¸· ³ëµå·Î µ¤¾î¾²±â
-			this->reHeapify();									// 6. ÇÏÇâ½ÄÀ¸·Î ÀçÈüÈ­
+			this->set_treeNode(0, saveData);					// 5. ë£¨íŠ¸ë…¸ë“œê°€ ë¹ ì¡Œê¸°ì— í•´ë‹¹ìœ„ì¹˜ì— ë§¨ ë§ˆì§€ë§‰ ë…¸ë“œë¡œ ë®ì–´ì“°ê¸°
+			this->Heapify_down();								// 6. í•˜í–¥ì‹ìœ¼ë¡œ ìž¬íž™í™”
 
 			return true;
 		}
 	}
 	else
 	{
-		this->freeTreeAddr();									// 4-1. Èü ¹è¿­ Å©±â°¡ 0ÀÌ µÇ¸é Æ®¸® ÁÖ¼Ò ÇØÁ¦
+		this->freeTreeAddr();									// 4-1. íž™ ë°°ì—´ í¬ê¸°ê°€ 0ì´ ë˜ë©´ íŠ¸ë¦¬ ì£¼ì†Œ í•´ì œ
 		this->treeAddr = nullptr;
 		this->size = 0;
 
@@ -129,37 +119,54 @@ bool Heap::extract(void** extractData)
 	}
 }
 
-void Heap::reHeapify()	// ÇÏÇâ½Ä ÀçÈüÈ­ °úÁ¤ (¼³¸í±âÁØ : ÃÖ´ëÈü)
+void Heap::Heapify_up()
+{
+	int currIdx, parentIdx;
+	currIdx = this->get_size() - 1;											// 1. ìƒˆ ë…¸ë“œì˜ ì¸ë±ìŠ¤ì™€ ë¶€ëª¨ ë…¸ë“œ ì¸ë±ìŠ¤ ê³„ì‚°
+	parentIdx = this->get_parentIdx(currIdx);
+
+																			// 2. ìƒˆ ë…¸ë“œ(leaf)ê°€ ë¶€ëª¨ ë…¸ë“œë³´ë‹¤ í¬ë©´ ìƒí–¥ì‹ìœ¼ë¡œ íž™ ì†ì„± ìœ ì§€ (ìµœëŒ€íž™ ê¸°ì¤€)
+	while ((currIdx > 0) &&
+		(this->compareFunc(this->get_treeNode(currIdx), this->get_treeNode(parentIdx)) == GREATER))
+		// í˜„ìž¬ ë…¸ë“œê°€ ë¶€ëª¨ ë…¸ë“œë³´ë‹¤ í¬ë©´ ìœ„ë¡œ ì˜¬ë¼ê°€ì•¼ í•œë‹¤. (ìµœëŒ€íž™ ê¸°ì¤€)
+	{
+		this->swapTreeNodes(currIdx, parentIdx);							// 3. í˜„ìž¬ ë…¸ë“œì™€ ë¶€ëª¨ ë…¸ë“œì˜ ë‚´ìš©ì„ êµí™˜
+
+		currIdx = parentIdx;												// 4. í˜„ìž¬ ë…¸ë“œ ì¸ë±ìŠ¤ë¥¼ targetIdxë¡œ ê°±ì‹  (ìƒí–¥ì‹)
+		parentIdx = this->get_parentIdx(currIdx);
+	}
+}
+
+void Heap::Heapify_down()	// í•˜í–¥ì‹ ìž¬íž™í™” ê³¼ì • (ì„¤ëª…ê¸°ì¤€ : ìµœëŒ€íž™)
 {
 	int currIdx = 0, leftIdx = 0,rightIdx = 0, targetIdx = 0;
 
 	while (true)
 	{
-		leftIdx = this->get_leftChildIdx(currIdx);					// 1. ÇÏÇâ½Ä ÀçÈüÈ­¸¦ À§ÇÑ ÀÎµ¦½º¹øÈ£ °è»ê
+		leftIdx = this->get_leftChildIdx(currIdx);					// 1. í•˜í–¥ì‹ ìž¬íž™í™”ë¥¼ ìœ„í•œ ì¸ë±ìŠ¤ë²ˆí˜¸ ê³„ì‚°
 		rightIdx = this->get_rightChildIdx(currIdx);
 		targetIdx = currIdx;
 
-																	// 2. ¿ÞÂÊ ÀÚ½Ä³ëµå°¡ ÇöÀç ³ëµåº¸´Ù Å©¸é targetIdx¸¦ ¿ÞÂÊ ÀÚ½Ä³ëµå·Î ¼³Á¤ (ÃÖ´ëÈü ±âÁØ -> ºÎ¸ðkey°ª > ÀÚ½Äkey°ª)
+																	// 2. ì™¼ìª½ ìžì‹ë…¸ë“œê°€ í˜„ìž¬ ë…¸ë“œë³´ë‹¤ í¬ë©´ targetIdxë¥¼ ì™¼ìª½ ìžì‹ë…¸ë“œë¡œ ì„¤ì • (ìµœëŒ€íž™ ê¸°ì¤€ -> ë¶€ëª¨keyê°’ > ìžì‹keyê°’)
 		if (leftIdx < this->get_size() &&
 			this->compareFunc(this->get_treeNode(leftIdx), this->get_treeNode(targetIdx)) == GREATER)	
 		{
 			targetIdx = leftIdx;
 		}
 
-																	// 3. È¤Àº ¿À¸¥ÂÊ ÀÚ½Ä³ëµå°¡ ÇöÀç ³ëµåº¸´Ù Å©¸é targetIdx¸¦ ¿À¸¥ÂÊ ÀÚ½Ä³ëµå·Î ¼³Á¤ (ÈüÀÚ·á±¸Á¶´Â ·çÆ®¸¸ ÃÖ´ë/ÃÖ¼Ò °ªÀÌ¸é Àå¶¯)
+																	// 3. í˜¹ì€ ì˜¤ë¥¸ìª½ ìžì‹ë…¸ë“œê°€ í˜„ìž¬ ë…¸ë“œë³´ë‹¤ í¬ë©´ targetIdxë¥¼ ì˜¤ë¥¸ìª½ ìžì‹ë…¸ë“œë¡œ ì„¤ì • (íž™ìžë£Œêµ¬ì¡°ëŠ” ë£¨íŠ¸ë§Œ ìµœëŒ€/ìµœì†Œ ê°’ì´ë©´ ìž¥ë•¡)
 		if (rightIdx < this->get_size() &&
 			this->compareFunc(this->get_treeNode(rightIdx), this->get_treeNode(targetIdx)) == GREATER)	
 		{
 			targetIdx = rightIdx;
 		}
-
 		
-		if (targetIdx == currIdx)									// 4. ÀÚ½Ä³ëµåµéÀÌ ÇöÀç ³ëµåº¸´Ù Å©Áö ¾ÊÀ¸¸é Àç ÈüÈ­ Á¾·á
+		if (targetIdx == currIdx)									// 4. ìžì‹ë…¸ë“œë“¤ì´ í˜„ìž¬ ë…¸ë“œë³´ë‹¤ í¬ì§€ ì•Šìœ¼ë©´ ìž¬ íž™í™” ì¢…ë£Œ
 			break;							
 		else
 		{
-			this->swapTreeNodes(currIdx, targetIdx);				// 5. ÇöÀç ³ëµå¿Í targetIdx ³ëµåÀÇ µ¥ÀÌÅÍ¸¦ ±³È¯ 
-			currIdx = targetIdx;									// 6. ÇöÀç ³ëµå ÀÎµ¦½º¸¦ targetIdx(ÀÚ½Ä ÀÎµ¦½º¹øÈ£)·Î °»½Å (ÇÏÇâ½Ä)
+			this->swapTreeNodes(currIdx, targetIdx);				// 5. í˜„ìž¬ ë…¸ë“œì™€ targetIdx ë…¸ë“œì˜ ë°ì´í„°ë¥¼ êµí™˜ 
+			currIdx = targetIdx;									// 6. í˜„ìž¬ ë…¸ë“œ ì¸ë±ìŠ¤ë¥¼ targetIdx(ìžì‹ ì¸ë±ìŠ¤ë²ˆí˜¸)ë¡œ ê°±ì‹  (í•˜í–¥ì‹)
 		}
 	}
 }

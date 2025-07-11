@@ -36,7 +36,8 @@ public:
 
 protected:
     /*Utility-1*/
-	void reHeapify();
+    void Heapify_up();
+	void Heapify_down();
     void destroyTree();
 	void freeTreeAddr();
     void** reAlloc_treeAddr(int newSize);
