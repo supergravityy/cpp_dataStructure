@@ -1,123 +1,110 @@
-#include "../header/Heap.h"
+#include <vector>
+#include <set>
+#include <ctime>
+#include <algorithm>
+#include "../header/heap.h"
 
-void printMenu()
-{
-    cout << "\n===== Stack Menu =====" << endl;
-    cout << "1. Insert" << endl;
-    cout << "2. Extract" << endl;
-    cout << "3. Reset" << endl;
-    cout << "4. PrintAll" << endl;
-    cout << "0. Exit program" << endl;
-    cout << "=========================" << endl;
-    cout << "Enter your choice: ";
+using namespace std;
+
+typedef struct {
+	int id;   // 식별자
+	int key;  // 우선순위 기준 값
+} TestData;
+
+// 메모리 해제
+void destroyTestData(void* data) {
+	delete (TestData*)data;
 }
 
-void inputData(MyAddr &data)
-{
-    cout << "Enter new node ID: ";
-    cin >> data.id;
-    cout << "Enter new node name: ";
-    cin >> data.name;
-    cout << "Enter new node age :";
-    cin >> data.age;
+// 출력 함수
+void printTestData(void* data) {
+	TestData* t = (TestData*)data;
+	cout << "[ID: " << t->id << ", Key: " << t->key << "]" << endl;
 }
 
-void printData(MyAddr &data)
-{
-    //cout << "ID : " << data.id << endl;
-    //cout << "Name : " << data.name << endl;
-    cout << "Age : " << data.age << endl;
+// 최대 힙 비교 함수
+typCmpResult compareMax(const void* a, const void* b) {
+	// a-b
+	int keyA = ((TestData*)a)->key;
+	int keyB = ((TestData*)b)->key;
+
+	if (keyA > keyB) return GREATER;
+	else if (keyA < keyB) return LESS;
+	else return EQUAL;
 }
 
-bool makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
+// 최소 힙 비교 함수
+typCmpResult compareMin(const void* a, const void* b) {
+	// b-a
+	int keyA = ((TestData*)a)->key;
+	int keyB = ((TestData*)b)->key;
 
-    if (*newData == nullptr)
-    {
-        cout << "Memory allocation Err!" << endl;
-        return true;
-    }
-
-    else
-        return false;
-}
-
-namespace compareFunc
-{
-    bool Descending_Order_Func(int parentNode, int childNode)
-    {
-        return parentNode > childNode;
-    }
-
-    bool Ascending_Order_Func(int parentNode, int childNode)
-    {
-        return parentNode < childNode;
-    }
+	if (keyA < keyB) return GREATER;
+	else if (keyA > keyB) return LESS;
+	else return EQUAL;
 }
 
 int main()
 {
-    Heap myHeap(compareFunc::Ascending_Order_Func);
-    int choice = 0;
-    bool makeResult = 0;
-    MyAddr *newData = nullptr;
-    MyAddr *removedData = nullptr;
+	Heap maxHeap, minHeap;
+	maxHeap.init(compareMax, destroyTestData, printTestData);
+	minHeap.init(compareMin, destroyTestData, printTestData);
 
-    while (myHeap.Heap_getErrCode() == NORMAL)
-    {
-        printMenu();
-        cin >> choice;
+	set<int> uniqueKeys;       // 중복 방지용
+	vector<int> keysVec;       // STL 비교용
 
-        switch (choice)
-        {
-        case 1: // Insert
-            makeResult = makeData(&newData);
-            if (makeResult)
-                break;
-            else
-            {
-                inputData(*newData);
+	cout << "==== 중복 없는 100개 삽입 ====" << endl;
 
-                if(myHeap.Heap_insert(newData) == true)
-                {
-                    cout << "Node inserted successfully!" << endl;
-                }
-                else
-                {
-                    cout << "Failed to insert node!" << endl;
-                }
-            }
-            break;
+	while ((int)uniqueKeys.size() < 100) {
+		int val = (rand() % 512) - 256;
+		if (uniqueKeys.insert(val).second) { // 새로 삽입된 경우만 진행
+			keysVec.push_back(val);
+			TestData* d1 = new TestData{ (int)uniqueKeys.size(), val };
+			TestData* d2 = new TestData{ (int)uniqueKeys.size(), val };
+			maxHeap.insert(d1);
+			minHeap.insert(d2);
+		}
+	}
 
-        case 2: // Extract
-            if(myHeap.Heap_extract(&removedData) == true)
-            {
-                printData(*removedData);
-            }
-            else
-            {
-                cout << "Failed to extract!" << endl;
-            }
-            break;
+	// STL 기반 max/min 확인
+	int stlMax = *max_element(keysVec.begin(), keysVec.end());
+	int stlMin = *min_element(keysVec.begin(), keysVec.end());
 
-        case 3: // Reset
-            myHeap.Heap_init(compareFunc::Ascending_Order_Func);
-            cout << "Heap has been reset!" << endl;
-            break;
+	TestData* maxPeek = (TestData*)maxHeap.peek();
+	TestData* minPeek = (TestData*)minHeap.peek();
 
-        case 4: // PrintAll
-            cout << "Heap size : " << myHeap.Heap_getSize() << endl;
-            myHeap.Heap_printAll();
-            break;
+	cout << "\n==== peek() 테스트 ====" << endl;
+	cout << "[Max Heap] STL max = " << stlMax << ", Heap.peek = " << maxPeek->key << ", 결과 : " << ((stlMax == maxPeek->key) ? "true" : "false") << endl;
+	cout << "[Min Heap] STL min = " << stlMin << ", Heap.peek = " << minPeek->key << ", 결과 : " << ((stlMin == minPeek->key) ? "true" : "false") << endl;
 
-        case 0:
-            return 0;
+	void* maxExtracted = nullptr;
+	void* minExtracted = nullptr;
 
-        default:
-            break;
-        }
-    }
+	for (int i = 0; i < 3; i++)
+	{
+		// STL에서 max/min 제거 → 현재 벡터에서 2순위 추출
+		stlMax = *max_element(keysVec.begin(), keysVec.end());
+		stlMin = *min_element(keysVec.begin(), keysVec.end());
 
-    return 0;
+		keysVec.erase(remove(keysVec.begin(), keysVec.end(), stlMax), keysVec.end());
+		keysVec.erase(remove(keysVec.begin(), keysVec.end(), stlMin), keysVec.end());
+
+		int nextMax = *max_element(keysVec.begin(), keysVec.end());
+		int nextMin = *min_element(keysVec.begin(), keysVec.end());
+
+		maxHeap.extract(&maxExtracted);
+		minHeap.extract(&minExtracted);
+
+		printf("\n==== %d번째 extract() 후 테스트 ====\n", i + 1);
+		TestData* maxPeek2 = (TestData*)maxHeap.peek();
+		TestData* minPeek2 = (TestData*)minHeap.peek();
+
+		cout << "[Max Heap] STL 2nd max = " << nextMax << ", Heap.peek = " << maxPeek2->key << ", 결과 : " << ((nextMax == maxPeek2->key) ? "true" : "false") << endl;
+		cout << "[Min Heap] STL 2nd min = " << nextMin << ", Heap.peek = " << minPeek2->key << ", 결과 : " << ((nextMin == minPeek2->key) ? "true" : "false") << endl;
+	}
+
+	destroyTestData(maxExtracted);
+	destroyTestData(minExtracted);
+
+	return 0;
 }
