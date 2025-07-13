@@ -107,6 +107,8 @@ bool Graph::insert_edge(void* srcData, void* destData)
 					this->remove_edge(srcData, &rollback);			// 실패하면, 기존의 src->dest 엣지 삭제
 					return false;
 				}
+
+				this->edgeCnt++; // 무방향그래프는 양방향엣지일 수밖에 없음. + 사용자가 하나만 지울수도 있기에 2배증가
 			}
 			this->edgeCnt++;
 			return true; 
@@ -248,16 +250,11 @@ bool Graph::safeRemove_vertex(void** saveData)
 		return false; // 내부에서 errCode 설정됨
 	}
 
-	this->printGraph();
-
 	// 2. 이 노드가 참조하고 있는 모든 엣지 제거
 	if (this->clear_NodesEdges_of(*saveData) == false)
 	{
 		return false; // 내부에서 errCode 설정됨
 	}
-
-	// todo : 삭제필요
-	this->printGraph();
 
 	// 3. 최종적으로 정점 자체 제거
 	if (this->remove_vertex(saveData) == false)
@@ -283,6 +280,7 @@ void Graph::printGraph()
 	{
 		adjListNode = (typAdjList*)nodeList->get_Data(node);
 		printf("\n[Vertex %d] ", num);
+
 		this->printDataFunc(adjListNode->vertex);
 		printf("-> Adjacents\n ");
 		adjListNode->Adjacents.printAll();

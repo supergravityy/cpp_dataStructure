@@ -57,6 +57,8 @@ int main() {
     g.insert_edge(v3, v4);
 
     cout << "\n초기 그래프 상태:\n";
+    cout << "정점의 수 : " << g.get_vertexCnt() << endl;
+    cout << "엣지의 수 : " << g.get_edgeCnt() << endl;
     g.printGraph();
 
     // 4. 직접 삭제 실패 테스트 (참조되고 있음)
@@ -73,10 +75,12 @@ int main() {
     else {
         cout << "\nsafeRemove_vertex 실패\n";
     }
-
+    
     // 6. 최종 그래프 출력
     cout << "\n최종 그래프 상태:\n";
     g.printGraph();
+    cout << "정점의 수 : " << g.get_vertexCnt() << endl;
+    cout << "엣지의 수 : " << g.get_edgeCnt() << endl;
 
     return 0;
 }

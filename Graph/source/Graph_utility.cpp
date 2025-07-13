@@ -132,7 +132,6 @@ void Graph::destroy()
 
 	if (this->destroyDataFunc == nullptr)
 	{
-		this->errCode = SYS_FAULT;
 		return;
 	}
 

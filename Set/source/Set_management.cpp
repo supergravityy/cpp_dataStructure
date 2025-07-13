@@ -27,7 +27,7 @@ bool Set::remove(void* data, void** saveData)
 
 	while (!this->is_emptyNode(currNode)) // 삭제할 원소 찾기
 	{
-		if (this->cmpFunc(data, this->get_Data(currNode)))
+		if (this->cmpFunc(data, this->get_Data(currNode)) == EQUAL)
 			break;
 		else
 		{
