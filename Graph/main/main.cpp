@@ -1,4 +1,4 @@
-﻿#include "../header/Graph.h" // 너의 그래프 헤더 경로에 맞게 조정
+﻿#include "../header/Graph.h" 
 
 void undirectedTest(Graph& g);
 void directedTest(Graph& g);
@@ -71,6 +71,7 @@ void undirectedTest(Graph& g)
     g.insert_edge(v1, v3);
     g.insert_edge(v2, v4);
     g.insert_edge(v3, v4);
+    g.insert_edge(v4, v1);
 
     cout << "\n[무방향 그래프] 초기 그래프 상태:\n";
     g.printGraph();
@@ -83,22 +84,37 @@ void undirectedTest(Graph& g)
     }
     delete ghost;
 
-    // 5. 직접 삭제 실패 테스트 (참조되고 있음)
+    // 5. 중복 엣지 삽입
+    if (!g.insert_edge(v1, v2)) {
+        cout << "\n[무방향 그래프] 중복 엣지 삽입 방지 확인됨 (v1 - v2)\n";
+    }
+
+    // 6. 직접 삭제 실패 테스트 (참조되고 있음)
     void* toRemove = v2;
     if (!g.remove_vertex(&toRemove)) {
         cout << "\n[무방향 그래프] 직접 삭제 실패 (v2): 참조되거나 엣지 존재\n";
     }
 
-    // 6. safeRemove_vertex 성공 테스트
+    // 7. safeRemove_vertex 성공 테스트
     void* safeRemove = v2;
     if (g.safeRemove_vertex(&safeRemove)) {
         cout << "\n[무방향 그래프] safeRemove_vertex 성공: v2 삭제됨\n";
+        printCnt(g);
     }
     else {
         cout << "\n[무방향 그래프] safeRemove_vertex 실패\n";
     }
 
-    // 7. 최종 그래프 출력
+    // 8. 엣지 삭제 테스트
+    void* rmv_srcEdge = v4, *rmv_destEdge = v1;
+    if(g.remove_edge(&rmv_srcEdge, &rmv_destEdge)){
+        cout << "\n[무방향 그래프] 엣지삭제 성공: " << ((Vertex*)rmv_srcEdge)->id << "-" << ((Vertex*)rmv_destEdge)->id << endl;
+    }
+    else {
+        cout << "\n[무방향 그래프] 엣지삭제 실패\n";
+    }
+
+    // 최종 그래프 출력
     cout << "\n[무방향 그래프] 최종 그래프 상태:\n";
     g.printGraph();
     printCnt(g);
@@ -138,6 +154,7 @@ void directedTest(Graph& g)
     g.insert_edge(v5, v6);  // v5 → v6
     g.insert_edge(v6, v7);  // v6 → v7
     g.insert_edge(v7, v3);  // v7 → v3
+    g.insert_edge(v4, v1);  // v4 → v1
 
     cout << "\n[방향 그래프] 초기 그래프 상태:\n";
     g.printGraph();
@@ -159,9 +176,19 @@ void directedTest(Graph& g)
     void* safeRemove = v8;
     if (g.safeRemove_vertex(&safeRemove)) {
         cout << "\n[방향 그래프] safeRemove_vertex 성공: v2 삭제됨\n";
+        printCnt(g);
     }
     else {
         cout << "\n[방향 그래프] safeRemove_vertex 실패\n";
+    }
+
+    // 7. 엣지 삭제 테스트
+    void* rmv_srcEdge = v4, * rmv_destEdge = v1;
+    if (g.remove_edge(&rmv_srcEdge, &rmv_destEdge)) {
+        cout << "\n[방향 그래프] 엣지삭제 성공: " << ((Vertex*)rmv_srcEdge)->id << "→" << ((Vertex*)rmv_destEdge)->id << endl;
+    }
+    else {
+        cout << "\n[방향 그래프] 엣지삭제 실패\n";
     }
 
     // 7. 최종 상태 출력

@@ -17,7 +17,7 @@ public:
 	bool insert_vertex(void* data);
 	bool insert_edge(void* srcData, void* destData);
 	bool remove_vertex(void** saveData);
-	bool remove_edge(void* srcData, void** destData);
+	bool remove_edge(void** srcData, void** destData);
 	
 	bool clear_allEdges_of(void* data); 
 	bool clear_NodesEdges_of(void* data);

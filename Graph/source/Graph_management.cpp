@@ -49,12 +49,12 @@ bool Graph::insert_vertex(void* data)
 	typAdjList* newAdjList;
 	bool result;
 
-	if (this->get_adjListNode(data) != nullptr) // Áßº¹Ã¼Å©
+	if (this->get_adjListNode(data) != nullptr)				// 1. ì¸ì ‘ë¦¬ìŠ¤íŠ¸ê°€ ì¤‘ë³µìœ¼ë¡œ ì¡´ì¬í•˜ëŠ”ì§€ë¥¼ ì²´í¬
 	{
 		return false;
 	}
 
-	newAdjList = (typAdjList*)this->make_node(data); // »õ ³ëµå »ı¼º
+	newAdjList = (typAdjList*)this->make_node(data);		// 2. ìƒˆ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ ë…¸ë“œ ìƒì„± ë° ì´ˆê¸°í™”
 	if (newAdjList == nullptr)
 	{
 		this->errCode = MEMORY_ERR;
@@ -64,10 +64,10 @@ bool Graph::insert_vertex(void* data)
 	{
 		this->init_node(newAdjList, data);
 		
-		result = this->adjLists.push_back(newAdjList);	// »õ ÀÎÁ¢³ëµå¸¦ ¿¬°á¸®½ºÆ®¿¡ Ãß°¡
+		result = this->adjLists.push_back(newAdjList);		// 3. ìƒˆ ì¸ì ‘ë…¸ë“œë¥¼ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ì¶”ê°€
 		if (result == false)
 		{
-			this->delete_node(newAdjList);	// »ğÀÔ ½ÇÆĞ½Ã ³ëµå »èÁ¦
+			this->delete_node(newAdjList);
 
 			return false;
 		}
@@ -84,33 +84,37 @@ bool Graph::insert_edge(void* srcData, void* destData)
 	typAdjList* srcAdjList, *destAdjList;
 
 	if (this->get_adjListNode(destData) == nullptr ||
-		this->get_adjListNode(srcData) == nullptr) // src, dest °¡ ±×·¡ÇÁ¿¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+		this->get_adjListNode(srcData) == nullptr)						// 1. src, dest ê°€ ê·¸ë˜í”„ì— ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
 	{
 		return false; 
 	}
+	else if ((this->get_type() == UNDIRECTED) && (srcData == destData)) // 1a. ë¬´ë°©í–¥ ê·¸ë˜í”„ ì¼ë•ŒëŠ” ìê¸°ìì‹ ìœ¼ë¡œì˜ ì—£ì§€ëŠ” ê¸ˆì§€ë¨
+	{
+		return false;
+	}
 	else
 	{
-		srcAdjList = this->get_adjListNode(srcData);  // srcDataÀÇ ÀÎÁ¢³ëµå ¸®½ºÆ®¸¦ get
+		srcAdjList = this->get_adjListNode(srcData);					// 2. srcDataì˜ ì¸ì ‘ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ë¥¼ get
 
-		if (srcAdjList->Adjacents.insert(destData) == false) // srcDataÀÇ ÀÎÁ¢³ëµå¿¡ destData¸¦ Ãß°¡
+		if (srcAdjList->Adjacents.insert(destData) == false)			// 3. srcDataì˜ ì¸ì ‘ë…¸ë“œì— destDataë¥¼ ì¶”ê°€
 		{
-			return false; // srcDataÀÇ ÀÎÁ¢³ëµå¿¡ destData¸¦ Ãß°¡ ½ÇÆĞ½Ã false ¹İÈ¯
+			return false; 
 		}
 		else
 		{
-			if (this->type == UNDIRECTED) // ¹«¹æÇâ ±×·¡ÇÁÀÏ½Ã
+			if (this->type == UNDIRECTED)								// 3a. ë¬´ë°©í–¥ ê·¸ë˜í”„ì¼ì‹œ
 			{
-				destAdjList = this->get_adjListNode(destData); // destDataÀÇ ÀÎÁ¢³ëµå ¸®½ºÆ®¸¦ get
-				if (destAdjList->Adjacents.insert(srcData) == false) // destDataÀÇ ÀÎÁ¢³ëµå¿¡ srcData¸¦ Ãß°¡
+				destAdjList = this->get_adjListNode(destData);			// 3b. destDataì˜ ì¸ì ‘ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ë¥¼ get
+				if (destAdjList->Adjacents.insert(srcData) == false)	// 3c. destDataì˜ ì¸ì ‘ë…¸ë“œì— srcDataë¥¼ ì¶”ê°€
 				{
 					void* rollback = destData;
-					this->remove_edge(srcData, &rollback);			// ½ÇÆĞÇÏ¸é, ±âÁ¸ÀÇ src->dest ¿§Áö »èÁ¦
+					this->remove_edge(&srcData, &rollback);				// 3d. ì‹¤íŒ¨í•˜ë©´, ê¸°ì¡´ì˜ src->dest ì—£ì§€ ì‚­ì œ
 					return false;
 				}
 
-				this->edgeCnt++; // ¹«¹æÇâ±×·¡ÇÁ´Â ¾ç¹æÇâ¿§ÁöÀÏ ¼ö¹Û¿¡ ¾øÀ½. + »ç¿ëÀÚ°¡ ÇÏ³ª¸¸ Áö¿ï¼öµµ ÀÖ±â¿¡ 2¹èÁõ°¡
+				this->edgeCnt++;										// 3e. ì—£ì§€ê°¯ìˆ˜ ì¦ê°€
 			}
-			this->edgeCnt++;
+			this->edgeCnt++;											// 4. ì—£ì§€ê°¯ìˆ˜ ì¦ê°€
 			return true; 
 		}
 	}
@@ -123,29 +127,29 @@ bool Graph::remove_vertex(void** saveData)
 	void* tempData = nullptr;
 	List* nodeList = this->get_adjListsAddr();
 
-	if (this->adjLists.getSize() == 0) // ±×·¡ÇÁ°¡ ºñ¾îÀÖÀ» °æ¿ì
+	if (this->adjLists.getSize() == 0)										// 1. ê·¸ë˜í”„ê°€ ë¹„ì–´ìˆì„ ê²½ìš° ê³§ë°”ë¡œ ì¢…ë£Œ
 	{
 		return false;
 	}
 	else
 	{
-		adjListNode = this->get_adjListNode(*saveData); // »èÁ¦ÇÒ ³ëµåÀÇ ÀÎÁ¢³ëµå ¸®½ºÆ®¸¦ °¡Á®¿È
-		prevNode = this->get_prevNodeOf(*saveData);
+		adjListNode = this->get_adjListNode(*saveData);						// 2. ì‚­ì œí•  ë…¸ë“œì˜ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ ë…¸ë“œë¥¼ ê°€ì ¸ì˜´
+		prevNode = this->get_prevNodeOf(*saveData);							// 3. ì‚­ì œí•  ë…¸ë“œì˜ ì´ì „ ë…¸ë“œë¥¼ ê°€ì ¸ì˜´
 
-		if(this->is_vertexReferenced(*saveData) == true)
-			return false; // ÇØ´ç Á¤Á¡ÀÌ ´Ù¸¥ Á¤Á¡ÀÇ ÀÎÁ¢³ëµå·Î »ç¿ëÁßÀÎ °æ¿ì
-		else if (adjListNode->Adjacents.getSize() != 0)
-			return false; // ÇØ´ç Á¤Á¡ÀÇ ÀÎÁ¢³ëµå°¡ Á¸ÀçÇÏ´Â °æ¿ì
+		if (this->is_vertexReferenced(*saveData) == true)					// 4. í•´ë‹¹ ì •ì ì´ ë‹¤ë¥¸ ì •ì ì˜ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ì—ì„œ ì°¸ì¡°ì¤‘ì¸ì§€ë¥¼ ì²´í¬
+			return false;
+		else if (adjListNode->Adjacents.getSize() != 0)						// 5. í•´ë‹¹ ì •ì ì˜ ì¸ì ‘ë…¸ë“œë¦¬ìŠ¤íŠ¸ê°€ ë¹„ì–´ìˆëŠ”ì§€ë¥¼ ì²´í¬
+			return false;
 		else
 		{
-			if (nodeList->remove_nextNode(prevNode, &tempData) == false)
+			if (nodeList->remove_nextNode(prevNode, &tempData) == false)	// 6. ëŒ€ìƒ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ë…¸ë“œ ì‚­ì œ
 			{
 				this->errCode = nodeList->getErrCode();
 				return false;
 			}
 			else
 			{
-				*saveData = this->delete_node((typAdjList*)tempData);
+				*saveData = this->delete_node((typAdjList*)tempData);		// 7. ëŒ€ìƒ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ ì‚­ì œì²˜ë¦¬
 
 				this->vertexCnt--;
 				return true;
@@ -154,30 +158,46 @@ bool Graph::remove_vertex(void** saveData)
 	}
 }
 
-bool Graph::remove_edge(void* srcData, void** destData)
+bool Graph::remove_edge(void** srcData, void** destData)
 {
 	singleList_Node* node = nullptr;
 	typAdjList* adjListNode = nullptr;
 
-	adjListNode = this->get_adjListNode(srcData);
+	adjListNode = this->get_adjListNode(*srcData);
 
-	if (adjListNode == nullptr || this->get_adjListNode(*destData) == nullptr) 
-		// src, dest °¡ ±×·¡ÇÁ¿¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+	if (adjListNode == nullptr || this->get_adjListNode(*destData) == nullptr)		// 1. src, dest ê°€ ê·¸ë˜í”„ì— ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
 	{
 		return false; 
 	}
 	else
 	{
-		if (adjListNode->Adjacents.remove(*destData, destData) == false)
+		if (adjListNode->Adjacents.remove(*destData, destData) == false)			// 2. srcì˜ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ì—ì„œ destë¥¼ ì‚­ì œ 
 		{
+			this->errCode = adjListNode->Adjacents.getErrCode();
 			return false;
 		}
 		else
 		{
-			this->edgeCnt--;
-			return true;
+			this->edgeCnt--;														// 3. ì—£ì§€ì¹´ìš´íŠ¸ ê°ì†Œ (srcì˜ ì—£ì§€)
+
+			if (this->get_type() == UNDIRECTED)										// 4a. ë¬´ë°©í–¥ ê·¸ë˜í”„ì¼ì‹œ
+			{
+				adjListNode = this->get_adjListNode(*destData);						// 4b. dest ë…¸ë“œ get
+
+				if (adjListNode->Adjacents.remove(*srcData, srcData) == false)		// 4c. destì˜ ì¸ì ‘ë¦¬ìŠ¤íŠ¸ì—ì„œ src ì‚­ì œ
+				{
+					this->errCode = adjListNode->Adjacents.getErrCode();
+					return false;
+				}
+				else
+				{
+					this->edgeCnt--;												// 4d. ì—£ì§€ì¹´ìš´íŠ¸ ê°ì†Œ (destì˜ ì—£ì§€)
+				}
+			}
 		}
 	}
+
+	return true;
 }
 
 bool Graph::clear_allEdges_of(void* data)
@@ -190,7 +210,7 @@ bool Graph::clear_allEdges_of(void* data)
 	if (data == nullptr || this->get_adjListNode(data) == nullptr)
 	{
 		this->errCode = SYS_FAULT;
-		return false; // data°¡ nullptrÀÎ °æ¿ì
+		return false; // dataê°€ nullptrì¸ ê²½ìš°
 	}
 	else
 	{
@@ -200,10 +220,10 @@ bool Graph::clear_allEdges_of(void* data)
 
 			if(adjListNode->Adjacents.remove(data, &tempData))
 			{
-				this->edgeCnt--; // ÀÎÁ¢³ëµå ¸®½ºÆ®¿¡¼­ data¸¦ ¸ğµÎ Á¦°Å
+				this->edgeCnt--; // ì¸ì ‘ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ì—ì„œ dataë¥¼ ëª¨ë‘ ì œê±°
 			}
 		}
-		return true; // ¸ğµç ÀÎÁ¢³ëµå Á¦°Å ¼º°ø
+		return true; // ëª¨ë“  ì¸ì ‘ë…¸ë“œ ì œê±° ì„±ê³µ
 	}
 }
 
@@ -214,13 +234,13 @@ bool Graph::clear_NodesEdges_of(void* data)
 	if (data == nullptr || adjListNode == nullptr) 
 	{
 		this->errCode = SYS_FAULT;
-		return false; // data°¡ nullptrÀÌ°Å³ª ±×·¡ÇÁ¿¡ Á¸ÀçÇÏÁö ¾Ê´Â °æ¿ì
+		return false; // dataê°€ nullptrì´ê±°ë‚˜ ê·¸ë˜í”„ì— ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ê²½ìš°
 	}
 	else
 	{
-		clearAdjacents(adjListNode); // ÇØ´ç ³ëµåÀÇ ÀÎÁ¢³ëµå ¸®½ºÆ®¸¦ ºñ¿ò
+		clearAdjacents(adjListNode); // í•´ë‹¹ ë…¸ë“œì˜ ì¸ì ‘ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ë¥¼ ë¹„ì›€
 
-		return true; // ÀÎÁ¢³ëµå ¸®½ºÆ® ºñ¿ì±â ¼º°ø
+		return true; // ì¸ì ‘ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ ë¹„ìš°ê¸° ì„±ê³µ
 	}
 }
 
@@ -232,29 +252,29 @@ bool Graph::safeRemove_vertex(void** saveData)
 		return false;
 	}
 
-	// ±×·¡ÇÁ¿¡ Á¤Á¡ÀÌ Á¸ÀçÇÏ´ÂÁö ¸ÕÀú È®ÀÎ
+	// ê·¸ë˜í”„ì— ì •ì ì´ ì¡´ì¬í•˜ëŠ”ì§€ ë¨¼ì € í™•ì¸
 	if (this->get_adjListNode(*saveData) == nullptr)
 	{
 		this->errCode = SYS_FAULT;
 		return false;
 	}
 
-	// 1. ´Ù¸¥ ³ëµåµéÀÌ ÀÌ ³ëµå¸¦ ÂüÁ¶ÇÏ´Â ¸ğµç ¿§Áö Á¦°Å
+	// 1. ë‹¤ë¥¸ ë…¸ë“œë“¤ì´ ì´ ë…¸ë“œë¥¼ ì°¸ì¡°í•˜ëŠ” ëª¨ë“  ì—£ì§€ ì œê±°
 	if (this->clear_allEdges_of(*saveData) == false)
 	{
-		return false; // ³»ºÎ¿¡¼­ errCode ¼³Á¤µÊ
+		return false; // ë‚´ë¶€ì—ì„œ errCode ì„¤ì •ë¨
 	}
 
-	// 2. ÀÌ ³ëµå°¡ ÂüÁ¶ÇÏ°í ÀÖ´Â ¸ğµç ¿§Áö Á¦°Å
+	// 2. ì´ ë…¸ë“œê°€ ì°¸ì¡°í•˜ê³  ìˆëŠ” ëª¨ë“  ì—£ì§€ ì œê±°
 	if (this->clear_NodesEdges_of(*saveData) == false)
 	{
-		return false; // ³»ºÎ¿¡¼­ errCode ¼³Á¤µÊ
+		return false; // ë‚´ë¶€ì—ì„œ errCode ì„¤ì •ë¨
 	}
 
-	// 3. ÃÖÁ¾ÀûÀ¸·Î Á¤Á¡ ÀÚÃ¼ Á¦°Å
+	// 3. ìµœì¢…ì ìœ¼ë¡œ ì •ì  ìì²´ ì œê±°
 	if (this->remove_vertex(saveData) == false)
 	{
-		return false; // ³»ºÎ¿¡¼­ errCode ¼³Á¤µÊ
+		return false; // ë‚´ë¶€ì—ì„œ errCode ì„¤ì •ë¨
 	}
 
 	return true;
