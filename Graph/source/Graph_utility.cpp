@@ -82,6 +82,7 @@ void* Graph::delete_node(typAdjList* node)
 	else
 	{
 		temp = this->get_nodeVertex(node);
+		this->clearAdjacents(node);
 		delete node;
 		return temp;
 	}
@@ -95,6 +96,7 @@ void Graph::clearAdjacents(typAdjList* node)
 	}
 	else
 	{
+		this->edgeCnt -= node->Adjacents.getSize();
 		node->Adjacents.init(this->compareFunc, this->printDataFunc, dummyDestroy, dummyFunction);
 	}
 }
@@ -129,6 +131,7 @@ void Graph::destroy()
 	typAdjList* temp_adjListNode = nullptr;
 	Set* temp_Adjacents = nullptr;
 	void* temp_Vertex = nullptr, *temp_data = nullptr;
+	int nodeEdgeCnt = 0;
 
 	if (this->destroyDataFunc == nullptr)
 	{
@@ -139,9 +142,17 @@ void Graph::destroy()
 	{
 		if (this->adjLists.remove_nextNode(nullptr, (void**)&temp_adjListNode) == true)
 		{
+			//this->edgeCnt -= temp_adjListNode->Adjacents.getSize();
 			temp_data = this->delete_node(temp_adjListNode);	// 노드 삭제
 			this->destroyDataFunc(temp_data);					// 노드에 저장된 데이터 삭제
 		}
+		else
+		{
+			this->errCode = SYS_FAULT;
+			this->adjLists.destroyList();
+			return;
+		}
+		this->vertexCnt--;
 	}
 	this->adjLists.destroyList();
 }

@@ -147,7 +147,7 @@ bool Graph::remove_vertex(void** saveData)
 			{
 				*saveData = this->delete_node((typAdjList*)tempData);
 
-				this->edgeCnt--;
+				this->vertexCnt--;
 				return true;
 			}
 		}
@@ -207,10 +207,6 @@ bool Graph::clear_allEdges_of(void* data)
 	}
 }
 
-struct Vertex {
-	int id;
-};
-
 bool Graph::clear_NodesEdges_of(void* data)
 {
 	typAdjList* adjListNode = this->get_adjListNode(data);
@@ -222,7 +218,6 @@ bool Graph::clear_NodesEdges_of(void* data)
 	}
 	else
 	{
-		this->edgeCnt -= adjListNode->Adjacents.getSize();
 		clearAdjacents(adjListNode); // 해당 노드의 인접노드 리스트를 비움
 
 		return true; // 인접노드 리스트 비우기 성공
