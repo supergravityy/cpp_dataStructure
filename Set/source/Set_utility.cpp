@@ -30,7 +30,6 @@ bool Set::isMember(void* data)
 }
 
 bool Set::isSubset_1(Set* otherSet) // set1 ( set2
-// 두개의 집합이 아니라 하나의 집합만 와야 하는거 아닌가?
 {
 	typSingleList_Node* currNode = this->get_SingleList_head();
 	bool result;
@@ -96,7 +95,7 @@ void Set::deepCopySet(Set* otherSet)
 	void* new_memberData;
 
 	// 1. 현재집합 초기화
-	this->init(otherSet->cmpFunc, otherSet->printFunc, otherSet->freeDataFunc);
+	this->init(otherSet->cmpFunc, otherSet->printFunc, otherSet->freeDataFunc, otherSet->copyDataFunc);
 	this->errCode = otherSet->getErrCode();
 
 	// 2. 인자로 받은 set의 노드 하나하나 대입
@@ -140,7 +139,7 @@ void Set::freeInst(Set* tgtInst)
 	if (tgtInst == nullptr)
 		return;
 
-	tgtInst->init(nullptr, nullptr, nullptr);
+	tgtInst->init(nullptr, nullptr, nullptr,nullptr);
 	delete tgtInst;
 }
 

@@ -1,5 +1,8 @@
 #include "../header/Set.h"
-#include "../header/Libs.h"
+#include "../header/List.h"
+#include <windows.h>
+
+#pragma comment (lib,"lib/set_debug.lib")
 
 void bonusTest();
 void deMorganLaw();
@@ -49,7 +52,6 @@ void* copyPerson(void* src){
 }
 
 int main() {
-    
     test_unionCases();
     test_intersectCases();
     test_diffCases();
@@ -145,7 +147,7 @@ void test_intersectCases()
     delete result2;
 
     // 3. 동일한 집합
-    cout << endl << "3. same set Case (A ∩ A)" << endl;
+    cout << endl << "3. same set Case (A n A)" << endl;
     Set* result3 = A & A;
     result3->printAll();
     delete result3;
@@ -315,21 +317,21 @@ void test_subsetCases()
     // E = {} (공집합)
 
     // 1. A ⊂ B (진부분집합)
-    cout << "1. A ⊂ B ?" << endl;
+    cout << "1. A c B ?" << endl;
     cout << (A < B ? "true" : "false") << endl;
 
     // 2. A == D
     cout << endl << "2. A == D ?" << endl;
     D = A;
-    cout << "A ⊆ D ? " << (A < D ? "true" : "false") << endl;
+    cout << "A c D ? " << (A < D ? "true" : "false") << endl;
     cout << "A == D ? " << (A == D ? "true" : "false") << endl;
 
     // 3. A ⊂ C ? (독립 집합)
-    cout << endl << "3. A ⊂ C ? (no common elements)" << endl;
+    cout << endl << "3. A c C ? (no common elements)" << endl;
     cout << (A < C ? "true" : "false") << endl;
 
     // 4. A ⊂ 0 (공집합이 포함해야 하는 경우 - false)
-    cout << endl << "5. A ⊂ 0 ?" << endl;
+    cout << endl << "5. A c 0 ?" << endl;
     cout << (A < E ? "true" : "false") << endl;
 }
 
@@ -366,7 +368,7 @@ void deMorganLaw()
 
     cout << endl << "====demorgan law====" << endl;
 
-    cout << "\n(1) (A ∪ B)' vs A' ∩ B'" << endl;
+    cout << "\n(1) (A u B)' vs A' n B'" << endl;
     cout << "LHS:" << endl; lhs1->printAll();
     cout << "RHS:" << endl; rhs1->printAll();
     cout << "Equal? " << (*lhs1 == *rhs1 ? "true" : "false") << endl;
@@ -378,7 +380,7 @@ void deMorganLaw()
     // A' ∪ B'
     Set* rhs2 = *notA | *notB;
 
-    cout << "\n(2) (A ∩ B)' vs A' ∪ B'" << endl;
+    cout << "\n(2) (A n B)' vs A' u B'" << endl;
     cout << "LHS:" << endl; lhs2->printAll();
     cout << "RHS:" << endl; rhs2->printAll();
     cout << "Equal? " << (*lhs2 == *rhs2 ? "true" : "false") << endl;
@@ -416,7 +418,7 @@ void bonusTest()
 
     // 여집합 A? = U - A
     Set* Ac = U - A;
-    cout << "\nA? (Complement of A):" << endl;
+    cout << "\nA' (Complement of A):" << endl;
     Ac->printAll();
 
     cout << endl << "====Bayes Theorem====" << endl;
@@ -438,12 +440,12 @@ void bonusTest()
 
     cout << fixed;
     cout.precision(4);
-    cout << "\n[확률 계산]" << endl;
+    cout << "\n[calculate probability]" << endl;
     cout << "P(A)        = " << pA << endl;
     cout << "P(B)        = " << pB << endl;
     cout << "P(A ∩ B)    = " << pAandB << endl;
     cout << "P(A | B)    = " << pAgivenB << endl;
-    cout << "P(B | A)    = " << pBgivenA << "  ← 베이즈 정리 결과" << endl;
+    cout << "P(B | A)    = " << pBgivenA << "  <- result" << endl;
 
     // 정리
     delete Ac;

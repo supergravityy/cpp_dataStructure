@@ -1,7 +1,5 @@
 #include "../header/Set.h"
 
-#define DEBUG
-
 Set* Set::unionOpr(Set* otherSet)
 {
 	Set* resultSet;

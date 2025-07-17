@@ -15,7 +15,7 @@ bool Set::insert(void* data)
 	if (this->isMember(data))
 		return false; // 이미 존재하는 데이터는 삽입하지 않음
 	else
-		return this->insertNext(this->get_SingleList_tail(), data);
+		return this->pushBack(data);
 }
 
 bool Set::remove(void* data, void** saveData)
@@ -44,7 +44,10 @@ bool Set::remove(void* data, void** saveData)
 	return result;
 }
 
-// 연산자 오버로딩 여기에 구현
+/*--------------------------------------------*/
+// Operator OverLoad
+/*--------------------------------------------*/
+
 Set* Set::operator|(Set& other) 
 {
 	return this->unionOpr(&other);
@@ -85,27 +88,19 @@ bool Set::init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
 	, void (*destroyDataFunc)(void* data)
 	, void* (*copyDataFunc)(void* data))
 {
-	if (compareFunc == nullptr || printFunc == nullptr || destroyDataFunc == nullptr || copyDataFunc == nullptr)
-	{
-		this->errCode = SYS_FAULT;
-		return false;
-	}
-	else
-	{
-		this->destroyList();
+	this->destroyList();
 
-		this->set_SingleList_head(nullptr);
-		this->size = 0;
-		this->cmpFunc = compareFunc;
-		this->printFunc = printFunc;
-		this->freeDataFunc = destroyDataFunc;
-		this->copyDataFunc = copyDataFunc;
-		this->errCode = NORMAL;
-		return true;
-	}
+	this->set_SingleList_head(nullptr);
+	this->size = 0;
+	this->cmpFunc = compareFunc;
+	this->printFunc = printFunc;
+	this->freeDataFunc = destroyDataFunc;
+	this->copyDataFunc = copyDataFunc;
+	this->errCode = NORMAL;
+	
+	return true;
 }
 
-// 복사 대입
 void Set::operator=(Set& otherSet)
 {
 	 this->deepCopySet(&otherSet);
