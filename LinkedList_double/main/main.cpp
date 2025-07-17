@@ -1,4 +1,5 @@
 #include "../header/dList.h"
+#pragma comment (lib,"lib/dobuleLinkedList_debug.lib")
 
 // 사용자 정의 데이터 구조
 typedef struct {
@@ -94,7 +95,7 @@ int main() {
     auto* findMe = new UserData{ 5, "" };  // ID로만 비교
     void* foundNode = myList.lookup_Node(findMe);
     if (foundNode) {
-        UserData* foundData = (UserData*)myList.get_Data(foundNode);
+        UserData* foundData = (UserData*)myList.data(foundNode);
         cout << "\n[Lookup] Found ID " << foundData->id << " (" << foundData->name << ")" << endl;
     }
     else {
@@ -103,7 +104,7 @@ int main() {
     delete findMe;
 
     // ---------- 5. destroy ----------
-    myList.destroyList();
+    myList.init(compareUser, printUser, destroyUser);
     cout << "\n[After destroyList]" << endl;
     myList.printAll();  // 아무것도 출력되지 않아야 함
 

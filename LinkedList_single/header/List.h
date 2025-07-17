@@ -39,10 +39,10 @@ public:
 	typErrcode getErrCode();
 
     /*Accesor*/
-    const void* begin() ;
-    const void* end() ;
-    const void* next(const void* node) ;
-    const void* data(const void* userData) ;
+    virtual const void* begin() ;
+    virtual const void* end() ;
+    virtual const void* next(const void* node) ;
+    virtual const void* data(const void* userData) ;
 
 protected:
     /*Utility-1*/
@@ -54,7 +54,7 @@ protected:
     virtual bool removeNext(void* node, void** saveData);
     virtual bool pushBack(void* data);
     virtual bool pushFront(void* data);
-    void destroyList();
+    virtual void destroyList();
     
     /*Accessor-1*/
 	typSingleList_Node* get_SingleList_head();

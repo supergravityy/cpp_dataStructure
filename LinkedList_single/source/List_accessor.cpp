@@ -22,7 +22,7 @@ const void* List::data(const void* userData)
 }
 
 /*------------------------------------------*/
-// Iterator (for Dev)
+// Accessor (for Dev)
 /*------------------------------------------*/
 
 typSingleList_Node* List::get_SingleList_head()

@@ -1,36 +1,8 @@
 #include "../header/dList.h"
 
-void* dList::makeNode()
-{
-	typDoubleList_Node* newNode = new typDoubleList_Node;
-
-	return newNode;
-}
-
-void dList::initNode(void* node, void* data)
-{
-	typDoubleList_Node* temp = (typDoubleList_Node *) node;
-	temp->data = data;
-	temp->nextNode = nullptr;
-	temp->prevNode = nullptr;
-}
-
-void dList::deleteNode(void** node)
-{
-	typDoubleList_Node** delNode = (typDoubleList_Node**)node;
-
-	if (node == nullptr || *node == nullptr)
-	{
-		this->errCode = MEMORY_ERR;
-		return;
-	}
-	else
-	{
-		delete (*delNode);
-		*delNode = nullptr;
-		return;
-	}
-}
+/*------------------------------------------*/
+// Public (for User)
+/*------------------------------------------*/
 
 void dList::printAll()
 {
@@ -45,6 +17,40 @@ void dList::printAll()
 	{
 		this->printFunc(currNode->data);
 		currNode = (typDoubleList_Node*)this->get_nextNode(currNode);
+	}
+}
+
+/*------------------------------------------*/
+// Public (for Dev)
+/*------------------------------------------*/
+
+void* dList::makeNode()
+{
+	typDoubleList_Node* newNode = new typDoubleList_Node;
+
+	return newNode;
+}
+void dList::initNode(void* node, void* data)
+{
+	typDoubleList_Node* temp = (typDoubleList_Node *) node;
+	temp->data = data;
+	temp->nextNode = nullptr;
+	temp->prevNode = nullptr;
+}
+void dList::deleteNode(void** node)
+{
+	typDoubleList_Node** delNode = (typDoubleList_Node**)node;
+
+	if (node == nullptr || *node == nullptr)
+	{
+		this->errCode = MEMORY_ERR;
+		return;
+	}
+	else
+	{
+		delete (*delNode);
+		*delNode = nullptr;
+		return;
 	}
 }
 
@@ -68,34 +74,134 @@ void* dList::lookUp(void* data)
 
 	return nullptr;
 }
-
-void dList::set_Data(void* node, void* data)
+bool dList::insertNext(void* node, void* data)
 {
-	typDoubleList_Node* temp = (typDoubleList_Node*)node;
+	typDoubleList_Node* newNode = (typDoubleList_Node*)this->makeNode();
+	typDoubleList_Node* nodeNext = nullptr;
 
-	if (node == nullptr)
+	if (newNode == nullptr)
 	{
+		this->errCode = MEMORY_ERR;
+		return false;
+	}
+	else if (this->is_emptyNode(node) && this->getSize() > 0) // 리스트가 비어있지 않는 한 node는 null이 될 수 없음
+	{
+		this->deleteNode((void**)&newNode);
 		this->errCode = SYS_FAULT;
-		return;
+		return false;
 	}
 	else
 	{
-		temp->data = data;
+		this->initNode(newNode, data);									// 1. 막 생성한 노드 초기화
+
+		if (this->getSize() == 0) 										// 2. 비어있는 리스트일 경우
+		{
+			this->set_DoubleList_head(newNode);							// 3. 노드가 하나이기에 tail과 head가 똑같은 노드를 포인팅
+			this->set_DoubleList_tail(newNode);
+			this->set_nextNode(newNode, nullptr);						// 4. 노드의 next,prevNode		-> null
+			this->set_prevNode(newNode, nullptr);
+		}
+
+		else															// 2-1. 비어있지 않은 리스트에 삽입처리
+		{
+			nodeNext = (typDoubleList_Node*)this->get_nextNode(node);
+
+			this->set_nextNode(newNode, nodeNext);						// 3. 새 노드의 nextNode		-> 기준 노드의 nextNode 주소
+			this->set_prevNode(newNode, node);							// 4. 새 노드의 prevNode 		-> 기준 노드 주소
+			this->set_nextNode(node, newNode);							// 5. 기준노드의 nextNode		-> 새 노드 주소
+
+			if (this->is_emptyNode(nodeNext))							// 6. 기준노드의 nextNode가 null일시 => 기준노드가 tail이었음을 암시 
+				this->set_DoubleList_tail(newNode);						// tail 포인터 업데이트
+			else														// 6-1. 기준노드의 nextNode가 null이 아닐시
+				this->set_prevNode(nodeNext, newNode);					// 기준노드의 nextNode의 prevNode -> 새 노드
+		}
+
+		this->size++;
+		return true;
 	}
 }
-
-void* dList::get_Data(void* node)
+bool dList::insertPrev(void* node, void* data)
 {
-	typDoubleList_Node* temp = (typDoubleList_Node*)node;
+	typDoubleList_Node* newNode = (typDoubleList_Node*)this->makeNode();
+	typDoubleList_Node* nodePrev = nullptr;
 
-	if (node == nullptr)
+	if (newNode == nullptr)
+	{
+		this->errCode = MEMORY_ERR;
+		return false;
+	}
+	else if (this->is_emptyNode(node) && this->getSize() > 0) // 리스트가 비어있지 않는 한 node는 null이 될 수 없음
 	{
 		this->errCode = SYS_FAULT;
-		return nullptr;
+		return false;
 	}
 	else
 	{
-		return (void*)temp->data;
+		this->initNode(newNode, data);									// 1. 막 생성한 노드 초기화
+
+		if (this->getSize() == 0)										// 2. 비어있는 리스트일 경우
+		{
+			this->set_DoubleList_head(newNode);							// 3. 노드가 하나이기에 tail과 head가 똑같은 노드를 포인팅
+			this->set_DoubleList_tail(newNode);
+			this->set_nextNode(newNode, nullptr);						// 4. 노드의 next,prevNode		-> null
+			this->set_prevNode(newNode, nullptr);
+		}
+		else															// 2-1. 비어있지 않은 리스트에 삽입처리
+		{
+			nodePrev = (typDoubleList_Node*)this->get_prevNode(node);
+
+			this->set_prevNode(newNode, nodePrev);						// 3. 새 노드의 prevNode		-> 기준노드의 prevNode 주소
+			this->set_nextNode(newNode, node);							// 4. 새 노드의 nextNode		-> 기준노드
+			this->set_prevNode(node, newNode);							// 5. 기준노드의 prevNode		-> 새 노드
+
+			if (this->is_emptyNode(nodePrev))							// 6. 기준노드의 prevNode가 null 일시 => 기준노드가 head였음을 암시
+				this->set_DoubleList_head(newNode);						// head 포인터 업데이트
+			else														// 6-1. 아닐시
+				this->set_nextNode(nodePrev, newNode);					// 기준노드의 prevNode의 nextNode -> 새 노드
+		}
+
+		this->size++;
+		return true;
+	}
+}
+bool dList::removeNode(void* node, void** saveData)
+{
+	typDoubleList_Node* nodePrev = nullptr, * nodeNext = nullptr;
+
+	if (node == nullptr || this->getSize() == 0)
+	{
+		this->errCode = SYS_FAULT;
+		return false;
+	}
+	else
+	{
+		nodePrev = (typDoubleList_Node*)this->get_prevNode(node);
+		nodeNext = (typDoubleList_Node*)this->get_nextNode(node);
+		*saveData = this->get_Data(node);								// 1. 삭제할 노드의 data 추출 => data의 free는 사용자가 처리
+
+		if (node == (void*)this->get_DoubleList_head())					// 2. 삭제할 노드가 리스트의 head 일 때
+		{
+			this->set_DoubleList_head(nodeNext);						// 3. head포인터			-> head포인터의 nextNode
+
+			if (this->is_emptyNode(this->get_DoubleList_head()))		// 4. 만약, head포인터의 nextNode 가 null 일시 => 노드 크기가 1임을 암시
+				this->set_DoubleList_tail(nullptr);						// tail 도 null로 업데이트
+			else														// 4-1. 아닐 시
+				this->set_prevNode(nodeNext, nullptr);					// head포인터의 nextNode	-> null
+		}
+		else															// 2-1. 삭제할 노드가 이외의 노드일시
+		{
+			this->set_nextNode(nodePrev, nodeNext);						// 3. 삭제할 노드의 prevNode -> nextNode
+
+			if (this->is_emptyNode(nodeNext))							// 4. nextNode가 null일 때 => 삭제할 노드가 tail 이었음을 암시
+				this->set_DoubleList_tail(nodePrev);					// tail포인터				-> 삭제할 노드의 prevNode
+			else														// 4-1. nextNode가 null이 아닐시
+				this->set_prevNode(nodeNext, nodePrev);					// nextNode의 prevNode		-> 삭제할 노드의 prevNode
+		}
+
+		this->deleteNode(&node);										// 5. 노드 삭제
+		this->size--;
+
+		return true;
 	}
 }
 
