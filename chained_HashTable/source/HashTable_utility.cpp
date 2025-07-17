@@ -68,7 +68,7 @@ void HashTable::destroyBuckets()
 {
 	for (int i = 0; i < this->bucketCnt; i++)
 	{
-		this->table[i].destroyList();
+		this->table[i].init(this->cmpFunc, this->printFunc, this->freeDataFunc);
 	}
 
 	delete[] this->table;

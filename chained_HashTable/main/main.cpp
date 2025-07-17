@@ -1,5 +1,7 @@
-#include "../header/HashTable.h"
 #include <cmath>
+#include "../header/HashTable.h"
+#pragma comment (lib,"lib/hashTable_debug.lib")
+
 
 struct Student {
     int id;

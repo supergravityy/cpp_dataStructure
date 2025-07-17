@@ -3,6 +3,8 @@
 #include "List.h"
 #include "ListNode.h"
 #include "HashFunc.h"
+#pragma comment (lib,"lib/singleLinkedList_debug.lib")
+#pragma comment (lib,"lib/hashFunc_debug.lib")
 // hash table
 
 class HashTable

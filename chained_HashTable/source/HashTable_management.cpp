@@ -132,11 +132,11 @@ bool HashTable::remove(void** saveData)
 		tempList = &(this->table[hashedIdx]);									// 2. 해당 버킷의 주소 대입
 
 		prevNode = nullptr;														// 3. 해당 버킷에서 찾는 data가 head임을 고려
-		for (iterNode = tempList->get_SingleList_head();
+		for (iterNode = (typSingleList_Node*)tempList->begin();
 			iterNode != nullptr; 
-			iterNode = (typSingleList_Node*)tempList->get_nextNode(iterNode))	// 4. 해당 버킷(리스트)에서 순회하며 찾을 노드 탐색
+			iterNode = (typSingleList_Node*)tempList->next(iterNode))	// 4. 해당 버킷(리스트)에서 순회하며 찾을 노드 탐색
 		{
-			if (this->cmpFunc(*saveData, tempList->get_Data(iterNode)) == EQUAL)
+			if (this->cmpFunc(*saveData, tempList->data(iterNode)) == EQUAL)
 			{
 				if (tempList->remove_nextNode(prevNode, saveData))				// 5. 탐색했다면 노드 삭제
 				{
@@ -176,13 +176,13 @@ bool HashTable::lookup(void** saveData)
 
 		tempList = &this->table[hashedIdx];											// 2. 지정된 버킷 주소 대입
 
-		for (iterNode = tempList->get_SingleList_head();							// 3. data 내용을 갖는 노드 탐색
+		for (iterNode = (typSingleList_Node*)tempList->begin();						// 3. data 내용을 갖는 노드 탐색
 			iterNode != nullptr;
-			iterNode = (typSingleList_Node*)tempList->get_nextNode(iterNode))
+			iterNode = (typSingleList_Node*)tempList->next(iterNode))
 		{
-			if (this->cmpFunc(*saveData, tempList->get_Data(iterNode)) == EQUAL)
+			if (this->cmpFunc(*saveData, tempList->data(iterNode)) == EQUAL)
 			{
-				*saveData = tempList->get_Data(iterNode);
+				*saveData = (void*)tempList->data(iterNode);
 				result = true;
 				break;
 			}
