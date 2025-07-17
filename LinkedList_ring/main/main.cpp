@@ -1,4 +1,5 @@
 #include "../header/cList.h"
+#pragma comment (lib,"lib/circularLinkedList_debug.lib")
 
 typedef struct {
 	int id;

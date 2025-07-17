@@ -21,7 +21,7 @@ void dList::printAll()
 }
 
 /*------------------------------------------*/
-// Public (for Dev)
+// Protected (for Dev)
 /*------------------------------------------*/
 
 void* dList::makeNode()
@@ -84,7 +84,7 @@ bool dList::insertNext(void* node, void* data)
 		this->errCode = MEMORY_ERR;
 		return false;
 	}
-	else if (this->is_emptyNode(node) && this->getSize() > 0) // ¸®½ºÆ®°¡ ºñ¾îÀÖÁö ¾Ê´Â ÇÑ node´Â nullÀÌ µÉ ¼ö ¾øÀ½
+	else if (this->is_emptyNode(node) && this->getSize() > 0) // ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿? ï¿½Ê´ï¿½ ï¿½ï¿½ nodeï¿½ï¿½ nullï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
 		this->deleteNode((void**)&newNode);
 		this->errCode = SYS_FAULT;
@@ -92,28 +92,28 @@ bool dList::insertNext(void* node, void* data)
 	}
 	else
 	{
-		this->initNode(newNode, data);									// 1. ¸· »ý¼ºÇÑ ³ëµå ÃÊ±âÈ­
+		this->initNode(newNode, data);									// 1. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿? ï¿½Ê±ï¿½È­
 
-		if (this->getSize() == 0) 										// 2. ºñ¾îÀÖ´Â ¸®½ºÆ®ÀÏ °æ¿ì
+		if (this->getSize() == 0) 										// 2. ï¿½ï¿½ï¿½ï¿½Ö´ï¿? ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿?
 		{
-			this->set_DoubleList_head(newNode);							// 3. ³ëµå°¡ ÇÏ³ªÀÌ±â¿¡ tail°ú head°¡ ¶È°°Àº ³ëµå¸¦ Æ÷ÀÎÆÃ
+			this->set_DoubleList_head(newNode);							// 3. ï¿½ï¿½å°? ï¿½Ï³ï¿½ï¿½Ì±â¿¡ tailï¿½ï¿½ headï¿½ï¿½ ï¿½È°ï¿½ï¿½ï¿½ ï¿½ï¿½å¸? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			this->set_DoubleList_tail(newNode);
-			this->set_nextNode(newNode, nullptr);						// 4. ³ëµåÀÇ next,prevNode		-> null
+			this->set_nextNode(newNode, nullptr);						// 4. ï¿½ï¿½ï¿½ï¿½ï¿? next,prevNode		-> null
 			this->set_prevNode(newNode, nullptr);
 		}
 
-		else															// 2-1. ºñ¾îÀÖÁö ¾ÊÀº ¸®½ºÆ®¿¡ »ðÀÔÃ³¸®
+		else															// 2-1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿? ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½
 		{
 			nodeNext = (typDoubleList_Node*)this->get_nextNode(node);
 
-			this->set_nextNode(newNode, nodeNext);						// 3. »õ ³ëµåÀÇ nextNode		-> ±âÁØ ³ëµåÀÇ nextNode ÁÖ¼Ò
-			this->set_prevNode(newNode, node);							// 4. »õ ³ëµåÀÇ prevNode 		-> ±âÁØ ³ëµå ÁÖ¼Ò
-			this->set_nextNode(node, newNode);							// 5. ±âÁØ³ëµåÀÇ nextNode		-> »õ ³ëµå ÁÖ¼Ò
+			this->set_nextNode(newNode, nodeNext);						// 3. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? nextNode		-> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? nextNode ï¿½Ö¼ï¿½
+			this->set_prevNode(newNode, node);							// 4. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? prevNode 		-> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿? ï¿½Ö¼ï¿½
+			this->set_nextNode(node, newNode);							// 5. ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? nextNode		-> ï¿½ï¿½ ï¿½ï¿½ï¿? ï¿½Ö¼ï¿½
 
-			if (this->is_emptyNode(nodeNext))							// 6. ±âÁØ³ëµåÀÇ nextNode°¡ nullÀÏ½Ã => ±âÁØ³ëµå°¡ tailÀÌ¾úÀ½À» ¾Ï½Ã 
-				this->set_DoubleList_tail(newNode);						// tail Æ÷ÀÎÅÍ ¾÷µ¥ÀÌÆ®
-			else														// 6-1. ±âÁØ³ëµåÀÇ nextNode°¡ nullÀÌ ¾Æ´Ò½Ã
-				this->set_prevNode(nodeNext, newNode);					// ±âÁØ³ëµåÀÇ nextNodeÀÇ prevNode -> »õ ³ëµå
+			if (this->is_emptyNode(nodeNext))							// 6. ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? nextNodeï¿½ï¿½ nullï¿½Ï½ï¿½ => ï¿½ï¿½ï¿½Ø³ï¿½å°? tailï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½ 
+				this->set_DoubleList_tail(newNode);						// tail ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+			else														// 6-1. ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? nextNodeï¿½ï¿½ nullï¿½ï¿½ ï¿½Æ´Ò½ï¿½
+				this->set_prevNode(nodeNext, newNode);					// ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? nextNodeï¿½ï¿½ prevNode -> ï¿½ï¿½ ï¿½ï¿½ï¿?
 		}
 
 		this->size++;
@@ -130,34 +130,34 @@ bool dList::insertPrev(void* node, void* data)
 		this->errCode = MEMORY_ERR;
 		return false;
 	}
-	else if (this->is_emptyNode(node) && this->getSize() > 0) // ¸®½ºÆ®°¡ ºñ¾îÀÖÁö ¾Ê´Â ÇÑ node´Â nullÀÌ µÉ ¼ö ¾øÀ½
+	else if (this->is_emptyNode(node) && this->getSize() > 0) // ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿? ï¿½Ê´ï¿½ ï¿½ï¿½ nodeï¿½ï¿½ nullï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
 		this->errCode = SYS_FAULT;
 		return false;
 	}
 	else
 	{
-		this->initNode(newNode, data);									// 1. ¸· »ý¼ºÇÑ ³ëµå ÃÊ±âÈ­
+		this->initNode(newNode, data);									// 1. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿? ï¿½Ê±ï¿½È­
 
-		if (this->getSize() == 0)										// 2. ºñ¾îÀÖ´Â ¸®½ºÆ®ÀÏ °æ¿ì
+		if (this->getSize() == 0)										// 2. ï¿½ï¿½ï¿½ï¿½Ö´ï¿? ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿?
 		{
-			this->set_DoubleList_head(newNode);							// 3. ³ëµå°¡ ÇÏ³ªÀÌ±â¿¡ tail°ú head°¡ ¶È°°Àº ³ëµå¸¦ Æ÷ÀÎÆÃ
+			this->set_DoubleList_head(newNode);							// 3. ï¿½ï¿½å°? ï¿½Ï³ï¿½ï¿½Ì±â¿¡ tailï¿½ï¿½ headï¿½ï¿½ ï¿½È°ï¿½ï¿½ï¿½ ï¿½ï¿½å¸? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			this->set_DoubleList_tail(newNode);
-			this->set_nextNode(newNode, nullptr);						// 4. ³ëµåÀÇ next,prevNode		-> null
+			this->set_nextNode(newNode, nullptr);						// 4. ï¿½ï¿½ï¿½ï¿½ï¿? next,prevNode		-> null
 			this->set_prevNode(newNode, nullptr);
 		}
-		else															// 2-1. ºñ¾îÀÖÁö ¾ÊÀº ¸®½ºÆ®¿¡ »ðÀÔÃ³¸®
+		else															// 2-1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿? ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½
 		{
 			nodePrev = (typDoubleList_Node*)this->get_prevNode(node);
 
-			this->set_prevNode(newNode, nodePrev);						// 3. »õ ³ëµåÀÇ prevNode		-> ±âÁØ³ëµåÀÇ prevNode ÁÖ¼Ò
-			this->set_nextNode(newNode, node);							// 4. »õ ³ëµåÀÇ nextNode		-> ±âÁØ³ëµå
-			this->set_prevNode(node, newNode);							// 5. ±âÁØ³ëµåÀÇ prevNode		-> »õ ³ëµå
+			this->set_prevNode(newNode, nodePrev);						// 3. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? prevNode		-> ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? prevNode ï¿½Ö¼ï¿½
+			this->set_nextNode(newNode, node);							// 4. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? nextNode		-> ï¿½ï¿½ï¿½Ø³ï¿½ï¿?
+			this->set_prevNode(node, newNode);							// 5. ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? prevNode		-> ï¿½ï¿½ ï¿½ï¿½ï¿?
 
-			if (this->is_emptyNode(nodePrev))							// 6. ±âÁØ³ëµåÀÇ prevNode°¡ null ÀÏ½Ã => ±âÁØ³ëµå°¡ head¿´À½À» ¾Ï½Ã
-				this->set_DoubleList_head(newNode);						// head Æ÷ÀÎÅÍ ¾÷µ¥ÀÌÆ®
-			else														// 6-1. ¾Æ´Ò½Ã
-				this->set_nextNode(nodePrev, newNode);					// ±âÁØ³ëµåÀÇ prevNodeÀÇ nextNode -> »õ ³ëµå
+			if (this->is_emptyNode(nodePrev))							// 6. ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? prevNodeï¿½ï¿½ null ï¿½Ï½ï¿½ => ï¿½ï¿½ï¿½Ø³ï¿½å°? headï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½
+				this->set_DoubleList_head(newNode);						// head ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+			else														// 6-1. ï¿½Æ´Ò½ï¿½
+				this->set_nextNode(nodePrev, newNode);					// ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ï¿? prevNodeï¿½ï¿½ nextNode -> ï¿½ï¿½ ï¿½ï¿½ï¿?
 		}
 
 		this->size++;
@@ -177,28 +177,28 @@ bool dList::removeNode(void* node, void** saveData)
 	{
 		nodePrev = (typDoubleList_Node*)this->get_prevNode(node);
 		nodeNext = (typDoubleList_Node*)this->get_nextNode(node);
-		*saveData = this->get_Data(node);								// 1. »èÁ¦ÇÒ ³ëµåÀÇ data ÃßÃâ => dataÀÇ free´Â »ç¿ëÀÚ°¡ Ã³¸®
+		*saveData = this->get_Data(node);								// 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? data ï¿½ï¿½ï¿½ï¿½ => dataï¿½ï¿½ freeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ú°ï¿? Ã³ï¿½ï¿½
 
-		if (node == (void*)this->get_DoubleList_head())					// 2. »èÁ¦ÇÒ ³ëµå°¡ ¸®½ºÆ®ÀÇ head ÀÏ ¶§
+		if (node == (void*)this->get_DoubleList_head())					// 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å°? ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ head ï¿½ï¿½ ï¿½ï¿½
 		{
-			this->set_DoubleList_head(nodeNext);						// 3. headÆ÷ÀÎÅÍ			-> headÆ÷ÀÎÅÍÀÇ nextNode
+			this->set_DoubleList_head(nodeNext);						// 3. headï¿½ï¿½ï¿½ï¿½ï¿½ï¿½			-> headï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nextNode
 
-			if (this->is_emptyNode(this->get_DoubleList_head()))		// 4. ¸¸¾à, headÆ÷ÀÎÅÍÀÇ nextNode °¡ null ÀÏ½Ã => ³ëµå Å©±â°¡ 1ÀÓÀ» ¾Ï½Ã
-				this->set_DoubleList_tail(nullptr);						// tail µµ null·Î ¾÷µ¥ÀÌÆ®
-			else														// 4-1. ¾Æ´Ò ½Ã
-				this->set_prevNode(nodeNext, nullptr);					// headÆ÷ÀÎÅÍÀÇ nextNode	-> null
+			if (this->is_emptyNode(this->get_DoubleList_head()))		// 4. ï¿½ï¿½ï¿½ï¿½, headï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nextNode ï¿½ï¿½ null ï¿½Ï½ï¿½ => ï¿½ï¿½ï¿? Å©ï¿½â°¡ 1ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½
+				this->set_DoubleList_tail(nullptr);						// tail ï¿½ï¿½ nullï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+			else														// 4-1. ï¿½Æ´ï¿½ ï¿½ï¿½
+				this->set_prevNode(nodeNext, nullptr);					// headï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nextNode	-> null
 		}
-		else															// 2-1. »èÁ¦ÇÒ ³ëµå°¡ ÀÌ¿ÜÀÇ ³ëµåÀÏ½Ã
+		else															// 2-1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å°? ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï½ï¿?
 		{
-			this->set_nextNode(nodePrev, nodeNext);						// 3. »èÁ¦ÇÒ ³ëµåÀÇ prevNode -> nextNode
+			this->set_nextNode(nodePrev, nodeNext);						// 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? prevNode -> nextNode
 
-			if (this->is_emptyNode(nodeNext))							// 4. nextNode°¡ nullÀÏ ¶§ => »èÁ¦ÇÒ ³ëµå°¡ tail ÀÌ¾úÀ½À» ¾Ï½Ã
-				this->set_DoubleList_tail(nodePrev);					// tailÆ÷ÀÎÅÍ				-> »èÁ¦ÇÒ ³ëµåÀÇ prevNode
-			else														// 4-1. nextNode°¡ nullÀÌ ¾Æ´Ò½Ã
-				this->set_prevNode(nodeNext, nodePrev);					// nextNodeÀÇ prevNode		-> »èÁ¦ÇÒ ³ëµåÀÇ prevNode
+			if (this->is_emptyNode(nodeNext))							// 4. nextNodeï¿½ï¿½ nullï¿½ï¿½ ï¿½ï¿½ => ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å°? tail ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½
+				this->set_DoubleList_tail(nodePrev);					// tailï¿½ï¿½ï¿½ï¿½ï¿½ï¿½				-> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? prevNode
+			else														// 4-1. nextNodeï¿½ï¿½ nullï¿½ï¿½ ï¿½Æ´Ò½ï¿½
+				this->set_prevNode(nodeNext, nodePrev);					// nextNodeï¿½ï¿½ prevNode		-> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? prevNode
 		}
 
-		this->deleteNode(&node);										// 5. ³ëµå »èÁ¦
+		this->deleteNode(&node);										// 5. ï¿½ï¿½ï¿? ï¿½ï¿½ï¿½ï¿½
 		this->size--;
 
 		return true;
