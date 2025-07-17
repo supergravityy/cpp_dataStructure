@@ -1,114 +1,77 @@
 #include "../header/Stack.h"
+#include "../header/List.h"
+#pragma comment (lib,"lib/stack_debug.lib")
 
-void printMenu()
-{
-    cout << "\n===== Stack Menu =====" << endl;
-    cout << "1. Push" << endl;
-    cout << "2. Pop" << endl;
-    cout << "3. Peek" << endl;
-    cout << "4. Get Stack size" << endl;
-    cout << "5. Reset (Destroy) Stack" << endl;
-    cout << "0. Exit program" << endl;
-    cout << "=========================" << endl;
-    cout << "Enter your choice: ";
+typedef struct {
+	int id;
+	char name[32];
+} UserData;
+
+// Comparison function for stack lookup (optional)
+typCmpResult compareUser(const void* a, const void* b) {
+	const UserData* u1 = (const UserData*)a;
+	const UserData* u2 = (const UserData*)b;
+	if (u1->id < u2->id) return LESS;
+	if (u1->id > u2->id) return GREATER;
+	return EQUAL;
 }
 
-void inputData(MyAddr &data)
-{
-    cout << "Enter new node ID: ";
-    cin >> data.id;
-    cout << "Enter new node name: ";
-    cin >> data.name;
-    cout << "Enter new node phoneNumber: ";
-    cin >> data.phone;
+// Print function
+void printUser(const void* data) {
+	const UserData* user = (const UserData*)data;
+	cout << "[ID: " << user->id << ", Name: " << user->name << "]" << endl;
 }
 
-void printData(MyAddr &data)
-{
-    cout << "ID : " << data.id << endl;
-    cout << "Name : " << data.name << endl;
-    cout << "PhoneNumber : " << data.phone << endl;
+// Destructor
+void freeUser(void* data) {
+	delete (UserData*)data;
 }
 
-int makeData(MyAddr **newData)
-{
-    *newData = new MyAddr();
+int main() {
+	cout << "===== Stack Test =====" << endl;
 
-    if (*newData == nullptr)
-    {
-        cout << "Memory allocation Err!" << endl;
-        return 1;
-    }
+	Stack myStack;
+	myStack.init(compareUser, printUser, freeUser);
 
-    else
-        return 0;
-}
+	// push 3 items
+	auto* u1 = new UserData{ 1, "Alice" };
+	auto* u2 = new UserData{ 2, "Bob" };
+	auto* u3 = new UserData{ 3, "Charlie" };
+	auto* u4 = new UserData{ 4, "Mike" };
 
-int main()
-{
-    Stack myStack;
-    int choice = 0;
-    int makeResult = 0;
-    MyAddr *newData = nullptr;
-    MyAddr *removedData = nullptr;
+	myStack.push(u1);
+	myStack.push(u2);
+	myStack.push(u3);
+	myStack.push(u4);
 
-    while (myStack.Stack_getErrCode() == NORMAL)
-    {
-        printMenu();
-        cin >> choice;
+	cout << "\nAfter pushing 4 elements:" << endl;
+	myStack.printAll();  // Expected: Charlie, Bob, Alice, Mike
 
-        switch (choice)
-        {
-        case 1:
-            makeResult = makeData(&newData);
-            if (makeResult)
-                break;
-            inputData(*newData);
+	// peek top element
+	const void* top = myStack.peek();  // Change made to peek() suggested earlier
+	if (top) {
+		cout << "\npeek top element: ";
+		printUser(top);
+	}
 
-            if (myStack.Stack_push(newData) == 0)
-                cout << "Node inserted successfully!" << endl;
-            else
-                cout << "Failed to insert node!" << endl;
-            break;
+	// pop two items
+	void* popped = nullptr;
+	myStack.pop(&popped);
+	cout << "\npopped element 1: ";
+	printUser(popped);
+	freeUser(popped);
 
-        case 2:
-            if (myStack.Stack_pop(&removedData) == 0)
-            {
-                printData(*removedData);
-            }
-            else
-            {
-                cout << "Failed to pop!" << endl;
-            }
-            break;
+	myStack.pop(&popped);
+	cout << "popped element 2: ";
+	printUser(popped);
+	freeUser(popped);
 
-        case 3:
-            if (myStack.Stack_peek(removedData) == 0)
-            {
-                printData(*removedData);
-            }
-            else
-            {
-                cout << "Failed to peek!" << endl;
-            }
-            break;
+	// Final stack state
+	cout << "\nRemaining element(s) in stack:" << endl;
+	myStack.printAll();  // Expected: Alice, Mike
 
-        case 4:
-            cout << "Current Stack size: " << myStack.Stack_getStackSize() << endl;
-            break;
+	// Destructor test (will be called automatically)
+	cout << "\nEnd of main(): stack will be destroyed." << endl;
 
-        case 5:
-            myStack.Stack_init();
-            cout << "Stack has been reset!" << endl;
-            break;
-            
-        case 0:
-            return 0;
-
-        default:
-            break;
-        }
-    }
-
-    return 0;
+	return 0;
 }
