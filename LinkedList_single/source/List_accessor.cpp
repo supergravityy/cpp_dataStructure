@@ -1,5 +1,30 @@
 #include "../header/List.h"
 
+/*------------------------------------------*/
+// Iterator (for User)
+/*------------------------------------------*/
+
+const typSingleList_Node* List::begin()
+{
+	return (const typSingleList_Node*)this->get_SingleList_head();
+}
+const typSingleList_Node* List::end()
+{
+	return (const typSingleList_Node*)this->get_SingleList_tail();
+}
+const typSingleList_Node* List::next(const typSingleList_Node* node)
+{
+	return (const typSingleList_Node*)this->get_nextNode((void*) node);
+}
+const void* List::data(const void* userData)
+{
+	return (const void*)this->get_Data((void*)userData);
+}
+
+/*------------------------------------------*/
+// Iterator (for Dev)
+/*------------------------------------------*/
+
 typSingleList_Node* List::get_SingleList_head()
 {
 	return this->singleList_head;

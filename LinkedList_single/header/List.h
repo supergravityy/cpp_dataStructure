@@ -3,7 +3,6 @@
 #include "Libs.h"
 #include "ListNode.h"
 // single linkedList
-#define fordebug
 
 typedef enum ErrCode
 {
@@ -33,20 +32,17 @@ public:
 	bool push_back(void* data);
     bool push_front(void* data);
     void* lookup_Node(void* data);
-    void destroyList();
 
     /*Utility*/
     virtual void printAll();
     int getSize();
 	typErrcode getErrCode();
-    virtual void set_Data(void* node, void* data);
-    virtual void* get_Data(void* node);
 
-#ifdef fordebug
-    void* get_headAddr();
-	void* get_nextAddr(void* node);
-#endif 
-
+    /*Accesor*/
+    const typSingleList_Node* begin() ;
+    const typSingleList_Node* end() ;
+    const typSingleList_Node* next(const typSingleList_Node* node) ;
+    const void* data(const void* userData) ;
 
 protected:
     /*Utility-1*/
@@ -58,9 +54,9 @@ protected:
     virtual bool removeNext(void* node, void** saveData);
     virtual bool pushBack(void* data);
     virtual bool pushFront(void* data);
+    void destroyList();
     
-
-    /*Accessor*/
+    /*Accessor-1*/
 	typSingleList_Node* get_SingleList_head();
     void set_SingleList_head(typSingleList_Node* node);
 	typSingleList_Node* get_SingleList_tail();
@@ -68,6 +64,8 @@ protected:
 	bool is_emptyNode(void* node);
     virtual void set_nextNode(void* tgtNode, void* tgtAddr);
     virtual void* get_nextNode(void* node);
+    virtual void set_Data(void* node, void* data);
+    virtual void* get_Data(void* node);
 
     /*Variance*/
     int size = 0;
