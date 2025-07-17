@@ -3,7 +3,6 @@
 #include "Libs.h"
 #include "ListNode.h"
 // single linkedList
-//#define fordebug
 
 typedef enum ErrCode
 {
@@ -29,44 +28,44 @@ public:
         , void (*printFunc)(const void* data)
         , void (*destroyDataFunc)(void* data));
     bool insert_nextNode(void* node, void* data);
-	bool remove_nextNode(void* node, void** saveData);
-	bool push_back(void* data);
+    bool remove_nextNode(void* node, void** saveData);
+    bool push_back(void* data);
+    bool push_front(void* data);
     void* lookup_Node(void* data);
-    virtual void destroyList();
 
     /*Utility*/
     virtual void printAll();
     int getSize();
-	typErrcode getErrCode();
-    virtual void set_Data(void* node, void* data);
-    virtual void* get_Data(void* node);
+    typErrcode getErrCode();
 
-#ifdef fordebug
-    void* get_headAddr();
-	void* get_nextAddr(void* node);
-#endif 
-
+    /*Accesor*/
+    virtual const void* begin();
+    virtual const void* end();
+    virtual const void* next(const void* node);
+    virtual const void* data(const void* node);
 
 protected:
     /*Utility-1*/
     virtual void* makeNode();
     virtual void initNode(void* node, void* data);
-	virtual void deleteNode(void** node);
+    virtual void deleteNode(void** node);
     virtual void* lookUp(void* data);
     virtual bool insertNext(void* node, void* data);
     virtual bool removeNext(void* node, void** saveData);
     virtual bool pushBack(void* data);
     virtual bool pushFront(void* data);
-    
+    virtual void destroyList();
 
-    /*Accessor*/
-	typSingleList_Node* get_SingleList_head();
+    /*Accessor-1*/
+    typSingleList_Node* get_SingleList_head();
     void set_SingleList_head(typSingleList_Node* node);
-	typSingleList_Node* get_SingleList_tail();
+    typSingleList_Node* get_SingleList_tail();
     void set_SingleList_tail(typSingleList_Node* node);
-	bool is_emptyNode(void* node);
+    bool is_emptyNode(void* node);
     virtual void set_nextNode(void* tgtNode, void* tgtAddr);
     virtual void* get_nextNode(void* node);
+    virtual void set_Data(void* node, void* data);
+    virtual void* get_Data(void* node);
 
     /*Variance*/
     int size = 0;
@@ -78,5 +77,5 @@ protected:
 private:
     /*Private*/
     typSingleList_Node* singleList_head = nullptr;
-	typSingleList_Node* singleList_tail = nullptr;
+    typSingleList_Node* singleList_tail = nullptr;
 };

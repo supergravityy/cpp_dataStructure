@@ -1,7 +1,7 @@
 #pragma once
 
 #include"List.h"
-#include"ListNode.h"
+#pragma comment (lib,"lib/singleLinkedList_debug.lib")
 // queue
 
 class Queue : public List

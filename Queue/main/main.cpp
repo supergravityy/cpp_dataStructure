@@ -1,4 +1,5 @@
 #include "../header/Queue.h"
+#pragma comment (lib,"lib/queue_debug.lib")
 
 typedef struct {
 	int id;
