@@ -42,7 +42,7 @@ public:
     virtual const void* begin() ;
     virtual const void* end() ;
     virtual const void* next(const void* node) ;
-    virtual const void* data(const void* userData) ;
+    virtual const void* data(const void* node) ;
 
 protected:
     /*Utility-1*/

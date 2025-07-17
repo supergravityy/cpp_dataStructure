@@ -16,9 +16,9 @@ const void* List::next(const void* node)
 {
 	return (const void*)this->get_nextNode((void*) node);
 }
-const void* List::data(const void* userData)
+const void* List::data(const void* node)
 {
-	return (const void*)this->get_Data((void*)userData);
+	return (const void*)this->get_Data((void*)node);
 }
 
 /*------------------------------------------*/
