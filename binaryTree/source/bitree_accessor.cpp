@@ -1,18 +1,29 @@
 #include "../header/bitree.h"
 
+/*------------------------------------------*/
+// Iterator (for User)
+/*------------------------------------------*/
+
+const void* BiTree::begin()
+{
+	return (const void*)this->get_BiTreeRoot();
+}
+const void* BiTree::leftChild(void* node)
+{
+	return (const void*)this->get_leftPtr(node);
+}
+const void* BiTree::rightChild(void* node)
+{
+	return (const void*)this->get_rightPtr(node);
+}
+
+/*------------------------------------------*/
+// Accessor (for Dev)
+/*------------------------------------------*/
+
 typBiTreeNode* BiTree::get_BiTreeRoot()
 {
 	return this->BiTreeRoot;
-}
-
-bool BiTree::is_emptyNode(void* node)
-{
-	return (node == nullptr);
-}
-
-bool BiTree::is_leafNode(void* node)
-{
-	return ((node != nullptr) && (((typBiTreeNode*)node)->left == nullptr) && (((typBiTreeNode*)node)->right == nullptr));
 }
 
 void* BiTree::get_leftPtr(void* node)

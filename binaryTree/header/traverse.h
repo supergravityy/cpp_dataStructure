@@ -2,6 +2,7 @@
 
 #include "bitreeNode.h"
 #include "bitree.h"
+#pragma comment (lib,"lib/biTree_debug.lib")
 
 namespace lookupTraverse
 {

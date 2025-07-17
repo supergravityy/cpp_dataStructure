@@ -2,6 +2,9 @@
 #include "../header/bitree.h"
 #include "../header/traverse.h"
 
+#pragma comment (lib,"lib/biTree_debug.lib")
+#pragma comment (lib,"lib/traverse_debug.lib")
+
 // 최소한의 구조체
 struct SimpleData {
     char id[8];
@@ -48,7 +51,7 @@ void insertBalanced(BiTree& tree, SimpleData** arr, int index, int size, void* p
 
     // 현재 노드 주소 찾아서 자식 삽입할 때 사용
     void* nodeKey = arr[index];
-    void* nodePtr = lookupTraverse::preOrder(tree.get_bitreeRoot_Addr(), &nodeKey);
+    void* nodePtr = lookupTraverse::preOrder((void*)tree.begin(), &nodeKey);
 
     insertBalanced(tree, arr, 2 * index + 1, size, nodePtr, true);
     insertBalanced(tree, arr, 2 * index + 2, size, nodePtr, false);
@@ -81,55 +84,61 @@ int main() {
 
     if (tree.insert_leftChild(tree.lookup((void**)&tempPtr), tempData) == INSERT_SUCCESS)
     {
-        cout << "lookup기반 삽입 성공!" << endl;
-        printTraverse::preOrder(tree.get_bitreeRoot_Addr());
+        cout << "[Insert] Success using lookup" << endl;
+        printTraverse::preOrder((void*)tree.begin());
     }
     else
-        cout << "lookup기반 삽입 실패!" << endl;
+        cout << "[Insert] Failed using lookup" << endl;
 
     if (tree.remove_leftChild(tree.lookup((void**)&tempPtr)))
-        cout << "lookup기반 삭제 성공!" << endl;
+        cout << "[Remove] Success using lookup" << endl;
     else
-        cout << "lookup기반 삭제 실패!" << endl;
-    
+        cout << "[Remove] Failed using lookup" << endl;
+    // -------------------------------
     // 4. 출력
-    cout << "\n==== 전위 순회 ====" << endl;
-    printTraverse::preOrder(tree.get_bitreeRoot_Addr());
+    // -------------------------------
+    cout << "\n==== Preorder Traversal ====" << endl;
+    printTraverse::preOrder((void*)tree.begin());
 
-    cout << "\n==== 중위 순회 ====" << endl;
-    printTraverse::inOrder(tree.get_bitreeRoot_Addr());
+    cout << "\n==== Inorder Traversal ====" << endl;
+    printTraverse::inOrder((void*)tree.begin());
 
-    cout << "\n==== 후위 순회 ====" << endl;
-    printTraverse::postOrder(tree.get_bitreeRoot_Addr());
-
+    cout << "\n==== Postorder Traversal ====" << endl;
+    printTraverse::postOrder((void*)tree.begin());
+    // -------------------------------
     // 5. 높이 출력
-    cout << "\n==== 트리 높이 ====" << endl;
+    // -------------------------------
+    cout << "\n==== Tree Height ====" << endl;
     cout << "Height: " << tree.get_maxHeight() << endl;
-
+    // -------------------------------
     // 6. 삭제 테스트
-    cout << "\n==== 삭제 테스트 ====" << endl;
+    // -------------------------------
+    cout << "\n==== Deletion Test ====" << endl;
 
     SimpleData targetKey;
     strcpy(targetKey.id, "01");  // 부모 노드 "01"을 기준으로
 
     void* key = &targetKey;
-    void* parentNode = lookupTraverse::preOrder(tree.get_bitreeRoot_Addr(), &key);
+    void* parentNode = lookupTraverse::preOrder((void*)tree.begin(), &key);
 
     if (parentNode)
     {
-        cout << "→ 왼쪽 자식 삭제" << endl;
+        cout << "-> Removing left child" << endl;
         tree.remove_leftChild(parentNode);
 
-        cout << "→ 삭제 후 전위 순회" << endl;
-        printTraverse::preOrder(tree.get_bitreeRoot_Addr());
+        cout << "-> Preorder traversal after removal" << endl;
+        printTraverse::preOrder((void*)tree.begin());
     }
     else
     {
-        cout << "노드 '01'을 찾을 수 없습니다." << endl;
+        cout << "Node '01' not found." << endl;
     }
 
-   // 7. 새로운 트리 otherTree 구성
-    cout << "\n==== 새로운 트리(otherTree) 생성 ====" << endl;
+    // -------------------------------
+    // 7. 새로운 트리 otherTree 구성
+    // -------------------------------
+
+    cout << "\n==== Create new tree (otherTree) ====" << endl;
     BiTree otherTree;
     otherTree.init(compareSimple, printSimple, destroySimple, lookupTraverse::preOrder);
 
@@ -141,12 +150,14 @@ int main() {
     }
 
     insertBalanced(otherTree, otherNodes, 0, NUM_NODES, nullptr, true);
-    cout << "→ otherTree 전위 순회:" << endl;
-    printTraverse::preOrder(otherTree.get_bitreeRoot_Addr());
+    cout << "-> Preorder traversal of otherTree:" << endl;
+    printTraverse::preOrder((void*)otherTree.begin());
 
     // -------------------------------
     // 8. merge 테스트
-    cout << "\n==== merge 테스트 ====" << endl;
+    // -------------------------------
+
+    cout << "\n==== Merge Test ====" << endl;
     BiTree mergedTree;
     mergedTree.init(compareSimple, printSimple, destroySimple, lookupTraverse::preOrder);
 
@@ -156,12 +167,14 @@ int main() {
     // 병합 실행: tree → left, otherTree → right
     mergedTree.mergeTree(&tree, &otherTree, rootNode);
 
-    cout << "→ merge 후 전위 순회:" << endl;
-    printTraverse::preOrder(mergedTree.get_bitreeRoot_Addr());
+    cout << "-> Preorder traversal after merge:" << endl;
+    printTraverse::preOrder((void*)mergedTree.begin());
 
     // -------------------------------
     // 9. 병합 트리 높이 확인
-    cout << "\n==== 병합 트리 높이 ====" << endl;
+    // -------------------------------
+
+    cout << "\n==== Merged Tree Height ====" << endl;
     cout << "Height of mergedTree: " << mergedTree.get_maxHeight() << endl;
 
     return 0;
