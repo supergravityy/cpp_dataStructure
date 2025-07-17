@@ -1,5 +1,7 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include "../header/List.h"
+#pragma comment (lib,"lib/singleLinkedList_debug.lib")
+
 
 // 사용자 정의 구조체
 typedef struct {
