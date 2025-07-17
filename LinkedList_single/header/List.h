@@ -39,9 +39,9 @@ public:
 	typErrcode getErrCode();
 
     /*Accesor*/
-    const typSingleList_Node* begin() ;
-    const typSingleList_Node* end() ;
-    const typSingleList_Node* next(const typSingleList_Node* node) ;
+    const void* begin() ;
+    const void* end() ;
+    const void* next(const void* node) ;
     const void* data(const void* userData) ;
 
 protected:

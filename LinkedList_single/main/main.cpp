@@ -2,7 +2,6 @@
 #include "../header/List.h"
 #pragma comment (lib,"lib/singleLinkedList_debug.lib")
 
-
 // 사용자 정의 구조체
 typedef struct {
     int id;
@@ -54,7 +53,7 @@ int main() {
     myList.insert_nextNode(nullptr, frontUser);
 
     // 중간 삽입
-    const typSingleList_Node* head = myList.begin();
+    const typSingleList_Node* head = (const typSingleList_Node*)myList.begin();
     UserData* midUser = new UserData{ 999, "Middle" };
     myList.insert_nextNode((void*)head, midUser);
 
@@ -105,12 +104,12 @@ int main() {
     myList.printAll();
 
     // tail 앞 노드 삭제
-    const typSingleList_Node* iter = myList.begin();
-    const typSingleList_Node* next = myList.next(iter);
+    const typSingleList_Node* iter = (const typSingleList_Node*)myList.begin();
+    const typSingleList_Node* next = (const typSingleList_Node*)myList.next(iter);
 
     while (myList.next(next) != nullptr) {
         iter = next;
-        next = myList.next(iter);
+        next = (const typSingleList_Node*)myList.next(iter);
     }
 
     myList.remove_nextNode((void*)iter, &deleted);
