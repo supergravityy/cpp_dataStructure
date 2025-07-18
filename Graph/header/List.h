@@ -3,7 +3,6 @@
 #include "Libs.h"
 #include "ListNode.h"
 // single linkedList
-//#define fordebug
 
 typedef enum ErrCode
 {
@@ -21,7 +20,6 @@ typedef enum compareResult
 
 class List
 {
-	friend class Graph;
 public:
     /*Management*/
     List();
@@ -32,21 +30,19 @@ public:
     bool insert_nextNode(void* node, void* data);
 	bool remove_nextNode(void* node, void** saveData);
 	bool push_back(void* data);
+    bool push_front(void* data);
     void* lookup_Node(void* data);
-    virtual void destroyList();
 
     /*Utility*/
     virtual void printAll();
     int getSize();
 	typErrcode getErrCode();
-    virtual void set_Data(void* node, void* data);
-    virtual void* get_Data(void* node);
 
-#ifdef fordebug
-    void* get_headAddr();
-	void* get_nextAddr(void* node);
-#endif 
-
+    /*Accesor*/
+    virtual const void* begin() ;
+    virtual const void* end() ;
+    virtual const void* next(const void* node) ;
+    virtual const void* data(const void* node) ;
 
 protected:
     /*Utility-1*/
@@ -58,9 +54,9 @@ protected:
     virtual bool removeNext(void* node, void** saveData);
     virtual bool pushBack(void* data);
     virtual bool pushFront(void* data);
+    virtual void destroyList();
     
-
-    /*Accessor*/
+    /*Accessor-1*/
 	typSingleList_Node* get_SingleList_head();
     void set_SingleList_head(typSingleList_Node* node);
 	typSingleList_Node* get_SingleList_tail();
@@ -68,6 +64,8 @@ protected:
 	bool is_emptyNode(void* node);
     virtual void set_nextNode(void* tgtNode, void* tgtAddr);
     virtual void* get_nextNode(void* node);
+    virtual void set_Data(void* node, void* data);
+    virtual void* get_Data(void* node);
 
     /*Variance*/
     int size = 0;

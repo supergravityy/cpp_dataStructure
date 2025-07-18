@@ -1,7 +1,7 @@
 #pragma once
 
 #include "List.h"
-#include "ListNode.h"
+#pragma comment (lib,"lib/singleLinkedList_debug.lib")
 // set
 
 class Set : public List
@@ -10,7 +10,6 @@ public:
 	/*Management*/
 	Set();
 	~Set();
-	
 	bool init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
 		, void (*printFunc)(const void* data)
 		, void (*destroyDataFunc)(void* data)
@@ -18,7 +17,7 @@ public:
 	bool insert(void* data);
 	bool remove(void* data, void** saveData);
 
-	// 연산자 오버로딩 구현
+	/*Operator OverLoad*/
 	Set* operator|(Set& otherSet);
 	Set* operator&(Set& otherSet);
 	Set* operator-(Set& otherSet);
@@ -54,7 +53,8 @@ private:
 	/*Hide*/
 	using List::insert_nextNode;
 	using List::remove_nextNode;
-	using List::pushBack;
+	using List::push_back;
+	using List::push_front;
 	using List::set_Data;
 	using List::get_Data;
 	using List::init;

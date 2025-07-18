@@ -1,9 +1,10 @@
 #pragma once
 
 #include "List.h"
+#pragma comment (lib,"lib/singleLinkedList_debug.lib")
 #include "Set.h"
+#pragma comment (lib,"lib/set_debug.lib")
 #include "graphNode.h"
-
 
 class Graph
 {
@@ -30,6 +31,12 @@ public:
 	void* find_vertex(void** saveData);
 	typGraphType get_type();
 	typErrcode get_errCode();
+
+	/*Accessor*/
+	const void* begin();
+	const void* end();
+	const void* next(void* node);
+	const void* data(void* node);
 	
 protected:
 	/*Utility-1*/
@@ -42,7 +49,7 @@ protected:
 	void* delete_node(typAdjList* node);
 	void clearAdjacents(typAdjList* node);
 
-	/*Accessor*/
+	/*Accessor-1*/
 	List* get_adjListsAddr();							// 연결리스트의 주소를 반환하는 api
 	typAdjList* get_adjListNode(void* data);			// 인접노드 리스트의 주소를 반환하는 api
 	singleList_Node* get_prevNodeOf(void* data);		// 이전 리스트 주소를 반환하는 api

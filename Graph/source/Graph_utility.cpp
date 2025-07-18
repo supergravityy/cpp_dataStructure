@@ -2,14 +2,17 @@
 
 void* dummyFunction(void* data)
 {
-	// Dummy function to avoid unused parameter warning
+	// 초기화용 더미함수
 	return nullptr;
 }
-
 void dummyDestroy(void* data)
 {
 	return;
 }
+
+/*------------------------------------------*/
+// Public (for User)
+/*------------------------------------------*/
 
 int Graph::get_vertexCnt() 
 {
@@ -29,7 +32,7 @@ typErrcode Graph::get_errCode()
 }
 void* Graph::find_vertex(void** saveData)
 {
-	singleList_Node* node = nullptr;
+	typSingleList_Node* node = nullptr;
 	typAdjList* adjListNode = nullptr;
 	adjListNode = this->get_adjListNode(*saveData);
 
@@ -42,6 +45,10 @@ void* Graph::find_vertex(void** saveData)
 		return this->get_nodeVertex(adjListNode); // 일치하는 노드의 vertex 반환
 	}
 }
+
+/*------------------------------------------*/
+// Protected (for Dev)
+/*------------------------------------------*/
 
 void* Graph::make_node(void* data) 
 {
@@ -103,13 +110,13 @@ void Graph::clearAdjacents(typAdjList* node)
 
 bool Graph::is_vertexReferenced(void* data)
 {
-	singleList_Node* node;
+	typSingleList_Node* node;
 	List* nodeList = this->get_adjListsAddr();
 	typAdjList* adjListNode = nullptr;
 
-	for (node = nodeList->get_SingleList_head(); node != NULL; node = (singleList_Node*)nodeList->get_nextNode(node))
+	for (node = (typSingleList_Node*)nodeList->begin(); node != NULL; node = (typSingleList_Node*)nodeList->next(node))
 	{
-		adjListNode = (typAdjList*)nodeList->get_Data(node);
+		adjListNode = (typAdjList*)nodeList->data(node);
 
 		if(adjListNode->Adjacents.isMember(data) == true)
 			return true; // data가 다른 노드의 인접노드로 사용중인 경우
@@ -118,7 +125,7 @@ bool Graph::is_vertexReferenced(void* data)
 }
 bool Graph::is_Adjacent(void* srcData, void* destData)
 {
-	singleList_Node* node = nullptr, * prev = nullptr;
+	typSingleList_Node* node = nullptr, * prev = nullptr;
 	typAdjList* adjListNode = this->get_adjListNode(srcData);
 
 	if (adjListNode == nullptr)
@@ -142,18 +149,16 @@ void Graph::destroy()
 	{
 		if (this->adjLists.remove_nextNode(nullptr, (void**)&temp_adjListNode) == true)
 		{
-			//this->edgeCnt -= temp_adjListNode->Adjacents.getSize();
 			temp_data = this->delete_node(temp_adjListNode);	// 노드 삭제
 			this->destroyDataFunc(temp_data);					// 노드에 저장된 데이터 삭제
 		}
 		else
 		{
 			this->errCode = SYS_FAULT;
-			this->adjLists.destroyList();
+			this->adjLists.init(this->compareFunc, this->printDataFunc, this->destroyDataFunc);
 			return;
 		}
 		this->vertexCnt--;
 	}
-	this->adjLists.destroyList();
+	this->adjLists.init(this->compareFunc, this->printDataFunc, this->destroyDataFunc);
 }
-

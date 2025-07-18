@@ -1,4 +1,5 @@
 ﻿#include "../header/Graph.h" 
+#pragma comment (lib,"lib/graph_debug.lib")
 
 void undirectedTest(Graph& g);
 void directedTest(Graph& g);
@@ -17,8 +18,8 @@ void destroyVertex(void* data) {
 }
 
 void* copyVertex(void* data) {
-    Vertex* orig = (Vertex*)data;
-    return new Vertex{ orig->id };
+    Vertex* original = (Vertex*)data;
+    return new Vertex{ original->id };
 }
 
 typCmpResult compareVertex(const void* a, const void* b) {
@@ -38,6 +39,22 @@ void printCnt(Graph& g)
 {
     cout << "\n정점의 수 : " << g.get_vertexCnt() << endl;
     cout << "엣지의 수 : " << g.get_edgeCnt() << endl;
+}
+
+void printVerticesViaIterator(Graph& graph)
+{
+    int i = 0;
+    for (const void* it = graph.begin(); it != nullptr; it = graph.next((void*)it))
+    {
+        const typAdjList* adjListNode = static_cast<const typAdjList*>(graph.data((void*)it));
+        if (adjListNode)
+        {
+            cout << ", [Vertex] : ";
+            printVertex(adjListNode->vertex);  // 사용자 정의 출력 함수
+            i++;
+        }
+    }
+    cout << ", cnt : " << i << endl;
 }
 
 int main() {
@@ -118,6 +135,9 @@ void undirectedTest(Graph& g)
     cout << "\n[무방향 그래프] 최종 그래프 상태:\n";
     g.printGraph();
     printCnt(g);
+
+    cout << "\n[무방향 그래프] 반복자 테스트:\n";
+    printVerticesViaIterator(g);
 }
 
 void directedTest(Graph& g)
@@ -195,4 +215,7 @@ void directedTest(Graph& g)
     cout << "\n[방향 그래프] 최종 그래프 상태:\n";
     g.printGraph();
     printCnt(g);
+
+    cout << "\n[방향 그래프] 반복자 테스트:\n";
+    printVerticesViaIterator(g);
 }

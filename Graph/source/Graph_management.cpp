@@ -202,7 +202,7 @@ bool Graph::remove_edge(void** srcData, void** destData)
 
 bool Graph::clear_allEdges_of(void* data)
 {
-	singleList_Node* node = nullptr;
+	typSingleList_Node* node = nullptr;
 	typAdjList* adjListNode = nullptr;
 	List* nodeList = this->get_adjListsAddr();
 	void* tempData = nullptr;
@@ -214,9 +214,9 @@ bool Graph::clear_allEdges_of(void* data)
 	}
 	else
 	{
-		for (node = nodeList->get_SingleList_head(); node != nullptr; node = (singleList_Node*)nodeList->get_nextNode(node))
+		for (node = (typSingleList_Node*)nodeList->begin(); node != nullptr; node = (typSingleList_Node*)nodeList->next(node))
 		{
-			adjListNode = (typAdjList*)nodeList->get_Data(node);
+			adjListNode = (typAdjList*)nodeList->data(node);
 
 			if(adjListNode->Adjacents.remove(data, &tempData))
 			{
@@ -282,7 +282,7 @@ bool Graph::safeRemove_vertex(void** saveData)
 
 void Graph::printGraph()
 {
-	singleList_Node* node = nullptr;
+	typSingleList_Node* node = nullptr;
 	typAdjList* adjListNode = nullptr;
 	List* nodeList = this->get_adjListsAddr();
 	int num = 0;
@@ -291,9 +291,9 @@ void Graph::printGraph()
 	{
 		return;
 	}
-	for (node = nodeList->get_SingleList_head(); node != nullptr; node = (singleList_Node*)nodeList->get_nextNode(node))
+	for (node = (typSingleList_Node*)nodeList->begin(); node != nullptr; node = (typSingleList_Node*)nodeList->next(node))
 	{
-		adjListNode = (typAdjList*)nodeList->get_Data(node);
+		adjListNode = (typAdjList*)nodeList->data(node);
 		printf("\n[Vertex %d] ", num);
 
 		this->printDataFunc(adjListNode->vertex);
