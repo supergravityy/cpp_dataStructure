@@ -1,5 +1,26 @@
 #include "../header/avltree.h"
 
+/*------------------------------------------*/
+// Iterator (for User)
+/*------------------------------------------*/
+
+const void* AvlTree::begin()
+{
+	return (const void*)this->get_AvlTreeRoot();
+}
+const typBalFactor AvlTree::balVal(void* node)
+{
+	return (const typBalFactor)this->get_balFactor((typAvlTreeNode*)node);
+}
+const typHiddenFlag AvlTree::hideFlg(void* node)
+{
+	return (const typHiddenFlag)this->get_hiddenFlag((typAvlTreeNode*)node);
+}
+
+/*------------------------------------------*/
+// Accessor (for Dev)
+/*------------------------------------------*/
+
 void AvlTree::set_balFactor(typAvlTreeNode* node, typBalFactor balFactor)
 {
 	if (node != nullptr)
@@ -36,7 +57,9 @@ void AvlTree::set_AvlTreeRoot(typAvlTreeNode* node)
 	this->AvlTreeRoot = node;
 }
 
-/*Overriding parent's methods*/
+/*------------------------------------------*/
+// Overriding parent's Accessor (for Dev)
+/*------------------------------------------*/
 
 void* AvlTree::get_leftPtr(void* node)
 {

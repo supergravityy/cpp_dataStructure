@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../header/bitreeNode.h"
-
-//#define DEBUG
+#include "bitreeNode.h"
 
 #define INSERT_SUCCESS          0
 #define INSERT_FAILED           1
@@ -27,48 +25,50 @@ class BiTree
 {
 public:
     /*Manangement*/
+    BiTree();
+    virtual ~BiTree();
+    virtual bool init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
+        , void (*printFunc)(void* node)
+        , void (*destroyDataFunc)(void* data)
+        , void* (*traverseFunc)(void* node, void** saveData));
     int insert_leftChild(void* node, const void* data);
 	int insert_rightChild(void* node, const void* data);
 	bool remove_leftChild(void* node);
 	bool remove_rightChild(void* node);
-    virtual bool mergeTree(void* leftTree, void* rightTree, void* data);
-    virtual void* lookup(void** node);
-
+    bool mergeTree(void* leftTree, void* rightTree, void* data);
+    
     /*Utility*/
-    BiTree();
-    virtual ~BiTree();
-    virtual void printAll();
-    virtual bool init(typCmpResult (*compareFunc)(const void* key1, const void* key2)
-        , void (*printFunc)(void* node)
-        , void (*destroyDataFunc)(void* data)
-        , void* (*traverseFunc)(void* node, void** saveData));
     int get_Size();
     virtual int get_maxHeight();
 	typErrcode get_ErrCode();
+    virtual void* lookup(void** node);
+    virtual void printAll();
 
-#ifdef DEBUG
-    typBiTreeNode* get_bitreeRoot_Addr();
-    typBiTreeNode* get_leftAddr(void* node);
-    typBiTreeNode* get_rightAddr(void* node);
-#endif // DEBUG
+    /*Accessor*/
+    virtual const void* begin();
+    virtual const void* leftChild(void* node);
+    virtual const void* rightChild(void* node);
+    virtual const void* data(void* node);
 
 protected:
 	/*Utility-1*/
     virtual void initNode(void* node, void* data);
     virtual bool makeNode(void** node);
     virtual bool deleteNode(void** node);
+
     virtual void destroyTree();
     virtual int insert_left(void* node, const void* data);
     virtual int insert_right(void* node, const void* data);
     virtual bool remove_left(void* node);
     virtual bool remove_right(void* node);
     virtual bool merge(void* leftTree, void* rightTree, void* data);
+
     virtual int cal_maxHeight(void* node);
+    bool is_emptyNode(void* node);
+    virtual bool is_leafNode(void* node);
 
     /*Accessors*/
     typBiTreeNode* get_BiTreeRoot();
-    bool is_emptyNode(void* node);
-    virtual bool is_leafNode(void* node);
     virtual void set_leftPtr(void* tgtNode, void* tgtAddr);
 	virtual void set_rightPtr(void* tgtNode, void* tgtAddr);
 	virtual void* get_leftPtr(void* node);

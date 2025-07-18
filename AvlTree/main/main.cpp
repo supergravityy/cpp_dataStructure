@@ -1,5 +1,7 @@
 #include "../header/avltree.h"
+#pragma comment (lib,"lib/avlTree_debug.lib")
 #include "../header/traverse.h"
+#pragma comment (lib,"lib/traverse2_debug.lib")
 
 struct MyData {
     int key;
