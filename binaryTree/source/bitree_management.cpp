@@ -32,6 +32,7 @@ bool BiTree::init(typCmpResult(*compareFunc)(const void* key1, const void* key2)
 	else
 	{
 		this->destroyTree();
+		this->reset_iter();
 
 		this->BiTreeRoot = nullptr;
 		this->treeSize = 0;

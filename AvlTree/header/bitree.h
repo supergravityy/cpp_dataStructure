@@ -45,6 +45,7 @@ public:
     virtual void printAll();
 
     /*Accessor*/
+    virtual const void* reset_iter();
     virtual const void* begin();
     virtual const void* leftChild(void* node);
     virtual const void* rightChild(void* node);

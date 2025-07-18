@@ -94,6 +94,7 @@ int main() {
         cout << "[Remove] Success using lookup" << endl;
     else
         cout << "[Remove] Failed using lookup" << endl;
+
     // -------------------------------
     // 4. 출력
     // -------------------------------
@@ -105,11 +106,19 @@ int main() {
 
     cout << "\n==== Postorder Traversal ====" << endl;
     printTraverse::postOrder((void*)tree.begin());
+
+    cout << "\n==== Iterator Test! ====" << endl;
+    tree.reset_iter();
+    for (const void* it = tree.begin(); it != tree.end(); it = tree.next((void*)it)) {
+        printSimple((void*)tree.data((void*)it));
+    }
+
     // -------------------------------
     // 5. 높이 출력
     // -------------------------------
     cout << "\n==== Tree Height ====" << endl;
     cout << "Height: " << tree.get_maxHeight() << endl;
+
     // -------------------------------
     // 6. 삭제 테스트
     // -------------------------------

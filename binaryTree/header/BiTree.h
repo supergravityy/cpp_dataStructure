@@ -1,25 +1,27 @@
 #pragma once
 
 #include "bitreeNode.h"
+#include "Stack.h"
+#pragma comment (lib,"lib/stack_debug.lib")
 
 #define INSERT_SUCCESS          0
 #define INSERT_FAILED           1
 #define INSERT_CHILD_EXISTS     2
 #define INSERT_MEMORY_ERR       3
 
-typedef enum ErrCode
-{
-    NORMAL = 0,
-    MEMORY_ERR,
-    SYS_FAULT
-}typErrcode;
-
-typedef enum compareResult
-{
-    LESS = -1,
-    EQUAL = 0,
-    GREATER = 1
-}typCmpResult;
+//typedef enum ErrCode
+//{
+//    NORMAL = 0,
+//    MEMORY_ERR,
+//    SYS_FAULT
+//}typErrcode;
+//
+//typedef enum compareResult
+//{
+//    LESS = -1,
+//    EQUAL = 0,
+//    GREATER = 1
+//}typCmpResult;
 
 class BiTree
 {
@@ -45,9 +47,10 @@ public:
     virtual void printAll();
 
     /*Accessor*/
+    virtual void reset_iter();
     virtual const void* begin();
-    virtual const void* leftChild(void* node);
-    virtual const void* rightChild(void* node);
+    virtual const void* end();
+    virtual const void* next(void* node);
     virtual const void* data(void* node);
 
 protected:
@@ -83,6 +86,7 @@ protected:
     void (*destroyDataFunc)(void* data) = nullptr;
     void* (*traverseFunc)(void* node, void** saveData) = nullptr;
     typErrcode errCode = NORMAL;
+    Stack parentsAddrs;
 
 private:
     /*Private*/

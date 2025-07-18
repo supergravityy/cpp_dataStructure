@@ -1,24 +1,70 @@
 #include "../header/bitree.h"
+#include "../header/Stack.h"
 
 /*------------------------------------------*/
 // Iterator (for User)
 /*------------------------------------------*/
 
+typCmpResult dummyCmpFunc(const void* key1, const void* key2)
+{
+	return EQUAL;
+}
+void dummyPrintFunc(const void* data)
+{
+	return;
+}
+void dummyDestroyFunc(void* data) 
+{
+	// 리스트의 노드에는 트리노드의 주소가 들어있기에 삭제금지
+	return;
+}
+
 const void* BiTree::begin()
 {
 	return (const void*)this->get_BiTreeRoot();
 }
-const void* BiTree::leftChild(void* node)
-{
-	return (const void*)this->get_leftPtr(node);
-}
-const void* BiTree::rightChild(void* node)
-{
-	return (const void*)this->get_rightPtr(node);
-}
 const void* BiTree::data(void* node)
 {
 	return (const void*)this->get_data(node);
+}
+const void* BiTree::end()
+{
+	return nullptr;
+}
+const void* BiTree::next(void* node) // preOrder style
+{
+	void* retNode = nullptr;
+
+	if ((retNode = this->get_leftPtr(node)) != nullptr)
+	{
+		this->parentsAddrs.push(node);
+		return (const void*)retNode;
+	}
+	else if ((retNode = this->get_rightPtr(node)) != nullptr)
+	{
+		this->parentsAddrs.push(node);
+		return (const void*)retNode;
+	}
+	else if (this->parentsAddrs.getSize() > 0)
+	{
+		if (this->parentsAddrs.pop(&retNode) == false)
+		{
+			this->errCode = SYS_FAULT;
+			return nullptr;
+		}
+		else
+		{
+			return (const void*)this->get_rightPtr(retNode);
+		}
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+void BiTree::reset_iter()
+{
+	this->parentsAddrs.init(dummyCmpFunc, dummyPrintFunc, dummyDestroyFunc);
 }
 
 /*------------------------------------------*/
