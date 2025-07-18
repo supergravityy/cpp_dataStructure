@@ -39,7 +39,7 @@ public:
     
     /*Utility*/
     int get_Size();
-    int get_maxHeight();
+    virtual int get_maxHeight();
 	typErrcode get_ErrCode();
     virtual void* lookup(void** node);
     virtual void printAll();
@@ -48,6 +48,7 @@ public:
     virtual const void* begin();
     virtual const void* leftChild(void* node);
     virtual const void* rightChild(void* node);
+    virtual const void* data(void* node);
 
 protected:
 	/*Utility-1*/

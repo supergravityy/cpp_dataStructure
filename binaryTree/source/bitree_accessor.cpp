@@ -16,6 +16,10 @@ const void* BiTree::rightChild(void* node)
 {
 	return (const void*)this->get_rightPtr(node);
 }
+const void* BiTree::data(void* node)
+{
+	return (const void*)this->get_data(node);
+}
 
 /*------------------------------------------*/
 // Accessor (for Dev)
