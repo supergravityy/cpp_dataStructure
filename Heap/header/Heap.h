@@ -43,7 +43,7 @@ protected:
     void** reAlloc_treeAddr(int newSize);
     void swapTreeNodes(int i, int j);
 
-    /*Accessors*/
+    /*Accessors-1*/
     int get_parentIdx(int currIdx);
     int get_leftChildIdx(int currIdx);
     int get_rightChildIdx(int currIdx);

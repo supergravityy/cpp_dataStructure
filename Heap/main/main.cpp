@@ -3,8 +3,8 @@
 #include <ctime>
 #include <algorithm>
 #include "../header/heap.h"
+#pragma comment (lib,"lib/heap_debug.lib")
 
-using namespace std;
 
 typedef struct {
 	int id;   // ½Äº°ÀÚ
