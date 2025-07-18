@@ -4,6 +4,8 @@
 #pragma comment (lib,"lib/biTree_debug.lib")
 #include "avltreeNode.h"
 
+#define forDebug
+
 class AvlTree : public BiTree
 {
 public:
@@ -21,8 +23,10 @@ public:
 
 	/*Accessors-1*/
 	virtual const void* begin() override;
-	virtual const typBalFactor balVal(void* node);
-	virtual const typHiddenFlag hideFlg(void* node);
+	virtual const void* next(void* node) override;
+#ifdef forDebug
+	void hidenode(void* node);
+#endif // forDebug
 
 protected:
 	/*Utility-1*/

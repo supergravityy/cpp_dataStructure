@@ -1,7 +1,5 @@
 #include "../header/avltree.h"
 
-#define forDebug
-
 /*---------------------------------*/
 // Rotation
 /*---------------------------------*/

@@ -8,14 +8,63 @@ const void* AvlTree::begin()
 {
 	return (const void*)this->get_AvlTreeRoot();
 }
-const typBalFactor AvlTree::balVal(void* node)
+const void* AvlTree::next(void* node) // preOrder style
 {
-	return (const typBalFactor)this->get_balFactor((typAvlTreeNode*)node);
+    void* retNode = nullptr;
+    void* rightNode = nullptr;
+
+    while (true)
+    {
+        if ((retNode = this->get_leftPtr(node)) != nullptr)
+        {
+            this->parentsAddrs.push(node);
+
+            if (this->get_hiddenFlag((typAvlTreeNode*)retNode) != NODE_HIDDEN) 
+                return (const void*)retNode;
+            else
+                node = retNode; // 만약, 다음의 노드가 숨김상태면, 루프 한번더
+        }
+        else if ((retNode = this->get_rightPtr(node)) != nullptr)
+        {
+            this->parentsAddrs.push(node);
+            if (this->get_hiddenFlag((typAvlTreeNode*)retNode) != NODE_HIDDEN)
+                return (const void*)retNode;
+            else
+                node = retNode; // 만약, 다음의 노드가 숨김상태면, 루프 한번더
+        }
+        else if (this->parentsAddrs.getSize() > 0)
+        {
+            if (this->parentsAddrs.pop(&retNode) == false)
+            {
+                this->errCode = SYS_FAULT;
+                return nullptr;
+            }
+            else
+            {
+                rightNode = this->get_rightPtr(retNode);
+                if (rightNode != nullptr)
+                {
+                    if (this->get_hiddenFlag((typAvlTreeNode*)rightNode) != NODE_HIDDEN)
+                        return (const void*)rightNode;
+                    else
+                        node = rightNode; // 만약, 다음의 노드가 숨김상태면, 루프 한번더
+                }
+                else
+                    return nullptr;
+            }
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
 }
-const typHiddenFlag AvlTree::hideFlg(void* node)
+#ifdef forDebug
+void AvlTree::hidenode(void* node)
 {
-	return (const typHiddenFlag)this->get_hiddenFlag((typAvlTreeNode*)node);
+    this->set_hiddenFlag((typAvlTreeNode*)node, NODE_HIDDEN);
 }
+#endif // forDebug
 
 /*------------------------------------------*/
 // Accessor (for Dev)

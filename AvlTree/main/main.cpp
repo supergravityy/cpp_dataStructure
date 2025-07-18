@@ -1,6 +1,6 @@
 #include "../header/avltree.h"
 #pragma comment (lib,"lib/avlTree_debug.lib")
-#include "../header/traverse.h"
+#include "../header/traverse2.h"
 #pragma comment (lib,"lib/traverse2_debug.lib")
 
 struct MyData {
@@ -40,10 +40,10 @@ int main() {
     avltree_lookupTraverse::compareFunc = compareFunc;
     avltree_printTraverse::printNodeFunc = printFunc;
 
-    treeLL.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
-    treeLR.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
-    treeRR.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
-    treeRL.init(compareFunc, avltree_printTraverse::inOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeLL.init(compareFunc, avltree_printTraverse::preOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeLR.init(compareFunc, avltree_printTraverse::preOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeRR.init(compareFunc, avltree_printTraverse::preOrder, destroyFunc, avltree_lookupTraverse::preOrder);
+    treeRL.init(compareFunc, avltree_printTraverse::preOrder, destroyFunc, avltree_lookupTraverse::preOrder);
 
     // µ¥ÀÌÅÍ »ðÀÔ
     int keysLL[] = { 50, 30, 70, 20, 40, 10, 25, 5, 3, 1, 0};           // LL
@@ -105,6 +105,36 @@ int main() {
             tree->printAll();
 			cout << endl;
         }
+    }
+
+    cout << "\n==== Iterator Test1! ====" << endl;
+    treeLL.reset_iter();
+    for (const void* it = treeLL.begin(); it != treeLL.end(); it = treeLL.next((void*)it)) {
+        printFunc((void*)treeLL.data((void*)it));
+    }
+
+    int index = 0;
+    for (const void* it = treeLL.begin(); it != treeLL.end(); it = treeLL.next((void*)it)) {
+        if (index % 2 == 0) {
+            treeLL.hidenode((void*)it);  // Â¦¼ö¹øÂ° ³ëµå¸¸ ¼û±è
+        }
+        index++;
+    }
+
+    cout << "\n==== Iterator Test2! ====" << endl;
+    treeLL.reset_iter();
+    for (const void* it = treeLL.begin(); it != treeLL.end(); it = treeLL.next((void*)it)) {
+        printFunc((void*)treeLL.data((void*)it));
+    }
+
+    for (const void* it = treeLL.begin(); it != treeLL.end(); it = treeLL.next((void*)it)) {
+        treeLL.hidenode((void*)it); // ÀüºÎ¼û±è
+    }
+
+    cout << "\n==== Iterator Test3! ====" << endl;
+    treeLL.reset_iter();
+    for (const void* it = treeLL.begin(); it != treeLL.end(); it = treeLL.next((void*)it)) {
+        printFunc((void*)treeLL.data((void*)it)); // ·çÆ®´Â ¹«Á¶°Ç Ãâ·ÂÇÔ
     }
 
     return 0;

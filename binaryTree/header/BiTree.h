@@ -9,20 +9,6 @@
 #define INSERT_CHILD_EXISTS     2
 #define INSERT_MEMORY_ERR       3
 
-//typedef enum ErrCode
-//{
-//    NORMAL = 0,
-//    MEMORY_ERR,
-//    SYS_FAULT
-//}typErrcode;
-//
-//typedef enum compareResult
-//{
-//    LESS = -1,
-//    EQUAL = 0,
-//    GREATER = 1
-//}typCmpResult;
-
 class BiTree
 {
 public:

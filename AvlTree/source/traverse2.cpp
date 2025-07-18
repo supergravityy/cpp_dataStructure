@@ -1,4 +1,4 @@
-#include "../header/traverse.h"
+#include "../header/traverse2.h"
 
 namespace bitree_lookupTraverse {
 	typCmpResult(*compareFunc)(const void*, const void*) = nullptr;
